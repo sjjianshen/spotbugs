@@ -130,7 +130,10 @@ public abstract class BuildUnconditionalParamDerefDatabase implements Detector {
 
                 ValueNumber paramVN = vnaDataflow.getAnalysis().getEntryValue(paramLocalOffset);
 
-                handleParameter: if (entryFact.isUnconditionallyDereferenced(paramVN)) {
+                handleParameter: if (entryFact.isUnconditionallyDereferenced(paramVN)
+                        // synthetic variable, that stores reference to instance of the outer class, is always non-null
+                        // so we can skip nullness check
+                        && !xmethod.isVariableSynthetic(paramLocalOffset)) {
                     TypeQualifierAnnotation directTypeQualifierAnnotation = TypeQualifierApplications
                             .getDirectTypeQualifierAnnotation(xmethod, i, nonnullTypeQualifierValue);
                     TypeQualifierAnnotation typeQualifierAnnotation = TypeQualifierApplications

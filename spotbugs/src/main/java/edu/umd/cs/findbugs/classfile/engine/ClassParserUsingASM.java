@@ -286,6 +286,8 @@ public class ClassParserUsingASM implements ClassParserInterface {
                 String desc) {
             if (opcode == Opcodes.PUTFIELD && parameterLoadState == ParameterLoadState.LOADED_THIS_AND_PARAMETER
                     && owner.equals(slashedClassName) && name.startsWith("this$")) {
+                // the field that has name starts with "this$" is generated for non-static inner class
+                // https://sourceforge.net/p/findbugs/bugs/1015/
                 mBuilder.setVariableIsSynthetic(parameterForLoadState);
             }
             fieldInstructionCount++;
