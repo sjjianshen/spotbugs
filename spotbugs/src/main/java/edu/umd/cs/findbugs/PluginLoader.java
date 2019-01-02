@@ -83,7 +83,7 @@ import edu.umd.cs.findbugs.xml.XMLUtil;
 
 /**
  * Loader for a FindBugs plugin. A plugin is a jar file containing two metadata
- * files, "findbugs.xml" and "messages.xml". Those files specify
+ * files, "findbugs.xml" and "messages_bk.xml". Those files specify
  * <ul>
  * <li>the bug pattern Detector classes,
  * <li>the bug patterns detected (including all text for displaying detected
@@ -518,7 +518,7 @@ public class PluginLoader {
      * in the jarfile to resources on the filesystem. Simply calling
      * classLoader.getResource() allows the filesystem to override the jarfile,
      * which can mess things up if, for example, there is a findbugs.xml or
-     * messages.xml in the current directory.
+     * messages_bk.xml in the current directory.
      *
      * @param name
      *            resource to get
@@ -965,9 +965,9 @@ public class PluginLoader {
             String category = bugPatternNode.valueOf("@category");
             boolean experimental = Boolean.parseBoolean(bugPatternNode.valueOf("@experimental"));
 
-            // Find the matching element in messages.xml (or translations)
+            // Find the matching element in messages_bk.xml (or translations)
             String query = "/MessageCollection/BugPattern[@type='" + type + "']";
-            Node messageNode = findMessageNode(messageCollectionList, query, "messages.xml missing BugPattern element for type "
+            Node messageNode = findMessageNode(messageCollectionList, query, "messages_bk.xml missing BugPattern element for type "
                     + type);
             Node bugsUrlNode = messageNode.getDocument().selectSingleNode("/MessageCollection/Plugin/"+(experimental?"AllBugsUrl":"BugsUrl"));
 
@@ -1210,7 +1210,7 @@ public class PluginLoader {
             potential.add("messages_" + language + "_" + country + ".xml");
         }
         potential.add("messages_" + language + ".xml");
-        potential.add("messages.xml");
+        potential.add("messages_en.xml");
         return potential;
     }
 
@@ -1588,10 +1588,10 @@ public class PluginLoader {
                 throw new IllegalArgumentException(
                         "plugin doesn't contain a findbugs.xml file");
             }
-            ZipEntry messagesXML = zip.getEntry("messages.xml");
+            ZipEntry messagesXML = zip.getEntry("messages_bk.xml");
             if (messagesXML == null) {
                 throw new IllegalArgumentException(
-                        "plugin doesn't contain a messages.xml file");
+                        "plugin doesn't contain a messages_bk.xml file");
             }
             Document pluginDocument = parseDocument(zip.getInputStream(findbugsXML));
             String pluginId = pluginDocument.valueOf(XPATH_PLUGIN_PLUGINID).trim();

@@ -78,11 +78,11 @@ public class FindFieldSelfAssignment extends OpcodeStackDetector implements Stat
             OpcodeStack.Item top = stack.getStackItem(0);
             OpcodeStack.Item next = stack.getStackItem(1);
 
-            if (possibleOverwrite != null && possibleOverwrite.equals(getXFieldOperand())) {
-                bugReporter.reportBug(new BugInstance(this, "SA_FIELD_SELF_ASSIGNMENT", Priorities.HIGH_PRIORITY).addClassAndMethod(this)
-                        .addReferencedField(this).addSourceLine(this));
-
-            }
+//            if (possibleOverwrite != null && possibleOverwrite.equals(getXFieldOperand())) {
+//                bugReporter.reportBug(new BugInstance(this, "SA_FIELD_SELF_ASSIGNMENT", Priorities.HIGH_PRIORITY).addClassAndMethod(this)
+//                        .addReferencedField(this).addSourceLine(this));
+//
+//            }
             possibleOverwrite = null;
 
             if (stack.getStackDepth() >= 4 && getNextOpcode() == Const.PUTFIELD) {
@@ -124,8 +124,8 @@ public class FindFieldSelfAssignment extends OpcodeStackDetector implements Stat
                     }
                 }
 
-                bugReporter.reportBug(new BugInstance(this, "SA_FIELD_SELF_ASSIGNMENT", priority).addClassAndMethod(this)
-                        .addReferencedField(this).addOptionalAnnotation(possibleMatch).addSourceLine(this));
+//                bugReporter.reportBug(new BugInstance(this, "SA_FIELD_SELF_ASSIGNMENT", priority).addClassAndMethod(this)
+//                        .addReferencedField(this).addOptionalAnnotation(possibleMatch).addSourceLine(this));
 
             }
         } else {
@@ -150,10 +150,10 @@ public class FindFieldSelfAssignment extends OpcodeStackDetector implements Stat
             break;
         case 7:
             if (isRegisterStore() && register == getRegisterOperand()) {
-                bugReporter.reportBug(new BugInstance(this, "SA_LOCAL_DOUBLE_ASSIGNMENT", NORMAL_PRIORITY)
-                .addClassAndMethod(this)
-                .add(LocalVariableAnnotation.getLocalVariableAnnotation(getMethod(), register, getPC(), getPC() - 1))
-                .addSourceLine(this));
+//                bugReporter.reportBug(new BugInstance(this, "SA_LOCAL_DOUBLE_ASSIGNMENT", NORMAL_PRIORITY)
+//                .addClassAndMethod(this)
+//                .add(LocalVariableAnnotation.getLocalVariableAnnotation(getMethod(), register, getPC(), getPC() - 1))
+//                .addSourceLine(this));
             }
             state = 0;
             break;

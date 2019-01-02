@@ -99,8 +99,8 @@ public class UselessSubclassMethod extends BytecodeScanningDetector implements S
             String curDetail = obj.getName() + obj.getSignature();
             for (String infMethodDetail : interfaceMethods) {
                 if (curDetail.equals(infMethodDetail)) {
-                    bugReporter.reportBug(new BugInstance(this, "USM_USELESS_ABSTRACT_METHOD", LOW_PRIORITY).addClassAndMethod(
-                            getClassContext().getJavaClass(), obj));
+//                    bugReporter.reportBug(new BugInstance(this, "USM_USELESS_ABSTRACT_METHOD", LOW_PRIORITY).addClassAndMethod(
+//                            getClassContext().getJavaClass(), obj));
                 }
             }
         }
@@ -143,8 +143,8 @@ public class UselessSubclassMethod extends BytecodeScanningDetector implements S
                         return;
                     }
 
-                    bugReporter.reportBug(new BugInstance(this, "USM_USELESS_SUBCLASS_METHOD", LOW_PRIORITY).addClassAndMethod(
-                            this).addSourceLine(this, invokePC));
+//                    bugReporter.reportBug(new BugInstance(this, "USM_USELESS_SUBCLASS_METHOD", LOW_PRIORITY).addClassAndMethod(
+//                            this).addSourceLine(this, invokePC));
                 }
             }
         } catch (ClassNotFoundException cnfe) {

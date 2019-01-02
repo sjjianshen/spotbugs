@@ -161,8 +161,8 @@ public class RuntimeExceptionCapture extends OpcodeStackDetector implements Stat
                     if (caughtException.dead) {
                         priority--;
                     }
-                    accumulator.accumulateBug(new BugInstance(this, "REC_CATCH_EXCEPTION", priority).addClassAndMethod(this),
-                            SourceLineAnnotation.fromVisitedInstruction(getClassContext(), this, caughtException.sourcePC));
+//                    accumulator.accumulateBug(new BugInstance(this, "REC_CATCH_EXCEPTION", priority).addClassAndMethod(this),
+//                            SourceLineAnnotation.fromVisitedInstruction(getClassContext(), this, caughtException.sourcePC));
                 }
             }
         }

@@ -578,8 +578,8 @@ public class UnreadFields extends OpcodeStackDetector {
                         bugReporter.reportMissingClass(e);
                     }
                 }
-                bugAccumulator.accumulateBug(new BugInstance(this, "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", priority)
-                .addClassAndMethod(this).addField(f), this);
+//                bugAccumulator.accumulateBug(new BugInstance(this, "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", priority)
+//                .addClassAndMethod(this).addField(f), this);
 
             }
         }
@@ -962,48 +962,48 @@ public class UnreadFields extends OpcodeStackDetector {
             Set<ProgramPoint> assumedNonnullAt = data.assumedNonNull.get(f);
             notInitializedUses.add(className, assumedNonnullAt.size());
         }
-        for (XField f : notInitializedInConstructors) {
-            String className = f.getClassName();
-            if (notInitializedUses.getCount(className) >= 8) {
-                continue;
-            }
-            String fieldSignature = f.getSignature();
-            if (f.isResolved() && !data.fieldsOfNativeClasses.contains(f)
-                    && (fieldSignature.charAt(0) == 'L' || fieldSignature.charAt(0) == '[')) {
-                int priority = LOW_PRIORITY;
+//        for (XField f : notInitializedInConstructors) {
+//            String className = f.getClassName();
+//            if (notInitializedUses.getCount(className) >= 8) {
+//                continue;
+//            }
+//            String fieldSignature = f.getSignature();
+//            if (f.isResolved() && !data.fieldsOfNativeClasses.contains(f)
+//                    && (fieldSignature.charAt(0) == 'L' || fieldSignature.charAt(0) == '[')) {
+//                int priority = LOW_PRIORITY;
+//
+//                Set<ProgramPoint> assumedNonnullAt = data.assumedNonNull.get(f);
+//                if (assumedNonnullAt.size() < 4) {
+//                    for (ProgramPoint p : assumedNonnullAt) {
+//                        BugInstance bug = new BugInstance(this, "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR", priority)
+//                        .addClass(className).addField(f).addMethod(p.getMethodAnnotation());
+//                        bugAccumulator.accumulateBug(bug, p.getSourceLineAnnotation());
+//                    }
+//                }
+//
+//            }
+//        }
 
-                Set<ProgramPoint> assumedNonnullAt = data.assumedNonNull.get(f);
-                if (assumedNonnullAt.size() < 4) {
-                    for (ProgramPoint p : assumedNonnullAt) {
-                        BugInstance bug = new BugInstance(this, "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR", priority)
-                        .addClass(className).addField(f).addMethod(p.getMethodAnnotation());
-                        bugAccumulator.accumulateBug(bug, p.getSourceLineAnnotation());
-                    }
-                }
-
-            }
-        }
-
-        for (XField f : readOnlyFields) {
-            //            String fieldName = f.getName();
-            //            String className = f.getClassName();
-            String fieldSignature = f.getSignature();
-            if (f.isResolved() && !data.fieldsOfNativeClasses.contains(f)) {
-                int priority = NORMAL_PRIORITY;
-                if (!(fieldSignature.charAt(0) == 'L' || fieldSignature.charAt(0) == '[')) {
-                    priority++;
-                }
-                if (maxCount.containsKey(f)) {
-                    priority++;
-                }
-                String pattern = "UWF_UNWRITTEN_FIELD";
-                if (f.isProtected() || f.isPublic()) {
-                    pattern = "UWF_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD";
-                }
-                bugReporter.reportBug(addClassFieldAndAccess(new BugInstance(this, pattern, priority), f));
-            }
-
-        }
+//        for (XField f : readOnlyFields) {
+//            //            String fieldName = f.getName();
+//            //            String className = f.getClassName();
+//            String fieldSignature = f.getSignature();
+//            if (f.isResolved() && !data.fieldsOfNativeClasses.contains(f)) {
+//                int priority = NORMAL_PRIORITY;
+//                if (!(fieldSignature.charAt(0) == 'L' || fieldSignature.charAt(0) == '[')) {
+//                    priority++;
+//                }
+//                if (maxCount.containsKey(f)) {
+//                    priority++;
+//                }
+//                String pattern = "UWF_UNWRITTEN_FIELD";
+//                if (f.isProtected() || f.isPublic()) {
+//                    pattern = "UWF_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD";
+//                }
+//                bugReporter.reportBug(addClassFieldAndAccess(new BugInstance(this, pattern, priority), f));
+//            }
+//
+//        }
         for (XField f : nullOnlyFields) {
             //            String fieldName = f.getName();
             //            String className = f.getClassName();
@@ -1067,10 +1067,10 @@ public class UnreadFields extends OpcodeStackDetector {
                     priority++;
                 }
             }
-            if (!readOnlyFields.contains(f)) {
-                bugReporter.reportBug(addClassFieldAndAccess(new BugInstance(this, "UWF_NULL_FIELD", priority), f)
-                        .lowerPriorityIfDeprecated());
-            }
+//            if (!readOnlyFields.contains(f)) {
+//                bugReporter.reportBug(addClassFieldAndAccess(new BugInstance(this, "UWF_NULL_FIELD", priority), f)
+//                        .lowerPriorityIfDeprecated());
+//            }
         }
 
         writeOnlyFields: for (XField f : writeOnlyFields) {
@@ -1160,52 +1160,52 @@ public class UnreadFields extends OpcodeStackDetector {
                 } catch (CheckedAnalysisException e) {
                     bugReporter.logError("Error getting outer XClass for " + outerClassName, e);
                 }
-                if (!data.innerClassCannotBeStatic.contains(className)) {
-                    boolean easyChange = !data.needsOuterObjectInConstructor.contains(className);
-                    if (easyChange || !isAnonymousInnerClass) {
-
-                        // easyChange isAnonymousInnerClass
-                        // true false medium, SIC
-                        // true true low, SIC_ANON
-                        // false true not reported
-                        // false false low, SIC_THIS
-                        int priority = LOW_PRIORITY;
-                        if (easyChange && !isAnonymousInnerClass) {
-                            priority = NORMAL_PRIORITY;
-                        }
-
-                        BugInstance bugInstance;
-                        if (isAnonymousInnerClass) {
-                            bugInstance = new BugInstance(this, "SIC_INNER_SHOULD_BE_STATIC_ANON", priority);
-                            List<BugAnnotation> annotations = anonymousClassAnnotation.remove(f.getClassDescriptor().getDottedClassName());
-                            if(annotations != null) {
-                                bugInstance.addClass(className).describe(ClassAnnotation.ANONYMOUS_ROLE);
-                                bugInstance.addAnnotations(annotations);
-                            } else {
-                                bugInstance.addClass(className);
-                            }
-                        } else if (!easyChange) {
-                            bugInstance = new BugInstance(this, "SIC_INNER_SHOULD_BE_STATIC_NEEDS_THIS", priority).addClass(className);
-                        } else {
-                            bugInstance = new BugInstance(this, "SIC_INNER_SHOULD_BE_STATIC", priority).addClass(className);
-                        }
-
-                        bugReporter.reportBug(bugInstance);
-
-                    }
-                }
+//                if (!data.innerClassCannotBeStatic.contains(className)) {
+//                    boolean easyChange = !data.needsOuterObjectInConstructor.contains(className);
+//                    if (easyChange || !isAnonymousInnerClass) {
+//
+//                        // easyChange isAnonymousInnerClass
+//                        // true false medium, SIC
+//                        // true true low, SIC_ANON
+//                        // false true not reported
+//                        // false false low, SIC_THIS
+//                        int priority = LOW_PRIORITY;
+//                        if (easyChange && !isAnonymousInnerClass) {
+//                            priority = NORMAL_PRIORITY;
+//                        }
+//
+//                        BugInstance bugInstance;
+//                        if (isAnonymousInnerClass) {
+//                            bugInstance = new BugInstance(this, "SIC_INNER_SHOULD_BE_STATIC_ANON", priority);
+//                            List<BugAnnotation> annotations = anonymousClassAnnotation.remove(f.getClassDescriptor().getDottedClassName());
+//                            if(annotations != null) {
+//                                bugInstance.addClass(className).describe(ClassAnnotation.ANONYMOUS_ROLE);
+//                                bugInstance.addAnnotations(annotations);
+//                            } else {
+//                                bugInstance.addClass(className);
+//                            }
+//                        } else if (!easyChange) {
+//                            bugInstance = new BugInstance(this, "SIC_INNER_SHOULD_BE_STATIC_NEEDS_THIS", priority).addClass(className);
+//                        } else {
+//                            bugInstance = new BugInstance(this, "SIC_INNER_SHOULD_BE_STATIC", priority).addClass(className);
+//                        }
+//
+//                        bugReporter.reportBug(bugInstance);
+//
+//                    }
+//                }
             } else if (f.isResolved()) {
                 if (data.constantFields.contains(f)) {
-                    if (!f.isStatic()) {
-                        bugReporter.reportBug(addClassFieldAndAccess(
-                                new BugInstance(this, "SS_SHOULD_BE_STATIC", NORMAL_PRIORITY), f));
-                    }
+//                    if (!f.isStatic()) {
+//                        bugReporter.reportBug(addClassFieldAndAccess(
+//                                new BugInstance(this, "SS_SHOULD_BE_STATIC", NORMAL_PRIORITY), f));
+//                    }
                 } else if (data.fieldsOfSerializableOrNativeClassed.contains(f)) {
                     // ignore it
                 } else if (!data.writtenFields.contains(f)) {
-                    bugReporter.reportBug(new BugInstance(this,
-                            (f.isPublic() || f.isProtected()) ? "UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD" : "UUF_UNUSED_FIELD",
-                                    NORMAL_PRIORITY).addClass(className).addField(f).lowerPriorityIfDeprecated());
+//                    bugReporter.reportBug(new BugInstance(this,
+//                            (f.isPublic() || f.isProtected()) ? "UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD" : "UUF_UNUSED_FIELD",
+//                                    NORMAL_PRIORITY).addClass(className).addField(f).lowerPriorityIfDeprecated());
                 } else if (f.getName().toLowerCase().indexOf("guardian") < 0) {
                     int priority = NORMAL_PRIORITY;
                     if (f.isStatic()) {
@@ -1214,9 +1214,9 @@ public class UnreadFields extends OpcodeStackDetector {
                     if (f.isFinal()) {
                         priority++;
                     }
-                    bugReporter.reportBug(addClassFieldAndAccess(new BugInstance(this,
-                            (f.isPublic() || f.isProtected()) ? "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD" : "URF_UNREAD_FIELD",
-                                    priority), f));
+//                    bugReporter.reportBug(addClassFieldAndAccess(new BugInstance(this,
+//                            (f.isPublic() || f.isProtected()) ? "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD" : "URF_UNREAD_FIELD",
+//                                    priority), f));
                 }
             }
         }

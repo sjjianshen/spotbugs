@@ -57,15 +57,15 @@ public class WaitInLoop extends BytecodeScanningDetector implements StatelessDet
         sawNotify = false;
         earliestJump = 9999999;
         super.visit(obj);
-        if ((sawWait || sawAwait) && waitAt < earliestJump) {
-            String bugType = sawWait ? "WA_NOT_IN_LOOP" : "WA_AWAIT_NOT_IN_LOOP";
-            bugReporter.reportBug(new BugInstance(this, bugType, waitHasTimeout ? LOW_PRIORITY : NORMAL_PRIORITY)
-            .addClassAndMethod(this).addSourceLine(this, waitAt));
-        }
-        if (sawNotify) {
-            bugReporter.reportBug(new BugInstance(this, "NO_NOTIFY_NOT_NOTIFYALL", LOW_PRIORITY).addClassAndMethod(this)
-                    .addSourceLine(this, notifyPC));
-        }
+//        if ((sawWait || sawAwait) && waitAt < earliestJump) {
+//            String bugType = sawWait ? "WA_NOT_IN_LOOP" : "WA_AWAIT_NOT_IN_LOOP";
+//            bugReporter.reportBug(new BugInstance(this, bugType, waitHasTimeout ? LOW_PRIORITY : NORMAL_PRIORITY)
+//            .addClassAndMethod(this).addSourceLine(this, waitAt));
+//        }
+//        if (sawNotify) {
+//            bugReporter.reportBug(new BugInstance(this, "NO_NOTIFY_NOT_NOTIFYALL", LOW_PRIORITY).addClassAndMethod(this)
+//                    .addSourceLine(this, notifyPC));
+//        }
     }
 
     @Override

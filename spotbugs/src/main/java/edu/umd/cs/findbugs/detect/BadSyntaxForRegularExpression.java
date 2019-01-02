@@ -72,8 +72,8 @@ public class BadSyntaxForRegularExpression extends OpcodeStackDetector {
             }
         }
 
-        bugReporter.reportBug(new BugInstance(this, "RE_POSSIBLE_UNINTENDED_PATTERN", priority).addClassAndMethod(this)
-                .addCalledMethod(this).addSourceLine(this));
+//        bugReporter.reportBug(new BugInstance(this, "RE_POSSIBLE_UNINTENDED_PATTERN", priority).addClassAndMethod(this)
+//                .addCalledMethod(this).addSourceLine(this));
     }
 
     private void sawRegExPattern(int stackDepth) {
@@ -86,8 +86,8 @@ public class BadSyntaxForRegularExpression extends OpcodeStackDetector {
         }
         OpcodeStack.Item it = stack.getStackItem(stackDepth);
         if (it.getSpecialKind() == OpcodeStack.Item.FILE_SEPARATOR_STRING && (flags & Pattern.LITERAL) == 0) {
-            bugReporter.reportBug(new BugInstance(this, "RE_CANT_USE_FILE_SEPARATOR_AS_REGULAR_EXPRESSION", HIGH_PRIORITY)
-                    .addClassAndMethod(this).addCalledMethod(this).addSourceLine(this));
+//            bugReporter.reportBug(new BugInstance(this, "RE_CANT_USE_FILE_SEPARATOR_AS_REGULAR_EXPRESSION", HIGH_PRIORITY)
+//                    .addClassAndMethod(this).addCalledMethod(this).addSourceLine(this));
             return;
         }
         Object value = it.getConstant();
@@ -103,15 +103,15 @@ public class BadSyntaxForRegularExpression extends OpcodeStackDetector {
             if (eol > 0) {
                 message = message.substring(0, eol);
             }
-            BugInstance bug = new BugInstance(this, "RE_BAD_SYNTAX_FOR_REGULAR_EXPRESSION", HIGH_PRIORITY)
-                    .addClassAndMethod(this).addCalledMethod(this).addString(message).describe(StringAnnotation.ERROR_MSG_ROLE)
-                    .addString(regex).describe(StringAnnotation.REGEX_ROLE);
-            String options = getOptions(flags);
-            if (options.length() > 0) {
-                bug.addString("Regex flags: " + options).describe(StringAnnotation.STRING_MESSAGE);
-            }
-            bug.addSourceLine(this);
-            bugReporter.reportBug(bug);
+//            BugInstance bug = new BugInstance(this, "RE_BAD_SYNTAX_FOR_REGULAR_EXPRESSION", HIGH_PRIORITY)
+//                    .addClassAndMethod(this).addCalledMethod(this).addString(message).describe(StringAnnotation.ERROR_MSG_ROLE)
+//                    .addString(regex).describe(StringAnnotation.REGEX_ROLE);
+//            String options = getOptions(flags);
+//            if (options.length() > 0) {
+//                bug.addString("Regex flags: " + options).describe(StringAnnotation.STRING_MESSAGE);
+//            }
+//            bug.addSourceLine(this);
+//            bugReporter.reportBug(bug);
         }
     }
 

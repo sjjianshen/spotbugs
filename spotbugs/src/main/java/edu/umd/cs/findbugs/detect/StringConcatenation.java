@@ -238,8 +238,8 @@ public class StringConcatenation extends BytecodeScanningDetector implements Sta
                     break;
                 }
 
-                bugReporter.reportBug(new BugInstance(this, "SBSC_USE_STRINGBUFFER_CONCATENATION", NORMAL_PRIORITY)
-                .addClassAndMethod(this).addSourceLine(this, createPC));
+//                bugReporter.reportBug(new BugInstance(this, "SBSC_USE_STRINGBUFFER_CONCATENATION", NORMAL_PRIORITY)
+//                .addClassAndMethod(this).addSourceLine(this, createPC));
                 // System.out.println("SBSC spread: " + (getPC() -
                 // getBranchTarget()));
                 reset();

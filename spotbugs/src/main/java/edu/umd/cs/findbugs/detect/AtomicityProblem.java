@@ -126,9 +126,9 @@ public class AtomicityProblem extends OpcodeStackDetector {
                 XClass xClass = getXClassOperand();
                 if (xClass != null && "put".equals(methodName)) {
                     if ((getPC() < lastQuestionableCheckTarget) && (lastQuestionableCheckTarget != -1)) {
-                        bugReporter.reportBug(new BugInstance(this, "AT_OPERATION_SEQUENCE_ON_CONCURRENT_ABSTRACTION", priority)
-                        .addClassAndMethod(this).addType(xClass.getClassDescriptor()).addCalledMethod(this)
-                        .addSourceLine(this));
+//                        bugReporter.reportBug(new BugInstance(this, "AT_OPERATION_SEQUENCE_ON_CONCURRENT_ABSTRACTION", priority)
+//                        .addClassAndMethod(this).addType(xClass.getClassDescriptor()).addCalledMethod(this)
+//                        .addSourceLine(this));
                     }
                 }
             }

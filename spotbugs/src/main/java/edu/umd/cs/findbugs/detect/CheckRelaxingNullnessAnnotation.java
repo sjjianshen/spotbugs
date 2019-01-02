@@ -197,29 +197,29 @@ public class CheckRelaxingNullnessAnnotation extends ClassNodeDetector {
             if (nonNullParameter != null) {
                 for(Map.Entry<Integer, NullnessAnnotation> e : nonNullParameter.entrySet()) {
                     int i = e.getKey();
-                    if (containsNullness(method.getParameterAnnotations(i), CHECK_FOR_NULL)) {
-                        NullnessAnnotation a = e.getValue();
-                        BugInstance bug = new BugInstance(CheckRelaxingNullnessAnnotation.this,
-                                "NP_METHOD_PARAMETER_TIGHTENS_ANNOTATION", a.equals(NONNULL) ? HIGH_PRIORITY : NORMAL_PRIORITY);
-                        bug.addClassAndMethod(xmethod);
-                        LocalVariableAnnotation lva = null;
-                        if (localVariables != null) {
-                            for(LocalVariableNode lvn : localVariables) {
-                                if (lvn.index == i+1) {
-                                    lva = new LocalVariableAnnotation(lvn.name, i+1, 0);
-                                    lva.setDescription(LocalVariableAnnotation.PARAMETER_NAMED_ROLE);
-                                    break;
-                                }
-                            }
-                        }
-                        if (lva==null) {
-                            lva = new LocalVariableAnnotation("?", i+1, 0);
-                            lva.setDescription(LocalVariableAnnotation.PARAMETER_ROLE);
-                        }
-                        bug.add(lva);
-                        bugReporter.reportBug(bug);
-                        foundAny = true;
-                    }
+//                    if (containsNullness(method.getParameterAnnotations(i), CHECK_FOR_NULL)) {
+//                        NullnessAnnotation a = e.getValue();
+//                        BugInstance bug = new BugInstance(CheckRelaxingNullnessAnnotation.this,
+//                                "NP_METHOD_PARAMETER_TIGHTENS_ANNOTATION", a.equals(NONNULL) ? HIGH_PRIORITY : NORMAL_PRIORITY);
+//                        bug.addClassAndMethod(xmethod);
+//                        LocalVariableAnnotation lva = null;
+//                        if (localVariables != null) {
+//                            for(LocalVariableNode lvn : localVariables) {
+//                                if (lvn.index == i+1) {
+//                                    lva = new LocalVariableAnnotation(lvn.name, i+1, 0);
+//                                    lva.setDescription(LocalVariableAnnotation.PARAMETER_NAMED_ROLE);
+//                                    break;
+//                                }
+//                            }
+//                        }
+//                        if (lva==null) {
+//                            lva = new LocalVariableAnnotation("?", i+1, 0);
+//                            lva.setDescription(LocalVariableAnnotation.PARAMETER_ROLE);
+//                        }
+//                        bug.add(lva);
+//                        bugReporter.reportBug(bug);
+//                        foundAny = true;
+//                    }
                 }
 
             }

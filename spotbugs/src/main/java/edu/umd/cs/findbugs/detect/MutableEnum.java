@@ -50,8 +50,8 @@ public class MutableEnum extends OpcodeStackDetector {
         for(XField field : classContext.getXClass().getXFields()) {
             if(!field.isStatic() && !field.isFinal() && !field.isSynthetic()) {
                 if(field.isPublic()) {
-                    reporter.reportBug(new BugInstance("ME_MUTABLE_ENUM_FIELD", NORMAL_PRIORITY).addClass(classContext.getJavaClass())
-                            .addField(field));
+//                    reporter.reportBug(new BugInstance("ME_MUTABLE_ENUM_FIELD", NORMAL_PRIORITY).addClass(classContext.getJavaClass())
+//                            .addField(field));
                 } else {
                     hasInterestingField = true;
                 }

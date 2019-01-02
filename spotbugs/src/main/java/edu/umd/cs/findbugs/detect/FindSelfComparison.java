@@ -154,13 +154,13 @@ public class FindSelfComparison extends OpcodeStackDetector {
                 } else if (intendedTarget != null) {
                     priority--;
                 }
-                BugInstance bug = new BugInstance(this, "SA_FIELD_DOUBLE_ASSIGNMENT", priority).addClassAndMethod(this)
-                        .addReferencedField(this);
-                if (intendedTarget != null) {
-                    bug.addField(intendedTarget).describe(FieldAnnotation.DID_YOU_MEAN_ROLE);
-                }
-
-                bugAccumulator.accumulateBug(bug, this);
+//                BugInstance bug = new BugInstance(this, "SA_FIELD_DOUBLE_ASSIGNMENT", priority).addClassAndMethod(this)
+//                        .addReferencedField(this);
+//                if (intendedTarget != null) {
+//                    bug.addField(intendedTarget).describe(FieldAnnotation.DID_YOU_MEAN_ROLE);
+//                }
+//
+//                bugAccumulator.accumulateBug(bug, this);
             }
             putFieldPC = getPC();
             putFieldXField = f;

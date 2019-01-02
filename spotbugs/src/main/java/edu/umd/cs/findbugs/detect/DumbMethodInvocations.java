@@ -105,22 +105,22 @@ public class DumbMethodInvocations implements Detector {
             }
 
             MethodDescriptor md = new MethodDescriptor(iins, cpg);
-            if (allDatabasePasswordMethods.containsKey(md)) {
-                for(int paramNumber : allDatabasePasswordMethods.get(md)) {
-                    Constant operandValue = frame.getArgument(iins, cpg, paramNumber, parser);
-                    if (operandValue.isConstantString()) {
-                        String password = operandValue.getConstantString();
-                        if (password.length() == 0) {
-                            bugAccumulator.accumulateBug(new BugInstance(this, "DMI_EMPTY_DB_PASSWORD", NORMAL_PRIORITY)
-                            .addClassAndMethod(methodGen, sourceFile), classContext, methodGen, sourceFile, location);
-                        } else {
-                            bugAccumulator.accumulateBug(new BugInstance(this, "DMI_CONSTANT_DB_PASSWORD", NORMAL_PRIORITY)
-                            .addClassAndMethod(methodGen, sourceFile), classContext, methodGen, sourceFile, location);
-                        }
-
-                    }
-                }
-            }
+//            if (allDatabasePasswordMethods.containsKey(md)) {
+//                for(int paramNumber : allDatabasePasswordMethods.get(md)) {
+//                    Constant operandValue = frame.getArgument(iins, cpg, paramNumber, parser);
+//                    if (operandValue.isConstantString()) {
+//                        String password = operandValue.getConstantString();
+//                        if (password.length() == 0) {
+//                            bugAccumulator.accumulateBug(new BugInstance(this, "DMI_EMPTY_DB_PASSWORD", NORMAL_PRIORITY)
+//                            .addClassAndMethod(methodGen, sourceFile), classContext, methodGen, sourceFile, location);
+//                        } else {
+//                            bugAccumulator.accumulateBug(new BugInstance(this, "DMI_CONSTANT_DB_PASSWORD", NORMAL_PRIORITY)
+//                            .addClassAndMethod(methodGen, sourceFile), classContext, methodGen, sourceFile, location);
+//                        }
+//
+//                    }
+//                }
+//            }
 
             if (md.equals(STRING_SUBSTRING)) {
 

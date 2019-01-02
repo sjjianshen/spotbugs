@@ -324,18 +324,18 @@ public class Naming extends PreorderVisitor implements Detector {
         }
 
         String superClassName = obj.getSuperclassName();
-        if (!"java.lang.Object".equals(name)) {
-            if (sameSimpleName(superClassName, name)) {
-                bugReporter.reportBug(new BugInstance(this, "NM_SAME_SIMPLE_NAME_AS_SUPERCLASS", HIGH_PRIORITY).addClass(name)
-                        .addClass(superClassName));
-            }
-            for (String interfaceName : obj.getInterfaceNames()) {
-                if (sameSimpleName(interfaceName, name)) {
-                    bugReporter.reportBug(new BugInstance(this, "NM_SAME_SIMPLE_NAME_AS_INTERFACE", NORMAL_PRIORITY).addClass(
-                            name).addClass(interfaceName));
-                }
-            }
-        }
+//        if (!"java.lang.Object".equals(name)) {
+//            if (sameSimpleName(superClassName, name)) {
+//                bugReporter.reportBug(new BugInstance(this, "NM_SAME_SIMPLE_NAME_AS_SUPERCLASS", HIGH_PRIORITY).addClass(name)
+//                        .addClass(superClassName));
+//            }
+//            for (String interfaceName : obj.getInterfaceNames()) {
+//                if (sameSimpleName(interfaceName, name)) {
+//                    bugReporter.reportBug(new BugInstance(this, "NM_SAME_SIMPLE_NAME_AS_INTERFACE", NORMAL_PRIORITY).addClass(
+//                            name).addClass(interfaceName));
+//                }
+//            }
+//        }
         if (obj.isInterface()) {
             return;
         }
@@ -409,13 +409,13 @@ public class Naming extends PreorderVisitor implements Detector {
 
             bugReporter.reportBug(new BugInstance(this, "NM_CLASS_NAMING_CONVENTION", priority).addClass(this));
         }
-        if (name.endsWith("Exception")) {
-            // Does it ultimately inherit from Throwable?
-            if (!mightInheritFromException(DescriptorFactory.createClassDescriptor(obj))) {
-                // It doens't, so the name is misleading
-                bugReporter.reportBug(new BugInstance(this, "NM_CLASS_NOT_EXCEPTION", NORMAL_PRIORITY).addClass(this));
-            }
-        }
+//        if (name.endsWith("Exception")) {
+//            // Does it ultimately inherit from Throwable?
+//            if (!mightInheritFromException(DescriptorFactory.createClassDescriptor(obj))) {
+//                // It doens't, so the name is misleading
+//                bugReporter.reportBug(new BugInstance(this, "NM_CLASS_NOT_EXCEPTION", NORMAL_PRIORITY).addClass(this));
+//            }
+//        }
 
         int badFieldNames = 0;
         for (Field f : obj.getFields()) {
@@ -450,9 +450,9 @@ public class Naming extends PreorderVisitor implements Detector {
             }
         }
         if (badFieldName(obj)) {
-            bugReporter.reportBug(new BugInstance(this, "NM_FIELD_NAMING_CONVENTION", classIsPublicOrProtected
-                    && (obj.isPublic() || obj.isProtected()) && !hasBadFieldNames ? NORMAL_PRIORITY : LOW_PRIORITY)
-            .addClass(this).addVisitedField(this));
+//            bugReporter.reportBug(new BugInstance(this, "NM_FIELD_NAMING_CONVENTION", classIsPublicOrProtected
+//                    && (obj.isPublic() || obj.isProtected()) && !hasBadFieldNames ? NORMAL_PRIORITY : LOW_PRIORITY)
+//            .addClass(this).addVisitedField(this));
         }
     }
 
@@ -563,9 +563,9 @@ public class Naming extends PreorderVisitor implements Detector {
                 return;
             }
         } else if (badMethodName(mName)) {
-            bugReporter.reportBug(new BugInstance(this, "NM_METHOD_NAMING_CONVENTION", classIsPublicOrProtected
-                    && (obj.isPublic() || obj.isProtected()) && !hasBadMethodNames ? NORMAL_PRIORITY : LOW_PRIORITY)
-            .addClassAndMethod(this));
+//            bugReporter.reportBug(new BugInstance(this, "NM_METHOD_NAMING_CONVENTION", classIsPublicOrProtected
+//                    && (obj.isPublic() || obj.isProtected()) && !hasBadMethodNames ? NORMAL_PRIORITY : LOW_PRIORITY)
+//            .addClassAndMethod(this));
         }
 
         if (obj.isAbstract()) {

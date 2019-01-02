@@ -378,8 +378,8 @@ public class SerializableIdiom extends OpcodeStackDetector {
                     // ignore it
                 }
 
-                bugReporter.reportBug(new BugInstance(this, "SE_TRANSIENT_FIELD_NOT_RESTORED", priority).addClass(getThisClass())
-                        .addField(fieldX));
+//                bugReporter.reportBug(new BugInstance(this, "SE_TRANSIENT_FIELD_NOT_RESTORED", priority).addClass(getThisClass())
+//                        .addField(fieldX));
 
             }
 
@@ -390,8 +390,8 @@ public class SerializableIdiom extends OpcodeStackDetector {
             if (isGUIClass || isEjbImplClass || isJSPClass) {
                 priority++;
             }
-            bugReporter.reportBug(new BugInstance(this, "SE_NO_SUITABLE_CONSTRUCTOR", priority).addClass(getThisClass()
-                    .getClassName()));
+//            bugReporter.reportBug(new BugInstance(this, "SE_NO_SUITABLE_CONSTRUCTOR", priority).addClass(getThisClass()
+//                    .getClassName()));
         }
         // Downgrade class-level warnings if it's a GUI or EJB-implementation
         // class.
@@ -401,8 +401,8 @@ public class SerializableIdiom extends OpcodeStackDetector {
         }
 
         if (isExternalizable && !hasPublicVoidConstructor && !isAbstract) {
-            bugReporter.reportBug(new BugInstance(this, "SE_NO_SUITABLE_CONSTRUCTOR_FOR_EXTERNALIZATION",
-                    directlyImplementsExternalizable ? HIGH_PRIORITY : NORMAL_PRIORITY).addClass(getThisClass().getClassName()));
+//            bugReporter.reportBug(new BugInstance(this, "SE_NO_SUITABLE_CONSTRUCTOR_FOR_EXTERNALIZATION",
+//                    directlyImplementsExternalizable ? HIGH_PRIORITY : NORMAL_PRIORITY).addClass(getThisClass().getClassName()));
         }
         if (!foundSynthetic) {
             priority++;
@@ -412,12 +412,12 @@ public class SerializableIdiom extends OpcodeStackDetector {
         }
         if (!isAnonymousInnerClass && !isExternalizable && !isGUIClass && !obj.isAbstract() && isSerializable && !isAbstract
                 && !sawSerialVersionUID && !isEjbImplClass && !isJSPClass) {
-            bugReporter.reportBug(new BugInstance(this, "SE_NO_SERIALVERSIONID", priority).addClass(this));
+//            bugReporter.reportBug(new BugInstance(this, "SE_NO_SERIALVERSIONID", priority).addClass(this));
         }
 
-        if (writeObjectIsSynchronized && !foundSynchronizedMethods) {
-            bugReporter.reportBug(new BugInstance(this, "WS_WRITEOBJECT_SYNC", LOW_PRIORITY).addClass(this));
-        }
+//        if (writeObjectIsSynchronized && !foundSynchronizedMethods) {
+//            bugReporter.reportBug(new BugInstance(this, "WS_WRITEOBJECT_SYNC", LOW_PRIORITY).addClass(this));
+//        }
     }
 
     @Override
@@ -447,36 +447,36 @@ public class SerializableIdiom extends OpcodeStackDetector {
         } else if ("readResolve".equals(getMethodName()) && getMethodSig().startsWith("()") && isSerializable) {
             sawReadResolve = true;
             if (!"()Ljava/lang/Object;".equals(getMethodSig())) {
-                bugReporter.reportBug(new BugInstance(this, "SE_READ_RESOLVE_MUST_RETURN_OBJECT", HIGH_PRIORITY)
-                .addClassAndMethod(this));
+//                bugReporter.reportBug(new BugInstance(this, "SE_READ_RESOLVE_MUST_RETURN_OBJECT", HIGH_PRIORITY)
+//                .addClassAndMethod(this));
             } else if (obj.isStatic()) {
-                bugReporter.reportBug(new BugInstance(this, "SE_READ_RESOLVE_IS_STATIC", HIGH_PRIORITY).addClassAndMethod(this));
+//                bugReporter.reportBug(new BugInstance(this, "SE_READ_RESOLVE_IS_STATIC", HIGH_PRIORITY).addClassAndMethod(this));
             } else if (obj.isPrivate()) {
                 try {
                     Set<ClassDescriptor> subtypes = AnalysisContext.currentAnalysisContext().getSubtypes2()
                             .getSubtypes(getClassDescriptor());
-                    if (subtypes.size() > 1) {
-                        BugInstance bug = new BugInstance(this, "SE_PRIVATE_READ_RESOLVE_NOT_INHERITED", NORMAL_PRIORITY)
-                        .addClassAndMethod(this);
-                        boolean nasty = false;
-                        for (ClassDescriptor subclass : subtypes) {
-                            if (!subclass.equals(getClassDescriptor())) {
-
-                                XClass xSub = AnalysisContext.currentXFactory().getXClass(subclass);
-                                if (xSub != null && xSub.findMethod("readResolve", "()Ljava/lang/Object;", false) == null
-                                        && xSub.findMethod("writeReplace", "()Ljava/lang/Object;", false) == null) {
-                                    bug.addClass(subclass).describe(ClassAnnotation.SUBCLASS_ROLE);
-                                    nasty = true;
-                                }
-                            }
-                        }
-                        if (nasty) {
-                            bug.setPriority(HIGH_PRIORITY);
-                        } else if (!getThisClass().isPublic()) {
-                            bug.setPriority(LOW_PRIORITY);
-                        }
-                        bugReporter.reportBug(bug);
-                    }
+//                    if (subtypes.size() > 1) {
+//                        BugInstance bug = new BugInstance(this, "SE_PRIVATE_READ_RESOLVE_NOT_INHERITED", NORMAL_PRIORITY)
+//                        .addClassAndMethod(this);
+//                        boolean nasty = false;
+//                        for (ClassDescriptor subclass : subtypes) {
+//                            if (!subclass.equals(getClassDescriptor())) {
+//
+//                                XClass xSub = AnalysisContext.currentXFactory().getXClass(subclass);
+//                                if (xSub != null && xSub.findMethod("readResolve", "()Ljava/lang/Object;", false) == null
+//                                        && xSub.findMethod("writeReplace", "()Ljava/lang/Object;", false) == null) {
+//                                    bug.addClass(subclass).describe(ClassAnnotation.SUBCLASS_ROLE);
+//                                    nasty = true;
+//                                }
+//                            }
+//                        }
+//                        if (nasty) {
+//                            bug.setPriority(HIGH_PRIORITY);
+//                        } else if (!getThisClass().isPublic()) {
+//                            bug.setPriority(LOW_PRIORITY);
+//                        }
+//                        bugReporter.reportBug(bug);
+//                    }
 
                 } catch (ClassNotFoundException e) {
                     bugReporter.reportMissingClass(e);
@@ -487,26 +487,26 @@ public class SerializableIdiom extends OpcodeStackDetector {
                 && isSerializable) {
             sawReadObject = true;
             if (!obj.isPrivate()) {
-                bugReporter.reportBug(new BugInstance(this, "SE_METHOD_MUST_BE_PRIVATE", isExternalizable ? NORMAL_PRIORITY : HIGH_PRIORITY).addClassAndMethod(this));
+//                bugReporter.reportBug(new BugInstance(this, "SE_METHOD_MUST_BE_PRIVATE", isExternalizable ? NORMAL_PRIORITY : HIGH_PRIORITY).addClassAndMethod(this));
             }
 
         } else if ("readObjectNoData".equals(getMethodName()) && "()V".equals(getMethodSig()) && isSerializable) {
 
             if (!obj.isPrivate()) {
-                bugReporter.reportBug(new BugInstance(this, "SE_METHOD_MUST_BE_PRIVATE", isExternalizable ? NORMAL_PRIORITY : HIGH_PRIORITY).addClassAndMethod(this));
+//                bugReporter.reportBug(new BugInstance(this, "SE_METHOD_MUST_BE_PRIVATE", isExternalizable ? NORMAL_PRIORITY : HIGH_PRIORITY).addClassAndMethod(this));
             }
 
         } else if ("writeObject".equals(getMethodName()) && "(Ljava/io/ObjectOutputStream;)V".equals(getMethodSig())
                 && isSerializable) {
             sawWriteObject = true;
             if (!obj.isPrivate()) {
-                bugReporter.reportBug(new BugInstance(this, "SE_METHOD_MUST_BE_PRIVATE", isExternalizable ? NORMAL_PRIORITY : HIGH_PRIORITY).addClassAndMethod(this));
+//                bugReporter.reportBug(new BugInstance(this, "SE_METHOD_MUST_BE_PRIVATE", isExternalizable ? NORMAL_PRIORITY : HIGH_PRIORITY).addClassAndMethod(this));
             }
         }
 
         if (isSynchronized) {
             if ("readObject".equals(getMethodName()) && "(Ljava/io/ObjectInputStream;)V".equals(getMethodSig()) && isSerializable) {
-                bugReporter.reportBug(new BugInstance(this, "RS_READOBJECT_SYNC",isExternalizable ? LOW_PRIORITY :  NORMAL_PRIORITY).addClassAndMethod(this));
+//                bugReporter.reportBug(new BugInstance(this, "RS_READOBJECT_SYNC",isExternalizable ? LOW_PRIORITY :  NORMAL_PRIORITY).addClassAndMethod(this));
             } else if ("writeObject".equals(getMethodName()) && "(Ljava/io/ObjectOutputStream;)V".equals(getMethodSig())
                     && isSerializable) {
                 writeObjectIsSynchronized = true;
@@ -638,8 +638,8 @@ public class SerializableIdiom extends OpcodeStackDetector {
                 seenTransientField = true;
                 transientFieldsUpdates.put(getXField(), 0);
             } else if (reportTransientFieldOfNonSerializableClass) {
-                bugReporter.reportBug(new BugInstance(this, "SE_TRANSIENT_FIELD_OF_NONSERIALIZABLE_CLASS", NORMAL_PRIORITY)
-                .addClass(this).addVisitedField(this));
+//                bugReporter.reportBug(new BugInstance(this, "SE_TRANSIENT_FIELD_OF_NONSERIALIZABLE_CLASS", NORMAL_PRIORITY)
+//                .addClass(this).addVisitedField(this));
             }
         } else if (getClassName().indexOf("ObjectStreamClass") == -1 && isSerializable && !isExternalizable
                 && fieldSig.indexOf('L') >= 0 && !obj.isTransient() && !obj.isStatic()) {
@@ -726,17 +726,17 @@ public class SerializableIdiom extends OpcodeStackDetector {
             return;
         }
         if ((flags & mask) == mask && "I".equals(fieldSig)) {
-            bugReporter.reportBug(new BugInstance(this, "SE_NONLONG_SERIALVERSIONID", LOW_PRIORITY).addClass(this)
-                    .addVisitedField(this));
+//            bugReporter.reportBug(new BugInstance(this, "SE_NONLONG_SERIALVERSIONID", LOW_PRIORITY).addClass(this)
+//                    .addVisitedField(this));
             sawSerialVersionUID = true;
             return;
         } else if ((flags & Const.ACC_STATIC) == 0) {
-            bugReporter.reportBug(new BugInstance(this, "SE_NONSTATIC_SERIALVERSIONID", NORMAL_PRIORITY).addClass(this)
-                    .addVisitedField(this));
+//            bugReporter.reportBug(new BugInstance(this, "SE_NONSTATIC_SERIALVERSIONID", NORMAL_PRIORITY).addClass(this)
+//                    .addVisitedField(this));
             return;
         } else if ((flags & Const.ACC_FINAL) == 0) {
-            bugReporter.reportBug(new BugInstance(this, "SE_NONFINAL_SERIALVERSIONID", NORMAL_PRIORITY).addClass(this)
-                    .addVisitedField(this));
+//            bugReporter.reportBug(new BugInstance(this, "SE_NONFINAL_SERIALVERSIONID", NORMAL_PRIORITY).addClass(this)
+//                    .addVisitedField(this));
             return;
         }
         sawSerialVersionUID = true;

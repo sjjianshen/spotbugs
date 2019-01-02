@@ -96,8 +96,8 @@ public class FindLocalSelfAssignment2 extends BytecodeScanningDetector implement
                             }
                         }
 
-                        bugReporter.reportBug(new BugInstance(this, "SA_LOCAL_SELF_ASSIGNMENT", priority).addClassAndMethod(this)
-                                .add(local).addSourceLine(this));
+//                        bugReporter.reportBug(new BugInstance(this, "SA_LOCAL_SELF_ASSIGNMENT", priority).addClassAndMethod(this)
+//                                .add(local).addSourceLine(this));
                     } else {
                         previousStores.set(getRegisterOperand());
                     }

@@ -65,19 +65,19 @@ public class FindFloatEquality extends OpcodeStackDetector implements StatelessD
         super.visit(obj);
         bugAccumulator.reportAccumulatedBugs();
         if (!found.isEmpty()) {
-            BugInstance bug = new BugInstance(this, "FE_FLOATING_POINT_EQUALITY", priority).addClassAndMethod(this);
-
-            boolean first = true;
-            for (SourceLineAnnotation s : found) {
-                bug.add(s);
-                if (first) {
-                    first = false;
-                } else {
-                    bug.describe(SourceLineAnnotation.ROLE_ANOTHER_INSTANCE);
-                }
-            }
-
-            bugReporter.reportBug(bug);
+//            BugInstance bug = new BugInstance(this, "FE_FLOATING_POINT_EQUALITY", priority).addClassAndMethod(this);
+//
+//            boolean first = true;
+//            for (SourceLineAnnotation s : found) {
+//                bug.add(s);
+//                if (first) {
+//                    first = false;
+//                } else {
+//                    bug.describe(SourceLineAnnotation.ROLE_ANOTHER_INSTANCE);
+//                }
+//            }
+//
+//            bugReporter.reportBug(bug);
 
             found.clear();
         }

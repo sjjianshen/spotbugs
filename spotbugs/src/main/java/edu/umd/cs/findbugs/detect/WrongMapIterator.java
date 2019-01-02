@@ -259,9 +259,9 @@ public class WrongMapIterator extends BytecodeScanningDetector implements Statel
                 } else if (mapAndKeyLoaded && "get".equals(getNameConstantOperand())
                         && "(Ljava/lang/Object;)Ljava/lang/Object;".equals(getSigConstantOperand())) {
                     MethodAnnotation ma = MethodAnnotation.fromVisitedMethod(this);
-                    bugAccumulator.accumulateBug(mapVariable
-                            .annotate(new BugInstance(this, "WMI_WRONG_MAP_ITERATOR", NORMAL_PRIORITY).addClass(this).addMethod(ma)),
-                            this);
+//                    bugAccumulator.accumulateBug(mapVariable
+//                            .annotate(new BugInstance(this, "WMI_WRONG_MAP_ITERATOR", NORMAL_PRIORITY).addClass(this).addMethod(ma)),
+//                            this);
                     reset();
                 } else if(("intValue".equals(getNameConstantOperand()) && "java/lang/Integer".equals(getClassConstantOperand())) ||
                         ("longValue".equals(getNameConstantOperand()) && "java/lang/Long".equals(getClassConstantOperand())) ||

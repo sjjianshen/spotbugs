@@ -67,12 +67,12 @@ public class RedundantInterfaces extends PreorderVisitor implements Detector, St
             }
 
             if (redundantInfNames.size() > 0) {
-                BugInstance bug = new BugInstance(this, "RI_REDUNDANT_INTERFACES", LOW_PRIORITY).addClass(obj);
-                for (String redundantInfName : redundantInfNames) {
-                    bug.addClass(redundantInfName).describe("INTERFACE_TYPE");
-                }
-
-                bugReporter.reportBug(bug);
+//                BugInstance bug = new BugInstance(this, "RI_REDUNDANT_INTERFACES", LOW_PRIORITY).addClass(obj);
+//                for (String redundantInfName : redundantInfNames) {
+//                    bug.addClass(redundantInfName).describe("INTERFACE_TYPE");
+//                }
+//
+//                bugReporter.reportBug(bug);
             }
 
         } catch (ClassNotFoundException cnfe) {

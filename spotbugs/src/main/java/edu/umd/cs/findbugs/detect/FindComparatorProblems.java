@@ -102,14 +102,14 @@ public class FindComparatorProblems extends OpcodeStackDetector {
             }
             twoDoublesInStack.add(startEnd);
         }
-        if (seen == Const.IRETURN) {
-            OpcodeStack.Item top = stack.getStackItem(0);
-            Object o = top.getConstant();
-            if (o instanceof Integer && ((Integer)o).intValue() == Integer.MIN_VALUE) {
-                accumulator.accumulateBug(
-                        new BugInstance(this, "CO_COMPARETO_RESULTS_MIN_VALUE", NORMAL_PRIORITY).addClassAndMethod(this), this);
-            }
-        }
+//        if (seen == Const.IRETURN) {
+//            OpcodeStack.Item top = stack.getStackItem(0);
+//            Object o = top.getConstant();
+//            if (o instanceof Integer && ((Integer)o).intValue() == Integer.MIN_VALUE) {
+//                accumulator.accumulateBug(
+//                        new BugInstance(this, "CO_COMPARETO_RESULTS_MIN_VALUE", NORMAL_PRIORITY).addClassAndMethod(this), this);
+//            }
+//        }
     }
 
     /**

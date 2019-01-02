@@ -27,7 +27,7 @@ import edu.umd.cs.findbugs.util.HTML;
  * A BugPattern object collects all of the metadata for a particular species of
  * BugInstance. Specifically, it stores the human-readable text for displaying a
  * bug instance. BugPatterns derive from the BugPattern elements in the
- * "findbugs.xml" and "messages.xml" found in a FindBugs plugin.
+ * "findbugs.xml" and "messages_bk.xml" found in a FindBugs plugin.
  *
  * @author David Hovemeyer
  * @see BugInstance

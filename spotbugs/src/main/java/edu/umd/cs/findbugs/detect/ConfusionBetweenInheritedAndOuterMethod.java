@@ -137,15 +137,15 @@ public class ConfusionBetweenInheritedAndOuterMethod extends OpcodeStackDetector
                     priority++;
                 }
 
-                BugInstance bug = new BugInstance(this, "IA_AMBIGUOUS_INVOCATION_OF_INHERITED_OR_OUTER_METHOD", priority)
-                .addClassAndMethod(this).addMethod(invokedMethod).describe("METHOD_INHERITED")
-                .addMethod(alternativeMethod).describe("METHOD_ALTERNATIVE_TARGET");
-                if(invokedMethod.getName().equals("iterator") && invokedMethod.getSignature().equals("()Ljava/util/Iterator;")
-                        && Subtypes2.instanceOf(getDottedClassName(), "java.lang.Iterable")) {
-                    iteratorBug = bug;
-                } else {
-                    bugAccumulator.accumulateBug(bug, this);
-                }
+//                BugInstance bug = new BugInstance(this, "IA_AMBIGUOUS_INVOCATION_OF_INHERITED_OR_OUTER_METHOD", priority)
+//                .addClassAndMethod(this).addMethod(invokedMethod).describe("METHOD_INHERITED")
+//                .addMethod(alternativeMethod).describe("METHOD_ALTERNATIVE_TARGET");
+//                if(invokedMethod.getName().equals("iterator") && invokedMethod.getSignature().equals("()Ljava/util/Iterator;")
+//                        && Subtypes2.instanceOf(getDottedClassName(), "java.lang.Iterable")) {
+//                    iteratorBug = bug;
+//                } else {
+//                    bugAccumulator.accumulateBug(bug, this);
+//                }
                 break;
             }
         }

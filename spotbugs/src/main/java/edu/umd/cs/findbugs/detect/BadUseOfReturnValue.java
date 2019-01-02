@@ -55,8 +55,8 @@ public class BadUseOfReturnValue extends BytecodeScanningDetector {
             stringIndexOfOnTOS = true;
         } else if (stringIndexOfOnTOS) {
             if (seen == Const.IFLE || seen == Const.IFGT) {
-                bugAccumulator.accumulateBug(
-                        new BugInstance(this, "RV_CHECK_FOR_POSITIVE_INDEXOF", LOW_PRIORITY).addClassAndMethod(this), this);
+//                bugAccumulator.accumulateBug(
+//                        new BugInstance(this, "RV_CHECK_FOR_POSITIVE_INDEXOF", LOW_PRIORITY).addClassAndMethod(this), this);
             }
             stringIndexOfOnTOS = false;
         }

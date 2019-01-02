@@ -75,7 +75,7 @@ public class ComparatorIdiom extends PreorderVisitor implements Detector {
                 priority = LOW_PRIORITY;
             }
 
-            bugReporter.reportBug(new BugInstance(this, "SE_COMPARATOR_SHOULD_BE_SERIALIZABLE", priority).addClass(this));
+//            bugReporter.reportBug(new BugInstance(this, "SE_COMPARATOR_SHOULD_BE_SERIALIZABLE", priority).addClass(this));
 
         }
 

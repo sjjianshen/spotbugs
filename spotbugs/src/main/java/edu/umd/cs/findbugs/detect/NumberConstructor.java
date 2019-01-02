@@ -164,20 +164,17 @@ public class NumberConstructor extends OpcodeStackDetector {
         int prio;
         String type;
         if ("java/lang/Float".equals(cls) || "java/lang/Double".equals(cls)) {
-            prio = LOW_PRIORITY;
-            type = "DM_FP_NUMBER_CTOR";
-        } else {
-            prio = NORMAL_PRIORITY;
-            Object constantValue = stack.getStackItem(0).getConstant();
-            if (constantValue instanceof Number) {
-                long value = ((Number) constantValue).longValue();
-                if (value < -128 || value > 127) {
-                    prio = LOW_PRIORITY;
-                }
-            }
-            type = "DM_NUMBER_CTOR";
+            return;
         }
-
+        prio = NORMAL_PRIORITY;
+        Object constantValue = stack.getStackItem(0).getConstant();
+        if (constantValue instanceof Number) {
+            long value = ((Number) constantValue).longValue();
+            if (value < -128 || value > 127) {
+                prio = LOW_PRIORITY;
+            }
+        }
+        type = "DM_NUMBER_CTOR";
         BugInstance bug = new BugInstance(this, type, prio).addClass(this).addMethod(this).addCalledMethod(this)
                 .addMethod(shouldCall).describe("SHOULD_CALL");
         bugAccumulator.accumulateBug(bug, this);

@@ -176,7 +176,7 @@ public class FindUninitializedGet extends BytecodeScanningDetector implements St
 
                 BugInstance bug = new BugInstance(this, "UR_UNINIT_READ", priority).addClassAndMethod(this).addField(f)
                         .addOptionalAnnotation(possibleTarget).addSourceLine(this);
-                pendingBugs.add(bug);
+//                pendingBugs.add(bug);
                 if (priorityLoweredBecauseOfIfNonnullTest) {
                     uninitializedFieldReadAndCheckedForNonnull = bug;
                 }

@@ -168,10 +168,10 @@ public class DuplicateBranches extends PreorderVisitor implements Detector {
             elseFinishPos = elseLastIns.getPosition();
         }
 
-        pendingBugs.add(new BugInstance(this, "DB_DUPLICATE_BRANCHES", NORMAL_PRIORITY)
-        .addClassAndMethod(classContext.getJavaClass(), method)
-        .addSourceLineRange(classContext, this, thenStartPos, thenFinishPos)
-        .addSourceLineRange(classContext, this, elseStartPos, elseFinishPos));
+//        pendingBugs.add(new BugInstance(this, "DB_DUPLICATE_BRANCHES", NORMAL_PRIORITY)
+//        .addClassAndMethod(classContext.getJavaClass(), method)
+//        .addSourceLineRange(classContext, this, thenStartPos, thenFinishPos)
+//        .addSourceLineRange(classContext, this, elseStartPos, elseFinishPos));
     }
 
     /**
@@ -272,17 +272,17 @@ public class DuplicateBranches extends PreorderVisitor implements Detector {
         }
         for (Collection<Integer> clauses : map.values()) {
             if (clauses.size() > 1) {
-                BugInstance bug = new BugInstance(this, "DB_DUPLICATE_SWITCH_CLAUSES", LOW_PRIORITY).addClassAndMethod(
-                        classContext.getJavaClass(), method);
-                for (int i : clauses)
-                {
-                    bug.addSourceLineRange(this.classContext, this, switchPos[i], switchPos[i + 1] - 1); // not
-                }
-                // endPos,
-                // but
-                // that's
-                // ok
-                pendingBugs.add(bug);
+//                BugInstance bug = new BugInstance(this, "DB_DUPLICATE_SWITCH_CLAUSES", LOW_PRIORITY).addClassAndMethod(
+//                        classContext.getJavaClass(), method);
+//                for (int i : clauses)
+//                {
+//                    bug.addSourceLineRange(this.classContext, this, switchPos[i], switchPos[i + 1] - 1); // not
+//                }
+//                // endPos,
+//                // but
+//                // that's
+//                // ok
+//                pendingBugs.add(bug);
             }
         }
     }

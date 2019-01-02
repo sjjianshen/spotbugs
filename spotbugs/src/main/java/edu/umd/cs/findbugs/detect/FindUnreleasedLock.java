@@ -439,6 +439,7 @@ public class FindUnreleasedLock extends ResourceTrackingDetector<Lock, FindUnrel
             if (exitStatus == ResourceValueFrame.OPEN) {
                 bugType = "UL_UNRELEASED_LOCK";
                 priority = HIGH_PRIORITY;
+                return;
             } else {
                 bugType = "UL_UNRELEASED_LOCK_EXCEPTION_PATH";
                 priority = NORMAL_PRIORITY;

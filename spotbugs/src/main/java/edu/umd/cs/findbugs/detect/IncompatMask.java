@@ -123,40 +123,40 @@ public class IncompatMask extends OpcodeStackDetector {
             boolean highbit = !isLong && (bits & 0x80000000) != 0 || isLong && bits < 0 && bits << 1 == 0;
             boolean onlyLowBits = bits >>> 12 == 0;
             BugInstance bug;
-            if (highbit) {
-                bug = new BugInstance(this, "BIT_SIGNED_CHECK_HIGH_BIT", (seen == Const.IFLE || seen == Const.IFGT) ? HIGH_PRIORITY
-                        : NORMAL_PRIORITY);
-            } else {
-                bug = new BugInstance(this, "BIT_SIGNED_CHECK", onlyLowBits ? LOW_PRIORITY : NORMAL_PRIORITY);
-            }
-            bug.addClassAndMethod(this).addString(toHex(arg1)+" ("+arg1+")").addSourceLine(this);
-            bugReporter.reportBug(bug);
+//            if (highbit) {
+//                bug = new BugInstance(this, "BIT_SIGNED_CHECK_HIGH_BIT", (seen == Const.IFLE || seen == Const.IFGT) ? HIGH_PRIORITY
+//                        : NORMAL_PRIORITY);
+//            } else {
+//                bug = new BugInstance(this, "BIT_SIGNED_CHECK", onlyLowBits ? LOW_PRIORITY : NORMAL_PRIORITY);
+//            }
+//            bug.addClassAndMethod(this).addString(toHex(arg1)+" ("+arg1+")").addSourceLine(this);
+//            bugReporter.reportBug(bug);
         }
         if (equality) {
-            long dif;
-            String t;
-
-            long val1 = arg1.longValue();
-            long val2 = arg2.longValue();
-
-            if (bitop == Const.IOR) {
-                dif = val1 & ~val2;
-                t = "BIT_IOR";
-            } else if (val1 != 0 || val2 != 0) {
-                dif = val2 & ~val1;
-                t = "BIT_AND";
-            } else {
-                dif = 1;
-                t = "BIT_AND_ZZ";
-            }
-            if (dif != 0) {
-                BugInstance bug = new BugInstance(this, t, HIGH_PRIORITY).addClassAndMethod(this);
-                if (!"BIT_AND_ZZ".equals(t)) {
-                    bug.addString(toHex(arg1)).addString(toHex(arg2));
-                }
-                bug.addSourceLine(this);
-                bugReporter.reportBug(bug);
-            }
+//            long dif;
+//            String t;
+//
+//            long val1 = arg1.longValue();
+//            long val2 = arg2.longValue();
+//
+//            if (bitop == Const.IOR) {
+//                dif = val1 & ~val2;
+//                t = "BIT_IOR";
+//            } else if (val1 != 0 || val2 != 0) {
+//                dif = val2 & ~val1;
+//                t = "BIT_AND";
+//            } else {
+//                dif = 1;
+//                t = "BIT_AND_ZZ";
+//            }
+//            if (dif != 0) {
+//                BugInstance bug = new BugInstance(this, t, HIGH_PRIORITY).addClassAndMethod(this);
+//                if (!"BIT_AND_ZZ".equals(t)) {
+//                    bug.addString(toHex(arg1)).addString(toHex(arg2));
+//                }
+//                bug.addSourceLine(this);
+//                bugReporter.reportBug(bug);
+//            }
         }
         arg1 = arg2 = null;
         bitresultItem = null;

@@ -47,41 +47,41 @@ public class FindFinalizeInvocations extends BytecodeScanningDetector implements
 
     @Override
     public void visit(Method obj) {
-        if (DEBUG) {
-            System.out.println("FFI: visiting " + getFullyQualifiedMethodName());
-        }
-        if ("finalize".equals(getMethodName()) && "()V".equals(getMethodSig()) && (obj.getAccessFlags() & (Const.ACC_PUBLIC)) != 0) {
-            bugReporter
-            .reportBug(new BugInstance(this, "FI_PUBLIC_SHOULD_BE_PROTECTED", NORMAL_PRIORITY).addClassAndMethod(this));
-        }
+//        if (DEBUG) {
+//            System.out.println("FFI: visiting " + getFullyQualifiedMethodName());
+//        }
+//        if ("finalize".equals(getMethodName()) && "()V".equals(getMethodSig()) && (obj.getAccessFlags() & (Const.ACC_PUBLIC)) != 0) {
+//            bugReporter
+//            .reportBug(new BugInstance(this, "FI_PUBLIC_SHOULD_BE_PROTECTED", NORMAL_PRIORITY).addClassAndMethod(this));
+//        }
     }
 
     @Override
     public void visit(Code obj) {
-        sawSuperFinalize = false;
-        super.visit(obj);
-        bugAccumulator.reportAccumulatedBugs();
-        if (!"finalize".equals(getMethodName()) || !"()V".equals(getMethodSig())) {
-            return;
-        }
-        String overridesFinalizeIn = Lookup.findSuperImplementor(getDottedClassName(), "finalize", "()V", bugReporter);
-        boolean superHasNoFinalizer = "java.lang.Object".equals(overridesFinalizeIn);
+//        sawSuperFinalize = false;
+//        super.visit(obj);
+//        bugAccumulator.reportAccumulatedBugs();
+//        if (!"finalize".equals(getMethodName()) || !"()V".equals(getMethodSig())) {
+//            return;
+//        }
+//        String overridesFinalizeIn = Lookup.findSuperImplementor(getDottedClassName(), "finalize", "()V", bugReporter);
+//        boolean superHasNoFinalizer = "java.lang.Object".equals(overridesFinalizeIn);
         // System.out.println("superclass: " + superclassName);
-        if (obj.getCode().length == 1) {
-            if (superHasNoFinalizer) {
-                if (!getMethod().isFinal()) {
-                    bugReporter.reportBug(new BugInstance(this, "FI_EMPTY", NORMAL_PRIORITY).addClassAndMethod(this));
-                }
-            } else {
-                bugReporter.reportBug(new BugInstance(this, "FI_NULLIFY_SUPER", NORMAL_PRIORITY).addClassAndMethod(this)
-                        .addClass(overridesFinalizeIn));
-            }
-        } else if (obj.getCode().length == 5 && sawSuperFinalize) {
-            bugReporter.reportBug(new BugInstance(this, "FI_USELESS", NORMAL_PRIORITY).addClassAndMethod(this));
-        } else if (!sawSuperFinalize && !superHasNoFinalizer) {
-            bugReporter.reportBug(new BugInstance(this, "FI_MISSING_SUPER_CALL", NORMAL_PRIORITY).addClassAndMethod(this)
-                    .addClass(overridesFinalizeIn));
-        }
+//        if (obj.getCode().length == 1) {
+//            if (!superHasNoFinalizer) {
+//                if (!getMethod().isFinal()) {
+//                    bugReporter.reportBug(new BugInstance(this, "FI_EMPTY", NORMAL_PRIORITY).addClassAndMethod(this));
+//                }
+//            } else {
+//                bugReporter.reportBug(new BugInstance(this, "FI_NULLIFY_SUPER", NORMAL_PRIORITY).addClassAndMethod(this)
+//                        .addClass(overridesFinalizeIn));
+//            }
+//        } else if (obj.getCode().length == 5 && sawSuperFinalize) {
+//            bugReporter.reportBug(new BugInstance(this, "FI_USELESS", NORMAL_PRIORITY).addClassAndMethod(this));
+//        } else if (!sawSuperFinalize && !superHasNoFinalizer) {
+//            bugReporter.reportBug(new BugInstance(this, "FI_MISSING_SUPER_CALL", NORMAL_PRIORITY).addClassAndMethod(this)
+//                    .addClass(overridesFinalizeIn));
+//        }
     }
 
     @Override

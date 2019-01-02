@@ -78,8 +78,8 @@ public class FindBadForLoop extends OpcodeStackDetector implements StatelessDete
                     if (backTarget < getPC() && getPC() - 8 < backTarget && reg != rMax && incLineNumber < testLineNumber + 3
                             && beforeIncLineNumber > incLineNumber) {
 
-                        bugReporter.reportBug(new BugInstance(this, "QF_QUESTIONABLE_FOR_LOOP", NORMAL_PRIORITY)
-                        .addClassAndMethod(this).addSourceLine(this));
+//                        bugReporter.reportBug(new BugInstance(this, "QF_QUESTIONABLE_FOR_LOOP", NORMAL_PRIORITY)
+//                        .addClassAndMethod(this).addSourceLine(this));
                     }
                 }
 

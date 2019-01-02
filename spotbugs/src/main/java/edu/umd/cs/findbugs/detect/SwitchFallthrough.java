@@ -112,7 +112,7 @@ public class SwitchFallthrough extends OpcodeStackDetector implements StatelessD
                 priority = LOW_PRIORITY;
             }
             for (SourceLineAnnotation s : found) {
-                bugAccumulator.accumulateBug(new BugInstance(this, "SF_SWITCH_FALLTHROUGH", priority).addClassAndMethod(this), s);
+//                bugAccumulator.accumulateBug(new BugInstance(this, "SF_SWITCH_FALLTHROUGH", priority).addClassAndMethod(this), s);
             }
         }
 
@@ -136,8 +136,8 @@ public class SwitchFallthrough extends OpcodeStackDetector implements StatelessD
                 return;
             }
 
-            bugAccumulator.accumulateBug(new BugInstance(this, "SF_SWITCH_NO_DEFAULT", NORMAL_PRIORITY).addClassAndMethod(this),
-                    s);
+//            bugAccumulator.accumulateBug(new BugInstance(this, "SF_SWITCH_NO_DEFAULT", NORMAL_PRIORITY).addClassAndMethod(this),
+//                    s);
         }
 
     }
@@ -202,8 +202,8 @@ public class SwitchFallthrough extends OpcodeStackDetector implements StatelessD
                 if (potentiallyDeadFields.contains(f) && potentiallyDeadFieldsFromBeforeFallthrough.contains(f)) {
                     // killed store
                     priority = HIGH_PRIORITY;
-                    bugAccumulator.accumulateBug(new BugInstance(this, "SF_DEAD_STORE_DUE_TO_SWITCH_FALLTHROUGH", priority)
-                    .addClassAndMethod(this).addField(f), this);
+//                    bugAccumulator.accumulateBug(new BugInstance(this, "SF_DEAD_STORE_DUE_TO_SWITCH_FALLTHROUGH", priority)
+//                    .addClassAndMethod(this).addField(f), this);
 
                 }
                 potentiallyDeadFields.add(f);

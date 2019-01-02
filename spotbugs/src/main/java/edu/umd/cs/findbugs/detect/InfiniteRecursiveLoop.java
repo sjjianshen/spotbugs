@@ -94,17 +94,17 @@ public class InfiniteRecursiveLoop extends OpcodeStackDetector implements Statel
             System.out.println(getPC() + " : " + Const.getOpcodeName(seen));
         }
 
-        if ((seen == Const.INVOKEVIRTUAL || seen == Const.INVOKEINTERFACE) && "add".equals(getNameConstantOperand())
-                && "(Ljava/lang/Object;)Z".equals(getSigConstantOperand()) && stack.getStackDepth() >= 2) {
-            OpcodeStack.Item it0 = stack.getStackItem(0);
-            int r0 = it0.getRegisterNumber();
-            OpcodeStack.Item it1 = stack.getStackItem(1);
-            int r1 = it1.getRegisterNumber();
-            if (r0 == r1 && r0 > 0) {
-                bugReporter.reportBug(new BugInstance(this, "IL_CONTAINER_ADDED_TO_ITSELF", NORMAL_PRIORITY).addClassAndMethod(
-                        this).addSourceLine(this));
-            }
-        }
+//        if ((seen == Const.INVOKEVIRTUAL || seen == Const.INVOKEINTERFACE) && "add".equals(getNameConstantOperand())
+//                && "(Ljava/lang/Object;)Z".equals(getSigConstantOperand()) && stack.getStackDepth() >= 2) {
+//            OpcodeStack.Item it0 = stack.getStackItem(0);
+//            int r0 = it0.getRegisterNumber();
+//            OpcodeStack.Item it1 = stack.getStackItem(1);
+//            int r1 = it1.getRegisterNumber();
+//            if (r0 == r1 && r0 > 0) {
+//                bugReporter.reportBug(new BugInstance(this, "IL_CONTAINER_ADDED_TO_ITSELF", NORMAL_PRIORITY).addClassAndMethod(
+//                        this).addSourceLine(this));
+//            }
+//        }
 
         if ((seen == Const.INVOKEVIRTUAL || seen == Const.INVOKESPECIAL || seen == Const.INVOKEINTERFACE || seen == Const.INVOKESTATIC)
                 && getNameConstantOperand().equals(getMethodName())

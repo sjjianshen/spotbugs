@@ -533,7 +533,7 @@ public class FindNullDeref implements Detector, UseAnnotationDatabase, NullDeref
             BugAnnotation variable = ValueNumberSourceInfo.findAnnotationFromValueNumber(method, location, valueNumber, vnaFrame,
                     "VALUE_OF");
 
-            String bugPattern = "NP_NONNULL_RETURN_VIOLATION";
+            String bugPattern = "";
             int priority = NORMAL_PRIORITY;
             if (tos.isDefinitelyNull() && !tos.isException()) {
                 priority = HIGH_PRIORITY;
@@ -545,6 +545,8 @@ public class FindNullDeref implements Detector, UseAnnotationDatabase, NullDeref
             } else if ("toString".equals(methodName)) {
                 bugPattern = "NP_TOSTRING_COULD_RETURN_NULL";
                 priority = NORMAL_PRIORITY;
+            } else {
+                return;
             }
             BugInstance warning = new BugInstance(this, bugPattern, priority).addClassAndMethod(classContext.getJavaClass(),
                     method).addOptionalAnnotation(variable);
@@ -1070,233 +1072,233 @@ public class FindNullDeref implements Detector, UseAnnotationDatabase, NullDeref
     @Override
     public void foundRedundantNullCheck(Location location, RedundantBranch redundantBranch) {
 
-        boolean isChecked = redundantBranch.firstValue.isChecked();
-        boolean wouldHaveBeenAKaboom = redundantBranch.firstValue.wouldHaveBeenAKaboom();
-        boolean isParameter = redundantBranch.firstValue.isParamValue();
-
-        Location locationOfKaBoom = redundantBranch.firstValue.getLocationOfKaBoom();
-        if (isParameter && !wouldHaveBeenAKaboom) {
-            return;
-        }
-        boolean createdDeadCode = false;
-        boolean infeasibleEdgeSimplyThrowsException = false;
-        Edge infeasibleEdge = redundantBranch.infeasibleEdge;
-        if (infeasibleEdge != null) {
-            if (DEBUG) {
-                System.out.println("Check if " + redundantBranch + " creates dead code");
-            }
-            BasicBlock target = infeasibleEdge.getTarget();
-
-            if (DEBUG) {
-                System.out.println("Target block is  "
-                        + (target.isExceptionThrower() ? " exception thrower" : " not exception thrower"));
-            }
-            // If the block is empty, it probably doesn't matter that it was
-            // killed.
-            // FIXME: really, we should crawl the immediately reachable blocks
-            // starting at the target block to see if any of them are dead and
-            // nonempty.
-            boolean empty = !target.isExceptionThrower()
-                    && (target.isEmpty() || isGoto(target.getFirstInstruction().getInstruction()));
-            if (!empty) {
-                try {
-                    if (classContext.getCFG(method).getNumIncomingEdges(target) > 1) {
-                        if (DEBUG) {
-                            System.out.println("Target of infeasible edge has multiple incoming edges");
-                        }
-                        empty = true;
-                    }
-                } catch (CFGBuilderException e) {
-                    assert true; // ignore it
-                }
-            }
-            if (DEBUG) {
-                System.out.println("Target block is  " + (empty ? "empty" : "not empty"));
-            }
-
-            if (!empty) {
-                if (isThrower(target)) {
-                    infeasibleEdgeSimplyThrowsException = true;
-                }
-
-            }
-            if (!empty && !previouslyDeadBlocks.get(target.getLabel())) {
-                if (DEBUG) {
-                    System.out.println("target was alive previously");
-                }
-                // Block was not dead before the null pointer analysis.
-                // See if it is dead now by inspecting the null value frame.
-                // If it's TOP, then the block became dead.
-                IsNullValueFrame invFrame = invDataflow.getStartFact(target);
-                createdDeadCode = invFrame.isTop();
-                if (DEBUG) {
-                    System.out.println("target is now " + (createdDeadCode ? "dead" : "alive"));
-                }
-
-            }
-        }
-
-        int priority;
-        boolean valueIsNull = true;
-        String warning;
-        int pc = location.getHandle().getPosition();
-        OpcodeStack stack = null;
-        OpcodeStack.Item item1 = null;
-
-        OpcodeStack.Item item2 = null;
-        try {
-            stack = OpcodeStackScanner.getStackAt(classContext.getJavaClass(), method, pc);
-
-            item1 = stack.getStackItem(0);
-        } catch (RuntimeException e) {
-            if (SystemProperties.ASSERTIONS_ENABLED) {
-                AnalysisContext.logError("Error getting stack at specific PC", e);
-            }
-            assert true;
-        }
-        if (redundantBranch.secondValue == null) {
-            if (redundantBranch.firstValue.isDefinitelyNull()) {
-                warning = "RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE";
-                priority = NORMAL_PRIORITY;
-            } else {
-                warning = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE";
-                valueIsNull = false;
-                priority = isChecked ? HIGH_PRIORITY : NORMAL_PRIORITY;
-            }
-            if (infeasibleEdgeSimplyThrowsException) {
-                priority++;
-            }
-
-        } else {
-            if (stack != null) {
-                item2 = stack.getStackItem(1);
-            }
-            boolean bothNull = redundantBranch.firstValue.isDefinitelyNull() && redundantBranch.secondValue.isDefinitelyNull();
-            if (redundantBranch.secondValue.isChecked()) {
-                isChecked = true;
-            }
-            if (redundantBranch.secondValue.wouldHaveBeenAKaboom()) {
-                wouldHaveBeenAKaboom = true;
-                locationOfKaBoom = redundantBranch.secondValue.getLocationOfKaBoom();
-            }
-            if (bothNull) {
-                warning = "RCN_REDUNDANT_COMPARISON_TWO_NULL_VALUES";
-                priority = NORMAL_PRIORITY;
-            } else {
-                warning = "RCN_REDUNDANT_COMPARISON_OF_NULL_AND_NONNULL_VALUE";
-                priority = isChecked ? NORMAL_PRIORITY : LOW_PRIORITY;
-            }
-
-        }
-
-        if (wouldHaveBeenAKaboom) {
-            priority = HIGH_PRIORITY;
-            warning = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE";
-            if (locationOfKaBoom == null) {
-                throw new NullPointerException("location of KaBoom is null");
-            }
-        }
-
-        if (DEBUG) {
-            System.out.println(createdDeadCode + " " + infeasibleEdgeSimplyThrowsException + " " + valueIsNull + " " + priority);
-        }
-        if (createdDeadCode && !infeasibleEdgeSimplyThrowsException) {
-            priority += 0;
-        } else if (createdDeadCode && infeasibleEdgeSimplyThrowsException) {
-            // throw clause
-            if (valueIsNull) {
-                priority += 0;
-            } else {
-                priority += 1;
-            }
-        } else {
-            // didn't create any dead code
-            priority += 1;
-        }
-
-
-        if (DEBUG) {
-            System.out.println("RCN " + priority + " " + redundantBranch.firstValue + " =? " + redundantBranch.secondValue + " : "
-                    + warning);
-
-            if (isChecked) {
-                System.out.println("isChecked");
-            }
-            if (wouldHaveBeenAKaboom) {
-                System.out.println("wouldHaveBeenAKaboom");
-            }
-            if (createdDeadCode) {
-                System.out.println("createdDeadCode");
-            }
-        }
-        if (priority > LOW_PRIORITY) {
-            return;
-        }
-        BugAnnotation variableAnnotation = null;
-        try {
-            // Get the value number
-            ValueNumberFrame vnaFrame = classContext.getValueNumberDataflow(method).getFactAtLocation(location);
-            if (vnaFrame.isValid()) {
-                Instruction ins = location.getHandle().getInstruction();
-
-                ValueNumber valueNumber = vnaFrame.getInstance(ins, classContext.getConstantPoolGen());
-                if (valueNumber.hasFlag(ValueNumber.CONSTANT_CLASS_OBJECT)) {
-                    return;
-                }
-                variableAnnotation = ValueNumberSourceInfo.findAnnotationFromValueNumber(method, location, valueNumber, vnaFrame,
-                        "VALUE_OF");
-                if (variableAnnotation instanceof LocalVariableAnnotation) {
-                    LocalVariableAnnotation local = (LocalVariableAnnotation) variableAnnotation;
-                    if (!local.isNamed()) {
-                        if ("RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE".equals(warning)) {
-                            return;
-                        }
-                        priority++;
-                    }
-                }
-
-            }
-        } catch (DataflowAnalysisException e) {
-            // ignore
-        } catch (CFGBuilderException e) {
-            // ignore
-        }
-
-        BugInstance bugInstance = new BugInstance(this, warning, priority).addClassAndMethod(classContext.getJavaClass(), method);
-        LocalVariableAnnotation fallback = new LocalVariableAnnotation("?", -1, -1);
-        boolean foundSource =  bugInstance.tryAddingOptionalUniqueAnnotations(variableAnnotation,
-                BugInstance.getFieldOrMethodValueSource(item1), BugInstance.getFieldOrMethodValueSource(item2));
-
-        if (!foundSource) {
-            if ("RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE".equals(warning)) {
-                return;
-            }
-            bugInstance.setPriority(priority+1);
-            bugInstance.add(fallback);
-        }
-        if (wouldHaveBeenAKaboom) {
-            bugInstance.addSourceLine(classContext, method, locationOfKaBoom);
-        }
-
-        if (FindBugsAnalysisFeatures.isRelaxedMode()) {
-            WarningPropertySet<WarningProperty> propertySet = new WarningPropertySet<>();
-            WarningPropertyUtil.addPropertiesForDataMining(propertySet, classContext, method, location);
-            if (isChecked) {
-                propertySet.addProperty(NullDerefProperty.CHECKED_VALUE);
-            }
-            if (wouldHaveBeenAKaboom) {
-                propertySet.addProperty(NullDerefProperty.WOULD_HAVE_BEEN_A_KABOOM);
-            }
-            if (createdDeadCode) {
-                propertySet.addProperty(NullDerefProperty.CREATED_DEAD_CODE);
-            }
-
-            propertySet.decorateBugInstance(bugInstance);
-        }
-
-        SourceLineAnnotation sourceLine = SourceLineAnnotation.fromVisitedInstruction(classContext, method, location);
-        sourceLine.setDescription("SOURCE_REDUNDANT_NULL_CHECK");
-        bugAccumulator.accumulateBug(bugInstance, sourceLine);
+//        boolean isChecked = redundantBranch.firstValue.isChecked();
+//        boolean wouldHaveBeenAKaboom = redundantBranch.firstValue.wouldHaveBeenAKaboom();
+//        boolean isParameter = redundantBranch.firstValue.isParamValue();
+//
+//        Location locationOfKaBoom = redundantBranch.firstValue.getLocationOfKaBoom();
+//        if (isParameter && !wouldHaveBeenAKaboom) {
+//            return;
+//        }
+//        boolean createdDeadCode = false;
+//        boolean infeasibleEdgeSimplyThrowsException = false;
+//        Edge infeasibleEdge = redundantBranch.infeasibleEdge;
+//        if (infeasibleEdge != null) {
+//            if (DEBUG) {
+//                System.out.println("Check if " + redundantBranch + " creates dead code");
+//            }
+//            BasicBlock target = infeasibleEdge.getTarget();
+//
+//            if (DEBUG) {
+//                System.out.println("Target block is  "
+//                        + (target.isExceptionThrower() ? " exception thrower" : " not exception thrower"));
+//            }
+//            // If the block is empty, it probably doesn't matter that it was
+//            // killed.
+//            // FIXME: really, we should crawl the immediately reachable blocks
+//            // starting at the target block to see if any of them are dead and
+//            // nonempty.
+//            boolean empty = !target.isExceptionThrower()
+//                    && (target.isEmpty() || isGoto(target.getFirstInstruction().getInstruction()));
+//            if (!empty) {
+//                try {
+//                    if (classContext.getCFG(method).getNumIncomingEdges(target) > 1) {
+//                        if (DEBUG) {
+//                            System.out.println("Target of infeasible edge has multiple incoming edges");
+//                        }
+//                        empty = true;
+//                    }
+//                } catch (CFGBuilderException e) {
+//                    assert true; // ignore it
+//                }
+//            }
+//            if (DEBUG) {
+//                System.out.println("Target block is  " + (empty ? "empty" : "not empty"));
+//            }
+//
+//            if (!empty) {
+//                if (isThrower(target)) {
+//                    infeasibleEdgeSimplyThrowsException = true;
+//                }
+//
+//            }
+//            if (!empty && !previouslyDeadBlocks.get(target.getLabel())) {
+//                if (DEBUG) {
+//                    System.out.println("target was alive previously");
+//                }
+//                // Block was not dead before the null pointer analysis.
+//                // See if it is dead now by inspecting the null value frame.
+//                // If it's TOP, then the block became dead.
+//                IsNullValueFrame invFrame = invDataflow.getStartFact(target);
+//                createdDeadCode = invFrame.isTop();
+//                if (DEBUG) {
+//                    System.out.println("target is now " + (createdDeadCode ? "dead" : "alive"));
+//                }
+//
+//            }
+//        }
+//
+//        int priority;
+//        boolean valueIsNull = true;
+//        String warning;
+//        int pc = location.getHandle().getPosition();
+//        OpcodeStack stack = null;
+//        OpcodeStack.Item item1 = null;
+//
+//        OpcodeStack.Item item2 = null;
+//        try {
+//            stack = OpcodeStackScanner.getStackAt(classContext.getJavaClass(), method, pc);
+//
+//            item1 = stack.getStackItem(0);
+//        } catch (RuntimeException e) {
+//            if (SystemProperties.ASSERTIONS_ENABLED) {
+//                AnalysisContext.logError("Error getting stack at specific PC", e);
+//            }
+//            assert true;
+//        }
+//        if (redundantBranch.secondValue == null) {
+//            if (redundantBranch.firstValue.isDefinitelyNull()) {
+//                warning = "RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE";
+//                priority = NORMAL_PRIORITY;
+//            } else {
+//                warning = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE";
+//                valueIsNull = false;
+//                priority = isChecked ? HIGH_PRIORITY : NORMAL_PRIORITY;
+//            }
+//            if (infeasibleEdgeSimplyThrowsException) {
+//                priority++;
+//            }
+//
+//        } else {
+//            if (stack != null) {
+//                item2 = stack.getStackItem(1);
+//            }
+//            boolean bothNull = redundantBranch.firstValue.isDefinitelyNull() && redundantBranch.secondValue.isDefinitelyNull();
+//            if (redundantBranch.secondValue.isChecked()) {
+//                isChecked = true;
+//            }
+//            if (redundantBranch.secondValue.wouldHaveBeenAKaboom()) {
+//                wouldHaveBeenAKaboom = true;
+//                locationOfKaBoom = redundantBranch.secondValue.getLocationOfKaBoom();
+//            }
+//            if (bothNull) {
+//                warning = "RCN_REDUNDANT_COMPARISON_TWO_NULL_VALUES";
+//                priority = NORMAL_PRIORITY;
+//            } else {
+//                warning = "RCN_REDUNDANT_COMPARISON_OF_NULL_AND_NONNULL_VALUE";
+//                priority = isChecked ? NORMAL_PRIORITY : LOW_PRIORITY;
+//            }
+//
+//        }
+//
+//        if (wouldHaveBeenAKaboom) {
+//            priority = HIGH_PRIORITY;
+//            warning = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE";
+//            if (locationOfKaBoom == null) {
+//                throw new NullPointerException("location of KaBoom is null");
+//            }
+//        }
+//
+//        if (DEBUG) {
+//            System.out.println(createdDeadCode + " " + infeasibleEdgeSimplyThrowsException + " " + valueIsNull + " " + priority);
+//        }
+//        if (createdDeadCode && !infeasibleEdgeSimplyThrowsException) {
+//            priority += 0;
+//        } else if (createdDeadCode && infeasibleEdgeSimplyThrowsException) {
+//            // throw clause
+//            if (valueIsNull) {
+//                priority += 0;
+//            } else {
+//                priority += 1;
+//            }
+//        } else {
+//            // didn't create any dead code
+//            priority += 1;
+//        }
+//
+//
+//        if (DEBUG) {
+//            System.out.println("RCN " + priority + " " + redundantBranch.firstValue + " =? " + redundantBranch.secondValue + " : "
+//                    + warning);
+//
+//            if (isChecked) {
+//                System.out.println("isChecked");
+//            }
+//            if (wouldHaveBeenAKaboom) {
+//                System.out.println("wouldHaveBeenAKaboom");
+//            }
+//            if (createdDeadCode) {
+//                System.out.println("createdDeadCode");
+//            }
+//        }
+//        if (priority > LOW_PRIORITY) {
+//            return;
+//        }
+//        BugAnnotation variableAnnotation = null;
+//        try {
+//            // Get the value number
+//            ValueNumberFrame vnaFrame = classContext.getValueNumberDataflow(method).getFactAtLocation(location);
+//            if (vnaFrame.isValid()) {
+//                Instruction ins = location.getHandle().getInstruction();
+//
+//                ValueNumber valueNumber = vnaFrame.getInstance(ins, classContext.getConstantPoolGen());
+//                if (valueNumber.hasFlag(ValueNumber.CONSTANT_CLASS_OBJECT)) {
+//                    return;
+//                }
+//                variableAnnotation = ValueNumberSourceInfo.findAnnotationFromValueNumber(method, location, valueNumber, vnaFrame,
+//                        "VALUE_OF");
+//                if (variableAnnotation instanceof LocalVariableAnnotation) {
+//                    LocalVariableAnnotation local = (LocalVariableAnnotation) variableAnnotation;
+//                    if (!local.isNamed()) {
+//                        if ("RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE".equals(warning)) {
+//                            return;
+//                        }
+//                        priority++;
+//                    }
+//                }
+//
+//            }
+//        } catch (DataflowAnalysisException e) {
+//            // ignore
+//        } catch (CFGBuilderException e) {
+//            // ignore
+//        }
+//
+//        BugInstance bugInstance = new BugInstance(this, warning, priority).addClassAndMethod(classContext.getJavaClass(), method);
+//        LocalVariableAnnotation fallback = new LocalVariableAnnotation("?", -1, -1);
+//        boolean foundSource =  bugInstance.tryAddingOptionalUniqueAnnotations(variableAnnotation,
+//                BugInstance.getFieldOrMethodValueSource(item1), BugInstance.getFieldOrMethodValueSource(item2));
+//
+//        if (!foundSource) {
+//            if ("RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE".equals(warning)) {
+//                return;
+//            }
+//            bugInstance.setPriority(priority+1);
+//            bugInstance.add(fallback);
+//        }
+//        if (wouldHaveBeenAKaboom) {
+//            bugInstance.addSourceLine(classContext, method, locationOfKaBoom);
+//        }
+//
+//        if (FindBugsAnalysisFeatures.isRelaxedMode()) {
+//            WarningPropertySet<WarningProperty> propertySet = new WarningPropertySet<>();
+//            WarningPropertyUtil.addPropertiesForDataMining(propertySet, classContext, method, location);
+//            if (isChecked) {
+//                propertySet.addProperty(NullDerefProperty.CHECKED_VALUE);
+//            }
+//            if (wouldHaveBeenAKaboom) {
+//                propertySet.addProperty(NullDerefProperty.WOULD_HAVE_BEEN_A_KABOOM);
+//            }
+//            if (createdDeadCode) {
+//                propertySet.addProperty(NullDerefProperty.CREATED_DEAD_CODE);
+//            }
+//
+//            propertySet.decorateBugInstance(bugInstance);
+//        }
+//
+//        SourceLineAnnotation sourceLine = SourceLineAnnotation.fromVisitedInstruction(classContext, method, location);
+//        sourceLine.setDescription("SOURCE_REDUNDANT_NULL_CHECK");
+//        bugAccumulator.accumulateBug(bugInstance, sourceLine);
     }
 
     BugAnnotation getVariableAnnotation(Location location) {

@@ -101,23 +101,23 @@ public class InitializeNonnullFieldsInConstructor extends OpcodeStackDetector {
         }
         // initialize any variables we want to initialize for the method
         super.visit(code); // make callbacks to sawOpcode for all opcodes
-        if (!secondaryConstructor && !initializedFields.containsAll(needToInitialize)) {
-            int priority = Priorities.NORMAL_PRIORITY;
-            if (needToInitialize.size() - initializedFields.size() == 1 && needToInitialize.size() > 1) {
-                priority = Priorities.HIGH_PRIORITY;
-            }
-
-            for (XField f : needToInitialize) {
-                if (initializedFields.contains(f)) {
-                    continue;
-                }
-
-                BugInstance b = new BugInstance(this, "NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR", priority)
-                .addClassAndMethod(this).addField(f);
-                bugReporter.reportBug(b);
-            }
-
-        }
+//        if (!secondaryConstructor && !initializedFields.containsAll(needToInitialize)) {
+//            int priority = Priorities.NORMAL_PRIORITY;
+//            if (needToInitialize.size() - initializedFields.size() == 1 && needToInitialize.size() > 1) {
+//                priority = Priorities.HIGH_PRIORITY;
+//            }
+//
+//            for (XField f : needToInitialize) {
+//                if (initializedFields.contains(f)) {
+//                    continue;
+//                }
+//
+//                BugInstance b = new BugInstance(this, "NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR", priority)
+//                .addClassAndMethod(this).addField(f);
+//                bugReporter.reportBug(b);
+//            }
+//
+//        }
         initializedFields.clear();
 
     }

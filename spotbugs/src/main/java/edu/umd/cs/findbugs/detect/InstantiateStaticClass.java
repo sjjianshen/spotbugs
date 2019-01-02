@@ -63,8 +63,8 @@ public class InstantiateStaticClass extends BytecodeScanningDetector {
             }
 
             if (isStaticOnlyClass(xClass)) {
-                bugReporter.reportBug(new BugInstance(this, "ISC_INSTANTIATE_STATIC_CLASS", LOW_PRIORITY).addClassAndMethod(
-                        this).addSourceLine(this));
+//                bugReporter.reportBug(new BugInstance(this, "ISC_INSTANTIATE_STATIC_CLASS", LOW_PRIORITY).addClassAndMethod(
+//                        this).addSourceLine(this));
             }
         }
 

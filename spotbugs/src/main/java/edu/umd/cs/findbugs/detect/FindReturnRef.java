@@ -122,16 +122,16 @@ public class FindReturnRef extends OpcodeStackDetector {
         }
         if (!staticMethod && seen == Const.PUTFIELD && nonPublicFieldOperand()
                 && MutableStaticFields.mutableSignature(getSigConstantOperand())) {
-            OpcodeStack.Item top = stack.getStackItem(0);
-            OpcodeStack.Item target = stack.getStackItem(1);
-            if (isPotentialCapture(top) && target.getRegisterNumber() == 0) {
-                bugAccumulator.accumulateBug(
-                        new BugInstance(this, "EI_EXPOSE_REP2", NORMAL_PRIORITY)
-                        .addClassAndMethod(this)
-                        .addReferencedField(this)
-                        .add(LocalVariableAnnotation.getLocalVariableAnnotation(getMethod(), top.getRegisterNumber(),
-                                getPC(), getPC() - 1)), this);
-            }
+//            OpcodeStack.Item top = stack.getStackItem(0);
+//            OpcodeStack.Item target = stack.getStackItem(1);
+//            if (isPotentialCapture(top) && target.getRegisterNumber() == 0) {
+//                bugAccumulator.accumulateBug(
+//                        new BugInstance(this, "EI_EXPOSE_REP2", NORMAL_PRIORITY)
+//                        .addClassAndMethod(this)
+//                        .addReferencedField(this)
+//                        .add(LocalVariableAnnotation.getLocalVariableAnnotation(getMethod(), top.getRegisterNumber(),
+//                                getPC(), getPC() - 1)), this);
+//            }
         }
 
         if (seen == Const.ALOAD_0 && !staticMethod) {
@@ -162,15 +162,15 @@ public class FindReturnRef extends OpcodeStackDetector {
             return;
         }
         thisOnTOS = false;
-        if (check && fieldOnTOS && seen == Const.ARETURN
-                /*
-                 * && !sigOnStack.equals("Ljava/lang/String;") &&
-                 * sigOnStack.indexOf("Exception") == -1 && sigOnStack.indexOf("[") >= 0
-                 */
-                && nameOnStack.indexOf("EMPTY") == -1 && MutableStaticFields.mutableSignature(sigOnStack)) {
-            bugAccumulator.accumulateBug(new BugInstance(this, staticMethod ? "MS_EXPOSE_REP" : "EI_EXPOSE_REP", NORMAL_PRIORITY)
-            .addClassAndMethod(this).addField(classNameOnStack, nameOnStack, sigOnStack, fieldIsStatic), this);
-        }
+//        if (check && fieldOnTOS && seen == Const.ARETURN
+//                /*
+//                 * && !sigOnStack.equals("Ljava/lang/String;") &&
+//                 * sigOnStack.indexOf("Exception") == -1 && sigOnStack.indexOf("[") >= 0
+//                 */
+//                && nameOnStack.indexOf("EMPTY") == -1 && MutableStaticFields.mutableSignature(sigOnStack)) {
+//            bugAccumulator.accumulateBug(new BugInstance(this, staticMethod ? "MS_EXPOSE_REP" : "EI_EXPOSE_REP", NORMAL_PRIORITY)
+//            .addClassAndMethod(this).addField(classNameOnStack, nameOnStack, sigOnStack, fieldIsStatic), this);
+//        }
 
         fieldOnTOS = false;
         thisOnTOS = false;

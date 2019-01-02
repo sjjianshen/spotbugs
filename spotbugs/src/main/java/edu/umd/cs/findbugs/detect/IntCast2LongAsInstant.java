@@ -70,9 +70,9 @@ public class IntCast2LongAsInstant extends OpcodeStackDetector {
                                 && lastConstantForSIPUSH == 1000) {
                             priority = HIGH_PRIORITY;
                         }
-                        BugInstance bug = new BugInstance(this, "ICAST_INT_2_LONG_AS_INSTANT", priority).addClassAndMethod(this)
-                                .addCalledMethod(this).addValueSource(item, this).addSourceLine(this);
-                        bugReporter.reportBug(bug);
+//                        BugInstance bug = new BugInstance(this, "ICAST_INT_2_LONG_AS_INSTANT", priority).addClassAndMethod(this)
+//                                .addCalledMethod(this).addValueSource(item, this).addSourceLine(this);
+//                        bugReporter.reportBug(bug);
                     }
 
                 }

@@ -349,19 +349,19 @@ public class CheckTypeQualifiers extends CFGDetector {
                 return;
             }
             if (FlowValue.valuesConflict(typeQualifierValue.isStrictQualifier() && !xmethod.isIdentity(), topTQ, nextTQ)) {
-                BugInstance warning = new BugInstance(this,"TQ_COMPARING_VALUES_WITH_INCOMPATIBLE_TYPE_QUALIFIERS", HIGH_PRIORITY).addClassAndMethod(xmethod);
-                annotateWarningWithTypeQualifier(warning, typeQualifierValue);
-                for(SourceSinkInfo s : forwardsFact.getWhere(top)) {
-                    annotateWarningWithSourceSinkInfo(warning, xmethod, top, s);
-                }
-                for(SourceSinkInfo s : forwardsFact.getWhere(next)) {
-                    annotateWarningWithSourceSinkInfo(warning, xmethod, next, s);
-                }
-                SourceLineAnnotation observedLocation = SourceLineAnnotation.fromVisitedInstruction(xmethod.getMethodDescriptor(),
-                        loc);
-                warning.add(observedLocation);
-                warning.addSomeSourceForTopTwoStackValues(classContext, method, loc);
-                bugReporter.reportBug(warning);
+//                BugInstance warning = new BugInstance(this,"TQ_COMPARING_VALUES_WITH_INCOMPATIBLE_TYPE_QUALIFIERS", HIGH_PRIORITY).addClassAndMethod(xmethod);
+//                annotateWarningWithTypeQualifier(warning, typeQualifierValue);
+//                for(SourceSinkInfo s : forwardsFact.getWhere(top)) {
+//                    annotateWarningWithSourceSinkInfo(warning, xmethod, top, s);
+//                }
+//                for(SourceSinkInfo s : forwardsFact.getWhere(next)) {
+//                    annotateWarningWithSourceSinkInfo(warning, xmethod, next, s);
+//                }
+//                SourceLineAnnotation observedLocation = SourceLineAnnotation.fromVisitedInstruction(xmethod.getMethodDescriptor(),
+//                        loc);
+//                warning.add(observedLocation);
+//                warning.addSomeSourceForTopTwoStackValues(classContext, method, loc);
+//                bugReporter.reportBug(warning);
 
             }
 

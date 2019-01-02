@@ -341,77 +341,86 @@ public class MutableStaticFields extends BytecodeScanningDetector {
          * for(Iterator i = unsafeValue.iterator(); i.hasNext(); ) {
          * System.out.println("Unsafe: " + i.next()); }
          */
-        for (XField f : seen) {
-            boolean isFinal = f.isFinal();
-            String className = f.getClassName();
-            String fieldSig = f.getSignature();
-            String fieldName = f.getName();
-            boolean couldBeFinal = !isFinal && !notFinal.contains(f);
-            //            boolean isPublic = f.isPublic();
-            boolean couldBePackage = !outsidePackage.contains(f);
-            boolean isMutableCollection = mutableCollection.contains(f);
-            boolean movedOutofInterface = false;
-
-            try {
-                XClass xClass = Global.getAnalysisCache().getClassAnalysis(XClass.class, f.getClassDescriptor());
-                movedOutofInterface = couldBePackage && xClass.isInterface();
-            } catch (CheckedAnalysisException e) {
-                assert true;
-            }
-            boolean isHashtable = fieldSig.equals("Ljava/util/Hashtable;");
-            boolean isArray = fieldSig.charAt(0) == '[' && unsafeValue.contains(f);
-            boolean isReadAnywhere = readAnywhere.contains(f);
-            //            if (false) {
-            //                System.out.println(className + "." + fieldName + " : " + fieldSig + "\t" + isHashtable + "\t" + isArray);
-            //            }
-
-            String bugType;
-            int priority = NORMAL_PRIORITY;
-            if (isFinal && !isHashtable && !isArray && !isMutableCollection) {
-                continue;
-            } else if (movedOutofInterface) {
-                bugType = "MS_OOI_PKGPROTECT";
-            } else if (couldBePackage && couldBeFinal && (isHashtable || isArray)) {
-                bugType = "MS_FINAL_PKGPROTECT";
-            } else if (couldBeFinal && !isHashtable && !isArray) {
-                bugType = "MS_SHOULD_BE_FINAL";
-                if (needsRefactoringToBeFinal.contains(f)) {
-                    bugType = "MS_SHOULD_BE_REFACTORED_TO_BE_FINAL";
-                }
-                if (fieldName.equals(fieldName.toUpperCase()) || fieldSig.charAt(0) == 'L') {
-                    priority = HIGH_PRIORITY;
-                }
-            } else if (couldBePackage) {
-                bugType = isMutableCollection ? "MS_MUTABLE_COLLECTION_PKGPROTECT" : "MS_PKGPROTECT";
-            } else if (isHashtable) {
-                bugType = "MS_MUTABLE_HASHTABLE";
-                if (!isFinal) {
-                    priority = HIGH_PRIORITY;
-                }
-            } else if (isArray) {
-                bugType = "MS_MUTABLE_ARRAY";
-                if (fieldSig.indexOf('L') >= 0 || !isFinal) {
-                    priority = HIGH_PRIORITY;
-                }
-            } else if (isMutableCollection) {
-                bugType = "MS_MUTABLE_COLLECTION";
-                priority = HIGH_PRIORITY;
-            } else if (!isFinal) {
-                bugType = "MS_CANNOT_BE_FINAL";
-            } else {
-                throw new IllegalStateException("impossible");
-            }
-            if (!isReadAnywhere) {
-                priority = LOW_PRIORITY;
-            }
-
-            BugInstance bug = new BugInstance(this, bugType, priority).addClass(className).addField(f);
-            SourceLineAnnotation firstPC = firstFieldUse.get(f);
-            if (firstPC != null) {
-                bug.addSourceLine(firstPC);
-            }
-            bugReporter.reportBug(bug);
-
-        }
+//        for (XField f : seen) {
+//            boolean isFinal = f.isFinal();
+//            String className = f.getClassName();
+//            String fieldSig = f.getSignature();
+//            String fieldName = f.getName();
+//            boolean couldBeFinal = !isFinal && !notFinal.contains(f);
+//            //            boolean isPublic = f.isPublic();
+//            boolean couldBePackage = !outsidePackage.contains(f);
+//            boolean isMutableCollection = mutableCollection.contains(f);
+//            boolean movedOutofInterface = false;
+//
+//            try {
+//                XClass xClass = Global.getAnalysisCache().getClassAnalysis(XClass.class, f.getClassDescriptor());
+//                movedOutofInterface = couldBePackage && xClass.isInterface();
+//            } catch (CheckedAnalysisException e) {
+//                assert true;
+//            }
+//            boolean isHashtable = fieldSig.equals("Ljava/util/Hashtable;");
+//            boolean isArray = fieldSig.charAt(0) == '[' && unsafeValue.contains(f);
+//            boolean isReadAnywhere = readAnywhere.contains(f);
+//            //            if (false) {
+//            //                System.out.println(className + "." + fieldName + " : " + fieldSig + "\t" + isHashtable + "\t" + isArray);
+//            //            }
+//
+//            String bugType;
+//            int priority = NORMAL_PRIORITY;
+//            if (isFinal && !isHashtable && !isArray && !isMutableCollection) {
+//                continue;
+//            } else if (movedOutofInterface) {
+////                bugType = "MS_OOI_PKGPROTECT";
+//                return;
+//            } else if (couldBePackage && couldBeFinal && (isHashtable || isArray)) {
+////                bugType = "MS_FINAL_PKGPROTECT";
+//                return;
+//            } else if (couldBeFinal && !isHashtable && !isArray) {
+////                bugType = "MS_SHOULD_BE_FINAL";
+////                if (needsRefactoringToBeFinal.contains(f)) {
+////                    bugType = "MS_SHOULD_BE_REFACTORED_TO_BE_FINAL";
+////                }
+////                if (fieldName.equals(fieldName.toUpperCase()) || fieldSig.charAt(0) == 'L') {
+////                    priority = HIGH_PRIORITY;
+////                }
+//                return;
+//            } else if (couldBePackage) {
+////                bugType = isMutableCollection ? "MS_MUTABLE_COLLECTION_PKGPROTECT" : "MS_PKGPROTECT";
+//                return;
+//            } else if (isHashtable) {
+////                bugType = "MS_MUTABLE_HASHTABLE";
+////                if (!isFinal) {
+////                    priority = HIGH_PRIORITY;
+////                }
+//                return;
+//            } else if (isArray) {
+////                bugType = "MS_MUTABLE_ARRAY";
+////                if (fieldSig.indexOf('L') >= 0 || !isFinal) {
+////                    priority = HIGH_PRIORITY;
+////                }
+//                return;
+//            } else if (isMutableCollection) {
+////                bugType = "MS_MUTABLE_COLLECTION";
+////                priority = HIGH_PRIORITY;
+//                return;
+//            } else if (!isFinal) {
+////                bugType = "MS_CANNOT_BE_FINAL";
+//                return;
+//            } else {
+//                throw new IllegalStateException("impossible");
+//            }
+//            if (!isReadAnywhere) {
+//                priority = LOW_PRIORITY;
+//            }
+//
+//            BugInstance bug = new BugInstance(this, bugType, priority).addClass(className).addField(f);
+//            SourceLineAnnotation firstPC = firstFieldUse.get(f);
+//            if (firstPC != null) {
+//                bug.addSourceLine(firstPC);
+//            }
+//            bugReporter.reportBug(bug);
+//
+//        }
+        return;
     }
 }

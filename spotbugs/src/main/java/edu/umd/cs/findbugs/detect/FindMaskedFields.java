@@ -198,13 +198,13 @@ public class FindMaskedFields extends BytecodeScanningDetector {
                 // same class
                 // vs. obscuring a field in a superclass. Not sure how important
                 // that is.
-                if (f != null) {
-                    FieldAnnotation fa = FieldAnnotation.fromBCELField(getDottedClassName(), f);
-                    if (true || var.getStartPC() > 0) {
-                        bugReporter.reportBug(new BugInstance(this, "MF_METHOD_MASKS_FIELD", LOW_PRIORITY)
-                        .addClassAndMethod(this).addField(fa).addSourceLine(this, var.getStartPC() - 1));
-                    }
-                }
+//                if (f != null) {
+//                    FieldAnnotation fa = FieldAnnotation.fromBCELField(getDottedClassName(), f);
+//                    if (true || var.getStartPC() > 0) {
+//                        bugReporter.reportBug(new BugInstance(this, "MF_METHOD_MASKS_FIELD", LOW_PRIORITY)
+//                        .addClassAndMethod(this).addField(fa).addSourceLine(this, var.getStartPC() - 1));
+//                    }
+//                }
             }
         }
         super.visit(obj);

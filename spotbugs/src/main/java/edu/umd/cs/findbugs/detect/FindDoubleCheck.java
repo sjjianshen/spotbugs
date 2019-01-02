@@ -169,14 +169,14 @@ public class FindDoubleCheck extends OpcodeStackDetector {
                 if (twice.contains(f) && !getNameConstantOperand().startsWith("class$")
                         && !"Ljava/lang/String;".equals(getSigConstantOperand())) {
                     XField declaration = getXFieldOperand();
-                    if (declaration == null || !declaration.isVolatile()) {
-                        bugReporter.reportBug(new BugInstance(this, "DC_DOUBLECHECK", NORMAL_PRIORITY).addClassAndMethod(this)
-                                .addField(f).describe("FIELD_ON").addSourceLineRange(this, startPC, endPC));
-                    } else {
-                        if(declaration.isReferenceType()) {
+                    if (declaration != null && declaration.isVolatile() && declaration.isReferenceType()) {
+//                        bugReporter.reportBug(new BugInstance(this, "DC_DOUBLECHECK", NORMAL_PRIORITY).addClassAndMethod(this)
+//                                .addField(f).describe("FIELD_ON").addSourceLineRange(this, startPC, endPC));
+//                    } else {
+//                        if(declaration.isReferenceType()) {
                             currentDoubleCheckField = declaration;
                             assignPC = getPC();
-                        }
+//                        }
                     }
                     stage++;
                 }

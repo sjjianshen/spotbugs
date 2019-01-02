@@ -578,7 +578,10 @@ public class FindInconsistentSync2 implements Detector {
                 bugInstance = new BugInstance(this, "MSF_MUTABLE_SERVLET_FIELD", Priorities.NORMAL_PRIORITY).addClass(
                         xfield.getClassName()).addField(xfield);
             } else {
-                bugInstance = new BugInstance(this, guardedByThis ? "IS_FIELD_NOT_GUARDED" : "IS2_INCONSISTENT_SYNC",
+                if (guardedByThis) {
+                    return;
+                }
+                bugInstance = new BugInstance(this, "IS2_INCONSISTENT_SYNC",
                         Priorities.NORMAL_PRIORITY).addClass(xfield.getClassName()).addField(xfield).addInt(printFreq)
                         .describe(IntAnnotation.INT_SYNC_PERCENT);
             }

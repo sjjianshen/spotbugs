@@ -544,12 +544,12 @@ public class FindSqlInjection implements Detector {
                 // returns by methods
                 Location prev = getValueNumberCreationLocation(vnd, vn);
                 if (prev == null || !isSafeValue(prev, cpg)) {
-                    BugInstance bug = generateBugInstance(javaClass, methodGen, location.getHandle(), stringAppendState,
-                            executeMethod);
-                    bugAccumulator.accumulateBug(
-                            bug,
-                            SourceLineAnnotation.fromVisitedInstruction(classContext, methodGen,
-                                    javaClass.getSourceFileName(), location.getHandle()));
+//                    BugInstance bug = generateBugInstance(javaClass, methodGen, location.getHandle(), stringAppendState,
+//                            executeMethod);
+//                    bugAccumulator.accumulateBug(
+//                            bug,
+//                            SourceLineAnnotation.fromVisitedInstruction(classContext, methodGen,
+//                                    javaClass.getSourceFileName(), location.getHandle()));
                 }
             }
         }

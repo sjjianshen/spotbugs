@@ -191,15 +191,15 @@ public class CrossSiteScripting extends OpcodeStackDetector {
                 // System.out.println(SourceLineAnnotation.fromVisitedInstruction(this)
                 // + " writing " + writing);
                 if (isTainted(writing)) {
-                    annotateAndReport(
-                            new BugInstance(this, "XSS_REQUEST_PARAMETER_TO_JSP_WRITER", taintPriority(writing))
-                            .addClassAndMethod(this),
-                            writing);
+//                    annotateAndReport(
+//                            new BugInstance(this, "XSS_REQUEST_PARAMETER_TO_JSP_WRITER", taintPriority(writing))
+//                            .addClassAndMethod(this),
+//                            writing);
                 } else if (isTainted(oldTop)) {
-                    annotateAndReport(
-                            new BugInstance(this, "XSS_REQUEST_PARAMETER_TO_JSP_WRITER", Priorities.NORMAL_PRIORITY)
-                            .addClassAndMethod(this),
-                            oldTop);
+//                    annotateAndReport(
+//                            new BugInstance(this, "XSS_REQUEST_PARAMETER_TO_JSP_WRITER", Priorities.NORMAL_PRIORITY)
+//                            .addClassAndMethod(this),
+//                            oldTop);
                 }
             } else if (calledClassName.startsWith("java/io/") && calledClassName.endsWith("Writer")
                     && (calledMethodName.startsWith("print") || calledMethodName.startsWith("write"))
@@ -207,15 +207,15 @@ public class CrossSiteScripting extends OpcodeStackDetector {
                 OpcodeStack.Item writing = stack.getStackItem(0);
                 OpcodeStack.Item writingTo = stack.getStackItem(1);
                 if (isTainted(writing) && writingTo.isServletWriter()) {
-                    annotateAndReport(
-                            new BugInstance(this, "XSS_REQUEST_PARAMETER_TO_SERVLET_WRITER", taintPriority(writing))
-                            .addClassAndMethod(this),
-                            writing);
+//                    annotateAndReport(
+//                            new BugInstance(this, "XSS_REQUEST_PARAMETER_TO_SERVLET_WRITER", taintPriority(writing))
+//                            .addClassAndMethod(this),
+//                            writing);
                 } else if (isTainted(oldTop) && writingTo.isServletWriter()) {
-                    annotateAndReport(
-                            new BugInstance(this, "XSS_REQUEST_PARAMETER_TO_SERVLET_WRITER", Priorities.NORMAL_PRIORITY)
-                            .addClassAndMethod(this),
-                            writing);
+//                    annotateAndReport(
+//                            new BugInstance(this, "XSS_REQUEST_PARAMETER_TO_SERVLET_WRITER", Priorities.NORMAL_PRIORITY)
+//                            .addClassAndMethod(this),
+//                            writing);
                 }
 
             }

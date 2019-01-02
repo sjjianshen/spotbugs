@@ -122,9 +122,9 @@ public class LostLoggerDueToWeakReference extends OpcodeStackDetector {
                 }
 
                 OpcodeStack.Item item = stack.getItemMethodInvokedOn(this);
-                BugInstance bug = new BugInstance(this, "LG_LOST_LOGGER_DUE_TO_WEAK_REFERENCE", priority)
-                .addClassAndMethod(this).addValueSource(item, this);
-                bugAccumulator.accumulateBug(bug, this);
+//                BugInstance bug = new BugInstance(this, "LG_LOST_LOGGER_DUE_TO_WEAK_REFERENCE", priority)
+//                .addClassAndMethod(this).addValueSource(item, this);
+//                bugAccumulator.accumulateBug(bug, this);
                 break;
             }
             checkForImport();

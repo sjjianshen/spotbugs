@@ -209,10 +209,10 @@ public class FindRoughConstants extends BytecodeScanningDetector {
                 priority++;
             }
             if(priority < IGNORE_PRIORITY) {
-                lastPriority = priority;
-                lastBug = new BugInstance(this, "CNT_ROUGH_CONSTANT_VALUE", priority).addClassAndMethod(this)
-                        .addString(constValue.toString()).addString(badConstant.replacement);
-                bugAccumulator.accumulateBug(lastBug, this);
+//                lastPriority = priority;
+//                lastBug = new BugInstance(this, "CNT_ROUGH_CONSTANT_VALUE", priority).addClassAndMethod(this)
+//                        .addString(constValue.toString()).addString(badConstant.replacement);
+//                bugAccumulator.accumulateBug(lastBug, this);
                 return;
             }
         }
