@@ -2471,7 +2471,7 @@ threads may be synchronizing on different objects.</p>
   </BugPattern>
   <BugPattern type="NP_LOAD_OF_KNOWN_NULL_VALUE">
     <ShortDescription>这个变量有可能为null, 请进行空值检查</ShortDescription>
-    <LongDescription>变量{1}有可能为null, 请进行空值检查</LongDescription>
+    <LongDescription>变量有可能为null, 请进行空值检查</LongDescription>
     <Details>
       <![CDATA[
   <p> The variable referenced at this point is known to be null due to an earlier

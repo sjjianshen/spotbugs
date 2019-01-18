@@ -451,7 +451,7 @@ public class FindNullDeref implements Detector, UseAnnotationDatabase, NullDeref
                                                  // Values null on an exception path might be due to infeasible control flow.
                                                  value -> value.mightBeNull() && !value.isException() && !value.isReturnValue());
         BitSet definitelyNullArgSet = frame.getArgumentSet(invokeInstruction, cpg, value -> value.isDefinitelyNull());
-        nullArgSet.and(definitelyNullArgSet);
+        nullArgSet.or(definitelyNullArgSet);
         if (nullArgSet.isEmpty()) {
             return;
         }

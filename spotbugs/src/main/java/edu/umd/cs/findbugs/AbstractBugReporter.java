@@ -188,20 +188,20 @@ public abstract class AbstractBugReporter implements BugReporter {
             }
             return;
         }
-        int priority = bugInstance.getPriority();
-        int bugRank = bugInstance.getBugRank();
-        if (priority <= priorityThreshold && bugRank <= rankThreshold) {
-            doReportBug(bugInstance);
-        } else {
-            if (DEBUG) {
-                if (priority <= priorityThreshold) {
-                    System.out.println("AbstractBugReporter: Filtering due to priorityThreshold " + priority + " > "
-                            + priorityThreshold);
-                } else {
-                    System.out.println("AbstractBugReporter: Filtering due to rankThreshold " + bugRank + " > " + rankThreshold);
-                }
-            }
-        }
+//        int priority = bugInstance.getPriority();
+//        int bugRank = bugInstance.getBugRank();
+        doReportBug(bugInstance);
+//        if (priority <= priorityThreshold && bugRank <= rankThreshold) {
+//        } else {
+//            if (DEBUG) {
+//                if (priority <= priorityThreshold) {
+//                    System.out.println("AbstractBugReporter: Filtering due to priorityThreshold " + priority + " > "
+//                            + priorityThreshold);
+//                } else {
+//                    System.out.println("AbstractBugReporter: Filtering due to rankThreshold " + bugRank + " > " + rankThreshold);
+//                }
+//            }
+//        }
     }
 
     public final void reportBugsFromXml(@WillClose InputStream in, Project theProject) throws IOException, DocumentException {
