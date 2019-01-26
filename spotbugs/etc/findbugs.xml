@@ -351,8 +351,8 @@
                     reports="NP_PARAMETER_MUST_BE_NONNULL_BUT_MARKED_AS_NULLABLE"/>
           <Detector class="edu.umd.cs.findbugs.detect.FindFloatMath" speed="moderate"
                     disabled="true" hidden="true" reports="FL_MATH_USING_FLOAT_PRECISION"/>
-          <Detector class="edu.umd.cs.findbugs.detect.LoadOfKnownNullValue" speed="fast"
-                    disabled="false" reports="NP_LOAD_OF_KNOWN_NULL_VALUE"/>
+          <!--<Detector class="edu.umd.cs.findbugs.detect.LoadOfKnownNullValue" speed="fast"-->
+                    <!--disabled="false" reports="NP_LOAD_OF_KNOWN_NULL_VALUE"/>-->
           <Detector class="edu.umd.cs.findbugs.detect.URLProblems" speed="fast"
                     reports="DMI_BLOCKING_METHODS_ON_URL,DMI_COLLECTION_OF_URLS"/>
           <Detector class="edu.umd.cs.findbugs.detect.DumbMethods" speed="fast"
@@ -766,7 +766,7 @@
           <!--<BugPattern abbrev="NP" type="NP_NONNULL_RETURN_VIOLATION" category="CORRECTNESS"/>-->
           <BugPattern abbrev="NP" type="NP_TOSTRING_COULD_RETURN_NULL" category="BAD_PRACTICE"/>
           <BugPattern abbrev="NP" type="NP_CLONE_COULD_RETURN_NULL" category="BAD_PRACTICE"/>
-          <BugPattern abbrev="NP" type="NP_LOAD_OF_KNOWN_NULL_VALUE" category="STYLE"/>
+          <!--<BugPattern abbrev="NP" type="NP_LOAD_OF_KNOWN_NULL_VALUE" category="STYLE"/>-->
           <BugPattern abbrev="NP" type="NP_GUARANTEED_DEREF" category="CORRECTNESS"/>
           <BugPattern abbrev="NP" type="NP_GUARANTEED_DEREF_ON_EXCEPTION_PATH"
                     category="CORRECTNESS"/>

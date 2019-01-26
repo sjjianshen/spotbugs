@@ -48,3 +48,5 @@ spotbugs/web/
 spotbugsTestCases/build/
 spotbugsTestCases/history/
 *.log
+gradlePlugin/
+spotbugs/out/
