@@ -324,7 +324,8 @@ public class StaticCalendarDetector extends OpcodeStackDetector {
             if (isCalendar) {
                 tBugType = "STCAL_INVOKE_ON_STATIC_CALENDAR_INSTANCE";
             } else if (isDateFormat) {
-                tBugType = "STCAL_INVOKE_ON_STATIC_DATE_FORMAT_INSTANCE";
+//                tBugType = "STCAL_INVOKE_ON_STATIC_DATE_FORMAT_INSTANCE";
+                return;
             } else {
                 throw new IllegalStateException("Not possible");
             }
