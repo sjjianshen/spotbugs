@@ -33,6 +33,7 @@ import java.util.TreeSet;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
+import edu.umd.cs.findbugs.detect.CreatorDataflow;
 import org.apache.bcel.Const;
 import org.apache.bcel.classfile.Code;
 import org.apache.bcel.classfile.CodeException;
@@ -345,6 +346,17 @@ public class ClassContext {
      */
     public IsNullValueDataflow getIsNullValueDataflow(Method method) throws DataflowAnalysisException, CFGBuilderException {
         return getMethodAnalysis(IsNullValueDataflow.class, method);
+    }
+
+    /**
+     * Get an IsNullValueDataflow for given method.
+     *
+     * @param method
+     *            the method
+     * @return the IsNullValueDataflow
+     */
+    public CreatorDataflow getCreatorDataflow(Method method) throws DataflowAnalysisException, CFGBuilderException {
+        return getMethodAnalysis(CreatorDataflow.class, method);
     }
 
     /**

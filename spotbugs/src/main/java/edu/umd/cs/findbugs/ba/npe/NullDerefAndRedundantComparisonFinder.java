@@ -31,6 +31,9 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import edu.umd.cs.findbugs.detect.CreatorDataFrame;
+import edu.umd.cs.findbugs.detect.CreatorDataValue;
+import edu.umd.cs.findbugs.detect.CreatorDataflow;
 import org.apache.bcel.Const;
 import org.apache.bcel.classfile.CodeException;
 import org.apache.bcel.classfile.LineNumberTable;
@@ -66,6 +69,7 @@ import edu.umd.cs.findbugs.ba.vna.ValueNumberSourceInfo;
 import edu.umd.cs.findbugs.classfile.CheckedAnalysisException;
 import edu.umd.cs.findbugs.classfile.Global;
 import edu.umd.cs.findbugs.log.Profiler;
+import org.apache.bcel.generic.InvokeInstruction;
 
 /**
  * A user-friendly front end for finding null pointer dereferences and redundant
@@ -113,6 +117,8 @@ public class NullDerefAndRedundantComparisonFinder {
         }
     }
 
+    private CreatorDataflow cdvDataflow;
+
     /**
      * Constructor.
      *
@@ -148,6 +154,7 @@ public class NullDerefAndRedundantComparisonFinder {
             // Do the null-value analysis
             this.invDataflow = classContext.getIsNullValueDataflow(method);
             this.vnaDataflow = classContext.getValueNumberDataflow(method);
+            this.cdvDataflow = classContext.getCreatorDataflow(method);
             if (findGuaranteedDerefs) {
                 if (DEBUG_DEREFS) {
                     System.out.println("Checking for guaranteed derefs in "
@@ -215,6 +222,8 @@ public class NullDerefAndRedundantComparisonFinder {
                 }
             }
         }
+
+
     }
 
     /**
@@ -247,7 +256,7 @@ public class NullDerefAndRedundantComparisonFinder {
 
             checkForUnconditionallyDereferencedNullValues(location, bugStatementLocationMap, nullValueGuaranteedDerefMap,
                     vnaDataflow.getFactAtLocation(location), invDataflow.getFactAtLocation(location),
-                    uvdDataflow.getFactAfterLocation(location), false);
+                    uvdDataflow.getFactAfterLocation(location), cdvDataflow.getFactAtLocation(location), false);
         }
         HashSet<ValueNumber> npeIfStatementCovered = new HashSet<>(nullValueGuaranteedDerefMap.keySet());
         Map<ValueNumber, SortedSet<Location>> bugEdgeLocationMap = new HashMap<>();
@@ -390,7 +399,7 @@ public class NullDerefAndRedundantComparisonFinder {
             BasicBlock source = edge.getSource();
             ValueNumberFrame vnaFact = vnaDataflow.getResultFact(source);
             IsNullValueFrame invFact = invDataflow.getFactAtMidEdge(edge);
-
+            CreatorDataFrame cvdFact = cdvDataflow.getResultFact(source);
             Location location = null;
             if (edge.isExceptionEdge()) {
                 BasicBlock b = cfg.getSuccessorWithEdgeType(source, EdgeTypes.FALL_THROUGH_EDGE);
@@ -411,7 +420,7 @@ public class NullDerefAndRedundantComparisonFinder {
                 }
 
                 checkForUnconditionallyDereferencedNullValues(location, bugEdgeLocationMap, nullValueGuaranteedDerefMap, vnaFact,
-                        invFact, uvdFact, true);
+                        invFact, uvdFact, cvdFact, true);
             }
         }
     }
@@ -471,26 +480,26 @@ public class NullDerefAndRedundantComparisonFinder {
     /**
      * Check for unconditionally dereferenced null values at a particular
      * location in the CFG.
-     *
-     * @param thisLocation
+     *  @param thisLocation
      * @param knownNullAndDoomedAt
      * @param nullValueGuaranteedDerefMap
-     *            map to be populated with null values and where they are
-     *            derefed
+ *            map to be populated with null values and where they are
+ *            derefed
      * @param vnaFrame
-     *            value number frame to check
+*            value number frame to check
      * @param invFrame
-     *            null-value frame to check
+*            null-value frame to check
      * @param derefSet
-     *            set of unconditionally derefed values at this location
+*            set of unconditionally derefed values at this location
+     * @param factAtLocation
      * @param isEdge
      */
     private void checkForUnconditionallyDereferencedNullValues(Location thisLocation,
-            Map<ValueNumber, SortedSet<Location>> knownNullAndDoomedAt,
-            Map<ValueNumber, NullValueUnconditionalDeref> nullValueGuaranteedDerefMap, ValueNumberFrame vnaFrame,
-            IsNullValueFrame invFrame, UnconditionalValueDerefSet derefSet, boolean isEdge) {
+                                                               Map<ValueNumber, SortedSet<Location>> knownNullAndDoomedAt,
+                                                               Map<ValueNumber, NullValueUnconditionalDeref> nullValueGuaranteedDerefMap, ValueNumberFrame vnaFrame,
+                                                               IsNullValueFrame invFrame, UnconditionalValueDerefSet derefSet, CreatorDataFrame cdvFrame, boolean isEdge) {
 
-        if (DEBUG_DEREFS) {
+         if (DEBUG_DEREFS) {
             System.out.println("vna *** " + vnaFrame);
             System.out.println("inv *** " + invFrame);
             System.out.println("deref * " + derefSet);
@@ -498,10 +507,13 @@ public class NullDerefAndRedundantComparisonFinder {
 
         // Make sure the frames contain meaningful information
         if (!vnaFrame.isValid() || !invFrame.isValid()  || vnaFrame.getNumLocals() != invFrame.getNumLocals()
-                || derefSet.isEmpty()) {
+               || !cdvFrame.isValid() || derefSet.isEmpty()) {
             return;
         }
-
+//        if (!vnaFrame.isValid() || !invFrame.isValid()  || vnaFrame.getNumLocals() != invFrame.getNumLocals()
+//                || derefSet.isEmpty()) {
+//            return;
+//        }
         int slots;
         if (vnaFrame.getNumSlots() == invFrame.getNumSlots()) {
             slots = vnaFrame.getNumSlots();
@@ -541,8 +553,16 @@ public class NullDerefAndRedundantComparisonFinder {
         for (int j = 0; j < slots; j++) {
             IsNullValue isNullValue = invFrame.getValue(j);
             ValueNumber valueNumber = vnaFrame.getValue(j);
+            CreatorDataValue cdv = cdvFrame.getValue(j);
+//            if (cdv.isJson()) {
+//                cdv = cdvFrame.getValue(j);
+//            }
+            Instruction instruction = thisLocation.getHandle().getInstruction();
+            boolean isInvoke = instruction.getClass().isAssignableFrom(InvokeInstruction.class);
             if ((isNullValue.isDefinitelyNull() || isNullValue.isNullOnSomePath() && isNullValue.isReturnValue())
                     && (derefSet.isUnconditionallyDereferenced(valueNumber))) {
+//            if ((isNullValue.isDefinitelyNull() || isNullValue.isNullOnSomePath() && isNullValue.isReturnValue())
+//                    && (derefSet.isUnconditionallyDereferenced(valueNumber))) {
                 if (MY_DEBUG) {
                     System.out.println("Found NP bug");
                     System.out.println("Location: " + thisLocation);
@@ -820,23 +840,25 @@ public class NullDerefAndRedundantComparisonFinder {
 
         // Get the stack values at entry to the null check.
         IsNullValueFrame frame = invDataflow.getStartFact(basicBlock);
-        if (!frame.isValid()) {
+        CreatorDataFrame cdvframe = this.cdvDataflow.getStartFact(basicBlock);
+        if (!frame.isValid() || !cdvframe.isValid()) {
             return;
         }
 
         // Could the reference be null?
         IsNullValue refValue = frame.getInstance(exceptionThrower, classContext.getConstantPoolGen());
+        CreatorDataValue cdvValue = cdvframe.getInstance(exceptionThrower, classContext.getConstantPoolGen());
         if (DEBUG) {
             System.out.println("For basic block " + basicBlock + " value is " + refValue);
         }
-        if (refValue.isDefinitelyNotNull())
+        if (refValue.isDefinitelyNotNull() && !cdvValue.isJson())
         {
             return;
             //        if (false && !refValue.mightBeNull())
             //            return;
         }
 
-        if (!refValue.isDefinitelyNull()) {
+        if (!refValue.isDefinitelyNull() && !cdvValue.isJson()) {
             return;
         }
         // Get the value number
@@ -886,7 +908,7 @@ public class NullDerefAndRedundantComparisonFinder {
 
         }
         // Issue a warning
-        collector.foundNullDeref(location, valueNumber, refValue, vnaFrame, isConsistent);
+        collector.foundNullDeref(location, valueNumber, refValue, cdvValue, vnaFrame, isConsistent);
     }
 
     /**

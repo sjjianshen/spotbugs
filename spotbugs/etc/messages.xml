@@ -2091,6 +2091,40 @@ that classfile. See <a href="http://bugs.java.com/bugdatabase/view_bug.do?bug_id
       ]]>
    </Details>
   </BugPattern>
+  <BugPattern type="NP_REF_BUILD_FROM_JSON_MIGHT_BE_NULL_BUT_DEREFED_WITHOUT_NULLCHECK">
+    <ShortDescription>
+      通过反序列化获得的对象属性有可能为null, 对该对象的调用可能会产生空指针异常, 请进行Null Check
+    </ShortDescription>
+    <LongDescription>
+      通过反序列化获得的对象属性有可能为null, 对该对象的调用可能会产生空指针异常, 请进行Null Check
+    </LongDescription>
+    <Details>
+      <![CDATA[
+      <p>
+    A parameter to this method has been identified as a value that should
+    always be checked to see whether or not it is null, but it is being dereferenced
+    without a preceding null check.
+      </p>
+      ]]>
+    </Details>
+  </BugPattern>
+  <BugPattern type="NP_PASS_JSON_FIELD_TO_NONNULL_PARAM_VIOLATION">
+    <ShortDescription>
+      通过反序列化获得的对象属性有可能为null, 而目标方法中对该对象没有进行控制检查, 这种情况下有可能出现空指针异常
+    </ShortDescription>
+    <LongDescription>
+      通过反序列化获得的对象属性有可能为null, 而目标方法中对该对象没有进行控制检查, 这种情况下有可能出现空指针异常
+    </LongDescription>
+    <Details>
+      <![CDATA[
+      <p>
+    A parameter to this method has been identified as a value that should
+    always be checked to see whether or not it is null, but it is being dereferenced
+    without a preceding null check.
+      </p>
+      ]]>
+    </Details>
+  </BugPattern>
   <BugPattern type="NP_EQUALS_SHOULD_HANDLE_NULL_ARGUMENT">
     <ShortDescription>
       变量调用equals方法时没有进行是否为null的判断

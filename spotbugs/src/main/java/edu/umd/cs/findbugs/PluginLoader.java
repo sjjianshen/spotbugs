@@ -967,7 +967,7 @@ public class PluginLoader {
 
             // Find the matching element in messages_bk.xml (or translations)
             String query = "/MessageCollection/BugPattern[@type='" + type + "']";
-            Node messageNode = findMessageNode(messageCollectionList, query, "messages_bk.xml missing BugPattern element for type "
+            Node messageNode = findMessageNode(messageCollectionList, query, "messages missing BugPattern element for type "
                     + type);
             Node bugsUrlNode = messageNode.getDocument().selectSingleNode("/MessageCollection/Plugin/"+(experimental?"AllBugsUrl":"BugsUrl"));
 
@@ -1210,7 +1210,7 @@ public class PluginLoader {
             potential.add("messages_" + language + "_" + country + ".xml");
         }
         potential.add("messages_" + language + ".xml");
-        potential.add("messages_en.xml");
+        potential.add("messages.xml");
         return potential;
     }
 
@@ -1588,10 +1588,10 @@ public class PluginLoader {
                 throw new IllegalArgumentException(
                         "plugin doesn't contain a findbugs.xml file");
             }
-            ZipEntry messagesXML = zip.getEntry("messages_bk.xml");
+            ZipEntry messagesXML = zip.getEntry("messages.xml");
             if (messagesXML == null) {
                 throw new IllegalArgumentException(
-                        "plugin doesn't contain a messages_bk.xml file");
+                        "plugin doesn't contain a messages.xml file");
             }
             Document pluginDocument = parseDocument(zip.getInputStream(findbugsXML));
             String pluginId = pluginDocument.valueOf(XPATH_PLUGIN_PLUGINID).trim();

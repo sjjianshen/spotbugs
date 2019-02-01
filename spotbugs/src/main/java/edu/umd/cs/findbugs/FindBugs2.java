@@ -1085,6 +1085,7 @@ public class FindBugs2 implements IFindBugsEngine, AutoCloseable {
                             } catch (CheckedAnalysisException e) {
                                 logRecoverableException(classDescriptor, detector, e);
                             } catch (RuntimeException e) {
+                                e.printStackTrace();
                                 logRecoverableException(classDescriptor, detector, e);
                             } finally {
                                 profiler.end(detector.getClass());

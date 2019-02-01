@@ -238,17 +238,17 @@ public class NoiseNullDeref implements Detector, UseAnnotationDatabase, NullDere
 
     /**
      * @deprecated Use
-     *             {@link #foundNullDeref(Location,ValueNumber,IsNullValue,ValueNumberFrame,boolean)}
+     *             {@link #foundNullDeref(Location,ValueNumber,IsNullValue,CreatorDataValue,ValueNumberFrame,boolean)}
      *             instead
      */
     @Override
     @Deprecated
     public void foundNullDeref(Location location, ValueNumber valueNumber, IsNullValue refValue, ValueNumberFrame vnaFrame) {
-        foundNullDeref(location, valueNumber, refValue, vnaFrame, true);
+        foundNullDeref(location, valueNumber, refValue, null, vnaFrame, true);
     }
 
     @Override
-    public void foundNullDeref(Location location, ValueNumber valueNumber, IsNullValue refValue, ValueNumberFrame vnaFrame,
+    public void foundNullDeref(Location location, ValueNumber valueNumber, IsNullValue refValue, CreatorDataValue cdvValue, ValueNumberFrame vnaFrame,
             boolean isConsistent) {
         if (!refValue.isNullOnComplicatedPath23()) {
             return;

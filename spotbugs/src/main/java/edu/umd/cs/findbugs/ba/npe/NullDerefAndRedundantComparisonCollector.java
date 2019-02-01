@@ -30,6 +30,7 @@ import edu.umd.cs.findbugs.ba.Location;
 import edu.umd.cs.findbugs.ba.vna.ValueNumber;
 import edu.umd.cs.findbugs.ba.vna.ValueNumberDataflow;
 import edu.umd.cs.findbugs.ba.vna.ValueNumberFrame;
+import edu.umd.cs.findbugs.detect.CreatorDataValue;
 
 /**
  * Callback interface for collecting null pointer derefs and redundant null
@@ -76,8 +77,8 @@ public interface NullDerefAndRedundantComparisonCollector {
      *            true if the refValue is identical at all clones of the same
      *            instruction
      */
-    public void foundNullDeref(Location location, ValueNumber valueNumber, IsNullValue refValue, ValueNumberFrame vnaFrame,
-            boolean isConsistent);
+    public void foundNullDeref(Location location, ValueNumber valueNumber, IsNullValue refValue, CreatorDataValue cdvValue, ValueNumberFrame vnaFrame,
+                               boolean isConsistent);
 
     /**
      * Subclasses should override this method to capture locations where a

@@ -39,6 +39,7 @@ import edu.umd.cs.findbugs.classfile.IDatabaseFactory;
 import edu.umd.cs.findbugs.classfile.IMethodAnalysisEngine;
 import edu.umd.cs.findbugs.classfile.ReflectionDatabaseFactory;
 import edu.umd.cs.findbugs.classfile.analysis.MethodInfo.MethodInfoDatabase;
+import edu.umd.cs.findbugs.detect.CreatorDataflowFactory;
 
 /**
  * Register BCEL-framework analysis engines.
@@ -70,7 +71,7 @@ public class EngineRegistrar implements IAnalysisEngineRegistrar {
         new CompactLocationNumberingFactory(),  new ReturnPathTypeDataflowFactory(),
         new ForwardTypeQualifierDataflowFactoryFactory(), new BackwardTypeQualifierDataflowFactoryFactory(),
         new OpcodeStack.JumpInfoFactory(), new StackMapAnalysisFactory(), new ObligationDataflowFactory(),
-        new ValueRangeAnalysisFactory(), new FinallyDuplicatesInfoFactory()};
+        new ValueRangeAnalysisFactory(), new FinallyDuplicatesInfoFactory(), new CreatorDataflowFactory()};
 
     private static final IDatabaseFactory<?>[] databaseFactoryList = {
         // new ReflectionDatabaseFactory<Subtypes>(Subtypes.class),

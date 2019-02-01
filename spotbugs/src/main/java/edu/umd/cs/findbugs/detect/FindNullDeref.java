@@ -274,8 +274,10 @@ public class FindNullDeref implements Detector, UseAnnotationDatabase, NullDeref
         // comparisons
         // through the NullDerefAndRedundantComparisonCollector interface we
         // implement.
-        NullDerefAndRedundantComparisonFinder worker = new NullDerefAndRedundantComparisonFinder(classContext, method, this);
-        worker.execute();
+//        if (method.getName().equals("updateCourseOnlineAuditHistoricalData")) {
+            NullDerefAndRedundantComparisonFinder worker = new NullDerefAndRedundantComparisonFinder(classContext, method, this);
+            worker.execute();
+//        }
 
         checkCallSitesAndReturnInstructions();
 
@@ -452,29 +454,172 @@ public class FindNullDeref implements Detector, UseAnnotationDatabase, NullDeref
                                                  value -> value.mightBeNull() && !value.isException() && !value.isReturnValue());
         BitSet definitelyNullArgSet = frame.getArgumentSet(invokeInstruction, cpg, value -> value.isDefinitelyNull());
         nullArgSet.or(definitelyNullArgSet);
-        if (nullArgSet.isEmpty()) {
+        if (!nullArgSet.isEmpty()) {
+            if (DEBUG_NULLARG) {
+                System.out.println("Null arguments passed: " + nullArgSet);
+                System.out.println("Frame is: " + frame);
+                System.out.println("# arguments: " + frame.getNumArguments(invokeInstruction, cpg));
+                if (!(invokeInstruction instanceof INVOKEDYNAMIC)) {
+                    XMethod xm = XFactory.createXMethod(invokeInstruction, cpg);
+                    System.out.print("Signature: " + xm.getSignature());
+                }
+            }
+
+            if (unconditionalDerefParamDatabase != null) {
+                checkUnconditionallyDereferencedParam(location, cpg, typeDataflow, invokeInstruction, nullArgSet,
+                        definitelyNullArgSet);
+            }
+
+            if (DEBUG_NULLARG) {
+                System.out.println("Checking nonnull params");
+            }
+
+            checkNonNullParam(location, cpg, typeDataflow, invokeInstruction, nullArgSet, definitelyNullArgSet);
+        }
+
+
+        CreatorDataFrame creatorDataFrame = classContext.getCreatorDataflow(method).getFactAtLocation(location);
+        BitSet jsonArg = creatorDataFrame.getArgumentSet(invokeInstruction, cpg, value -> value == CreatorDataValue.JSON);
+        if (!jsonArg.isEmpty()) {
+            if (inExplictCatchNullBlock(location)) {
+                return;
+            }
+            boolean caught = inIndirectCatchNullBlock(location);
+            if (caught && skipIfInsideCatchNull()) {
+                return;
+            }
+            if (invokeInstruction instanceof INVOKEDYNAMIC) {
+                return;
+            }
+            if (unconditionalDerefParamDatabase != null) {
+                checkJsonUnconditionallyDereferencedParam(location, cpg, typeDataflow, invokeInstruction, jsonArg);
+            }
+            checkJsonParam(location, cpg, creatorDataFrame, invokeInstruction, jsonArg);
+        }
+    }
+
+    private void checkJsonUnconditionallyDereferencedParam(Location location, ConstantPoolGen cpg,
+               TypeDataflow typeDataflow, InvokeInstruction invokeInstruction, BitSet jsonArg) throws DataflowAnalysisException, ClassNotFoundException {
+        XMethod calledMethod = XFactory.createXMethod(invokeInstruction, cpg);
+        // If a parameter is already marked as nonnull, don't complain about
+        // it here. will be reported following
+        jsonArg = (BitSet) jsonArg.clone();
+        ClassDescriptor nonnullClassDesc = DescriptorFactory.createClassDescriptor(javax.annotation.Nonnull.class);
+        TypeQualifierValue<?> nonnullTypeQualifierValue = TypeQualifierValue.getValue(nonnullClassDesc, null);
+        for (int i = jsonArg.nextSetBit(0); i >= 0; i = jsonArg.nextSetBit(i + 1)) {
+            TypeQualifierAnnotation tqa = TypeQualifierApplications.getEffectiveTypeQualifierAnnotation(calledMethod, i,
+                    nonnullTypeQualifierValue);
+            if (tqa != null && tqa.when == When.ALWAYS) {
+                jsonArg.clear(i);
+            }
+        }
+        TypeFrame typeFrame = typeDataflow.getFactAtLocation(location);
+        Set<JavaClassAndMethod> targetMethodSet = Hierarchy.resolveMethodCallTargets(invokeInstruction, typeFrame, cpg);
+        if (DEBUG_NULLARG) {
+            System.out.println("Possibly called methods: " + targetMethodSet);
+        }
+
+        // See if any call targets unconditionally dereference one of the null
+        // arguments
+        BitSet unconditionallyDereferencedNullArgSet = new BitSet();
+        List<JavaClassAndMethod> dangerousCallTargetList = new LinkedList<>();
+        List<JavaClassAndMethod> veryDangerousCallTargetList = new LinkedList<>();
+        for (JavaClassAndMethod targetMethod : targetMethodSet) {
+            if (DEBUG_NULLARG) {
+                System.out.println("For target method " + targetMethod);
+            }
+
+            ParameterProperty property = unconditionalDerefParamDatabase.getProperty(targetMethod.toMethodDescriptor());
+            if (property == null) {
+                continue;
+            }
+            if (DEBUG_NULLARG) {
+                System.out.println("\tUnconditionally dereferenced params: " + property);
+            }
+
+            BitSet targetUnconditionallyDereferencedNullArgSet = property.getMatchingParameters(jsonArg);
+
+            if (targetUnconditionallyDereferencedNullArgSet.isEmpty()) {
+                continue;
+            }
+
+            dangerousCallTargetList.add(targetMethod);
+
+            unconditionallyDereferencedNullArgSet.or(targetUnconditionallyDereferencedNullArgSet);
+        }
+
+        if (dangerousCallTargetList.isEmpty()) {
             return;
         }
-        if (DEBUG_NULLARG) {
-            System.out.println("Null arguments passed: " + nullArgSet);
-            System.out.println("Frame is: " + frame);
-            System.out.println("# arguments: " + frame.getNumArguments(invokeInstruction, cpg));
-            if (!(invokeInstruction instanceof INVOKEDYNAMIC)) {
-                XMethod xm = XFactory.createXMethod(invokeInstruction, cpg);
-                System.out.print("Signature: " + xm.getSignature());
+
+        WarningPropertySet<WarningProperty> propertySet = new WarningPropertySet<>();
+
+        // See if there are any safe targets
+        Set<JavaClassAndMethod> safeCallTargetSet = new HashSet<>();
+        safeCallTargetSet.addAll(targetMethodSet);
+        safeCallTargetSet.removeAll(dangerousCallTargetList);
+        if (safeCallTargetSet.isEmpty()) {
+            propertySet.addProperty(NullArgumentWarningProperty.ALL_DANGEROUS_TARGETS);
+            if (dangerousCallTargetList.size() == 1) {
+                propertySet.addProperty(NullArgumentWarningProperty.MONOMORPHIC_CALL_SITE);
             }
         }
 
-        if (unconditionalDerefParamDatabase != null) {
-            checkUnconditionallyDereferencedParam(location, cpg, typeDataflow, invokeInstruction, nullArgSet,
-                    definitelyNullArgSet);
+        // Call to private method? In theory there should be only one possible
+        // target.
+        if (!safeCallTargetSet.isEmpty()) {
+            return;
         }
+        String bugType = "NP_PASS_JSON_FIELD_TO_NONNULL_PARAM_VIOLATION";;
+        XMethod calledFrom = XFactory.createXMethod(classContext.getJavaClass(), method);
 
-        if (DEBUG_NULLARG) {
-            System.out.println("Checking nonnull params");
+        if (safeCallToPrimateParseMethod(calledMethod, location)) {
+            return;
         }
-        checkNonNullParam(location, cpg, typeDataflow, invokeInstruction, nullArgSet, definitelyNullArgSet);
+        BugInstance warning = new BugInstance(this, bugType, 1).addClassAndMethod(classContext.getJavaClass(), method)
+                .addMethod(calledMethod).describe(MethodAnnotation.METHOD_CALLED).addSourceLine(classContext, method, location);
 
+        //        boolean uncallable = false;
+        if (!AnalysisContext.currentXFactory().isCalledDirectlyOrIndirectly(calledFrom) && calledFrom.isPrivate()) {
+
+            propertySet.addProperty(GeneralWarningProperty.IN_UNCALLABLE_METHOD);
+            //            uncallable = true;
+        }
+        // Check which params might be null
+        addParamAnnotations(location, jsonArg, unconditionallyDereferencedNullArgSet, propertySet, warning);
+
+        decorateWarning(location, propertySet, warning);
+        bugReporter.reportBug(warning);
+    }
+
+    private void checkJsonParam(Location location, ConstantPoolGen cpg, CreatorDataFrame creatorDataFrame, InvokeInstruction invokeInstruction, BitSet jsonArg) {
+        XMethod m = XFactory.createXMethod(invokeInstruction, cpg);
+        INullnessAnnotationDatabase db = AnalysisContext.currentAnalysisContext().getNullnessAnnotationDatabase();
+        SignatureParser sigParser = new SignatureParser(invokeInstruction.getSignature(cpg));
+        for (int i = jsonArg.nextSetBit(0); i >= 0; i = jsonArg.nextSetBit(i + 1)) {
+
+            if (db.parameterMustBeNonNull(m, i)) {
+
+                BugAnnotation variableAnnotation = null;
+                try {
+                    ValueNumberFrame vnaFrame = classContext.getValueNumberDataflow(method).getFactAtLocation(location);
+                    ValueNumber valueNumber = vnaFrame.getArgument(invokeInstruction, cpg, i, sigParser);
+                    variableAnnotation = ValueNumberSourceInfo.findAnnotationFromValueNumber(method, location, valueNumber,
+                            vnaFrame, "VALUE_OF");
+                } catch (DataflowAnalysisException e) {
+                    AnalysisContext.logError("error", e);
+                } catch (CFGBuilderException e) {
+                    AnalysisContext.logError("error", e);
+                }
+
+                String description = "INT_MAYBE_NULL_ARG";
+                BugInstance warning = new BugInstance(this, "NP_PASS_JSON_FIELD_TO_NONNULL_PARAM_VIOLATION", 1)
+                        .addClassAndMethod(classContext.getJavaClass(), method).addMethod(m)
+                        .describe(MethodAnnotation.METHOD_CALLED).addParameterAnnotation(i, description)
+                        .addOptionalAnnotation(variableAnnotation).addSourceLine(classContext, method, location);
+                bugReporter.reportBug(warning);
+            }
+        }
     }
 
     private void examinePutfieldInstruction(Location location, PUTFIELD ins, ConstantPoolGen cpg)
@@ -647,7 +792,7 @@ public class FindNullDeref implements Detector, UseAnnotationDatabase, NullDeref
         XMethod calledMethod = XFactory.createXMethod(invokeInstruction, cpg);
         if (true) {
             // If a parameter is already marked as nonnull, don't complain about
-            // it here.
+            // it here. will be reported following
             nullArgSet = (BitSet) nullArgSet.clone();
             definitelyNullArgSet = (BitSet) definitelyNullArgSet.clone();
             ClassDescriptor nonnullClassDesc = DescriptorFactory.createClassDescriptor(javax.annotation.Nonnull.class);
@@ -924,18 +1069,18 @@ public class FindNullDeref implements Detector, UseAnnotationDatabase, NullDeref
 
     /**
      * @deprecated Use
-     *             {@link #foundNullDeref(Location,ValueNumber,IsNullValue,ValueNumberFrame,boolean)}
+     *             {@link #foundNullDeref(Location,ValueNumber,IsNullValue,CreatorDataValue,ValueNumberFrame,boolean)}
      *             instead
      */
     @Override
     @Deprecated
     public void foundNullDeref(Location location, ValueNumber valueNumber, IsNullValue refValue, ValueNumberFrame vnaFrame) {
-        foundNullDeref(location, valueNumber, refValue, vnaFrame, true);
+        foundNullDeref(location, valueNumber, refValue, null, vnaFrame, true);
     }
 
     @Override
-    public void foundNullDeref(Location location, ValueNumber valueNumber, IsNullValue refValue, ValueNumberFrame vnaFrame,
-            boolean isConsistent) {
+    public void foundNullDeref(Location location, ValueNumber valueNumber, IsNullValue refValue,
+               CreatorDataValue cdvValue, ValueNumberFrame vnaFrame, boolean isConsistent) {
         WarningPropertySet<WarningProperty> propertySet = new WarningPropertySet<>();
         if (valueNumber.hasFlag(ValueNumber.CONSTANT_CLASS_OBJECT)) {
             return;
@@ -1005,6 +1150,9 @@ public class FindNullDeref implements Detector, UseAnnotationDatabase, NullDeref
             }
 
             reportNullDeref(propertySet, location, type, priority, variable);
+        } else if (cdvValue.isJson()) {
+            String type = "NP_REF_BUILD_FROM_JSON_MIGHT_BE_NULL_BUT_DEREFED_WITHOUT_NULLCHECK";
+            reportNullDeref(propertySet, location, type, 1, variable);
         }
     }
 

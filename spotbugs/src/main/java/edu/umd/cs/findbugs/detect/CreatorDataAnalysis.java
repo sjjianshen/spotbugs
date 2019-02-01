@@ -1,14 +1,8 @@
 package edu.umd.cs.findbugs.detect;
 
 import edu.umd.cs.findbugs.ba.*;
-import edu.umd.cs.findbugs.ba.npe.IsNullConditionDecision;
-import edu.umd.cs.findbugs.ba.npe.IsNullValue;
-import edu.umd.cs.findbugs.ba.npe.IsNullValueFrame;
-import edu.umd.cs.findbugs.ba.npe.LocationWhereValueBecomesNull;
-import edu.umd.cs.findbugs.ba.vna.AvailableLoad;
-import edu.umd.cs.findbugs.ba.vna.ValueNumber;
-import edu.umd.cs.findbugs.ba.vna.ValueNumberFrame;
-import org.apache.bcel.generic.*;
+import org.apache.bcel.generic.InstructionHandle;
+import org.apache.bcel.generic.MethodGen;
 
 public class CreatorDataAnalysis extends FrameDataflowAnalysis<CreatorDataValue, CreatorDataFrame> {
     private MethodGen methodGen;
