@@ -239,6 +239,10 @@
                               <Later class="edu.umd.cs.findbugs.detect.FindNullDeref"/>
                     </WithinPass>
                     <WithinPass>
+                        <Earlier class="edu.umd.cs.findbugs.detect.BuildJsonReturnDatabase"/>
+                        <Later class="edu.umd.cs.findbugs.detect.FindNullDeref"/>
+                    </WithinPass>
+                    <WithinPass>
                               <Earlier class="edu.umd.cs.findbugs.detect.NoteNonnullReturnValues"/>
                               <Later class="edu.umd.cs.findbugs.detect.UnreadFields"/>
                     </WithinPass>
@@ -463,6 +467,10 @@
                     class="edu.umd.cs.findbugs.detect.ReadOfInstanceFieldInMethodInvokedByConstructorInSuperclass"
                     reports="UR_UNINIT_READ_CALLED_FROM_SUPER_CONSTRUCTOR"/>
 
+            <Detector class="edu.umd.cs.findbugs.detect.NoteNonnullReturnValues" speed="slow"
+                      reports="" hidden="true" disabled="true"/>
+            <Detector class="edu.umd.cs.findbugs.detect.BuildJsonReturnDatabase" speed="slow"
+                      reports="" hidden="true" disabled="true"/>
             <!-- Bug Categories -->
            <BugCategory category="NOISE" hidden="true"/>
 

@@ -1,17 +1,11 @@
 package edu.umd.cs.findbugs.detect;
 
-import edu.umd.cs.findbugs.ba.AbstractFrameModelingVisitor;
-import edu.umd.cs.findbugs.ba.DataflowAnalysisException;
-import edu.umd.cs.findbugs.ba.XClass;
-import edu.umd.cs.findbugs.ba.XField;
+import edu.umd.cs.findbugs.ba.*;
 import edu.umd.cs.findbugs.classfile.CheckedAnalysisException;
 import edu.umd.cs.findbugs.classfile.DescriptorFactory;
 import edu.umd.cs.findbugs.classfile.Global;
 import edu.umd.cs.findbugs.util.ClassName;
-import org.apache.bcel.generic.CHECKCAST;
-import org.apache.bcel.generic.ConstantPoolGen;
-import org.apache.bcel.generic.GETFIELD;
-import org.apache.bcel.generic.INVOKEVIRTUAL;
+import org.apache.bcel.generic.*;
 
 public class CreatorDataFrameModelingVistor extends AbstractFrameModelingVisitor<CreatorDataValue, CreatorDataFrame> {
     /**
@@ -25,21 +19,22 @@ public class CreatorDataFrameModelingVistor extends AbstractFrameModelingVisitor
 
     @Override
     public CreatorDataValue getDefaultValue() {
-        return CreatorDataValue.UK;
+        return CreatorDataValue.NOT_JSON;
     }
 
-    @Override
-    public void visitINVOKEVIRTUAL(INVOKEVIRTUAL obj) {
+    public void handleInvoke(InvokeInstruction obj) {
         String methodName = obj.getMethodName(cpg);
         String className = obj.getClassName(cpg);
-        if ("fromJson".equals(methodName) && "com.google.gson.Gson".equals(className)) {
+        if ("fromJson".equals(methodName) && className.endsWith("Gson")) {
             modelInstruction(obj, getNumWordsConsumed(obj), getNumWordsProduced(obj), CreatorDataValue.JSON_SOURCE);
-        } else if (methodName.startsWith("get")) {
+            return;
+        }
+        if (methodName.startsWith("get")) {
             CreatorDataFrame creatorDataFrame = getFrame();
             try {
                 CreatorDataValue creatorDataValue = creatorDataFrame.getTopValue();
                 int consume = obj.consumeStack(cpg);
-                if (creatorDataValue == CreatorDataValue.JSON_SOURCE && consume == 1) {
+                if (creatorDataValue.isJsonSource() && consume == 1) {
                     XClass xClass = Global.getAnalysisCache().getClassAnalysis(XClass.class,
                             DescriptorFactory.createClassDescriptor(ClassName.toSlashedClassName(className)));
                     String trimedName = methodName.substring("get".length());
@@ -54,19 +49,49 @@ public class CreatorDataFrameModelingVistor extends AbstractFrameModelingVisitor
             } catch (CheckedAnalysisException e) {
                 e.printStackTrace();
             }
-            super.visitINVOKEVIRTUAL(obj);
-        } else {
-            super.visitINVOKEVIRTUAL(obj);
         }
+        doHandleInvoke(obj);
+    }
+
+    private void doHandleInvoke(InvokeInstruction obj) {
+        XMethod calledMethod = XFactory.createXMethod(obj, getCPG());
+        Boolean isJson = AnalysisContext.currentAnalysisContext().getReturnValueJsonPropertyDatabase()
+                .getProperty(calledMethod.getMethodDescriptor());
+        CreatorDataValue cdv;
+        if (isJson == null || isJson == Boolean.FALSE) {
+            cdv = CreatorDataValue.NOT_JSON;
+        } else {
+            cdv = CreatorDataValue.JSON_SOURCE;
+        }
+        modelInstruction(obj, obj.consumeStack(getCPG()), obj.produceStack(getCPG()), cdv);
+    }
+
+    @Override
+    public void visitINVOKESTATIC(INVOKESTATIC obj) {
+        doHandleInvoke(obj);
+    }
+
+    @Override
+    public void visitINVOKESPECIAL(INVOKESPECIAL obj) {
+        handleInvoke(obj);
+    }
+
+    @Override
+    public void visitINVOKEINTERFACE(INVOKEINTERFACE obj) {
+        handleInvoke(obj);
+    }
+
+    @Override
+    public void visitINVOKEVIRTUAL(INVOKEVIRTUAL obj) {
+        handleInvoke(obj);
     }
 
     @Override
     public void visitGETFIELD(GETFIELD obj) {
         CreatorDataFrame creatorDataFrame = getFrame();
         try {
-
             CreatorDataValue creatorDataValue = creatorDataFrame.getTopValue();
-            if (creatorDataValue == CreatorDataValue.JSON_SOURCE) {
+            if (creatorDataValue.isJsonSource()) {
                 int consume = obj.consumeStack(cpg);
                 int produce = obj.produceStack(cpg);
                 modelInstruction(obj, consume, produce, CreatorDataValue.JSON);
@@ -81,6 +106,6 @@ public class CreatorDataFrameModelingVistor extends AbstractFrameModelingVisitor
 
     @Override
     public void visitCHECKCAST(CHECKCAST obj) {
-        //do nothing, for checkcast willnot change the variable creator
+            //do nothing, for checkcast willnot change the variable creator
     }
 }

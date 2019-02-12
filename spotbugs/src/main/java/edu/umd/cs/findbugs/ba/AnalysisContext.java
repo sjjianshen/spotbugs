@@ -34,6 +34,7 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
+import edu.umd.cs.findbugs.ba.npe.ReturnValueJsonPropertyDatabase;
 import org.apache.bcel.Repository;
 import org.apache.bcel.classfile.JavaClass;
 
@@ -1060,6 +1061,10 @@ public class AnalysisContext implements AutoCloseable {
 
     protected <E> E getDatabase(Class<E> cls) {
         return Global.getAnalysisCache().getDatabase(cls);
+    }
+
+    public ReturnValueJsonPropertyDatabase getReturnValueJsonPropertyDatabase() {
+        return getDatabase(ReturnValueJsonPropertyDatabase.class);
     }
 
     static class DelegatingRepositoryLookupFailureCallback implements RepositoryLookupFailureCallback {

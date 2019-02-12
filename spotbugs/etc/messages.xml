@@ -409,6 +409,16 @@ literals.
       ]]>
    </Details>
   </Detector>
+  <Detector class="edu.umd.cs.findbugs.detect.BuildJsonReturnDatabase">
+    <Details>
+      <![CDATA[
+      <p>
+      Analyze all methods in the application to determine which
+    methods always return json values.
+      </p>
+      ]]>
+    </Details>
+  </Detector>
   <Detector class="edu.umd.cs.findbugs.detect.BooleanReturnNull">
     <Details>
 <![CDATA[

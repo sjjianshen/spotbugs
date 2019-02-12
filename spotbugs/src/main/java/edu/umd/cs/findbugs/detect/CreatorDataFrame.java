@@ -1,6 +1,7 @@
 package edu.umd.cs.findbugs.detect;
 
 import edu.umd.cs.findbugs.ba.Frame;
+import edu.umd.cs.findbugs.ba.npe.IsNullConditionDecision;
 
 public class CreatorDataFrame extends Frame<CreatorDataValue> {
     /**
@@ -10,7 +11,17 @@ public class CreatorDataFrame extends Frame<CreatorDataValue> {
      *
      * @param numLocals number of local variable slots in the method
      */
+    private CreatorDataValueDecision creatorDataValueDecision;
+
+    public CreatorDataValueDecision getDecision() {
+        return creatorDataValueDecision;
+    }
+
     public CreatorDataFrame(int numLocals) {
         super(numLocals);
+    }
+
+    public void setDecision(CreatorDataValueDecision creatorDataValueDecision) {
+        this.creatorDataValueDecision = creatorDataValueDecision;
     }
 }

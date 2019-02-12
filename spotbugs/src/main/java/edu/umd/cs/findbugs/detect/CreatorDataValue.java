@@ -1,8 +1,6 @@
 package edu.umd.cs.findbugs.detect;
 
 public enum CreatorDataValue {
-    NEW,
-    UK,
     NOT_JSON,
     JSON_SOURCE,
     JSON;
@@ -10,4 +8,6 @@ public enum CreatorDataValue {
     public boolean isJson() {
         return this == CreatorDataValue.JSON;
     }
+
+    public boolean isJsonSource() {return this == CreatorDataValue.JSON_SOURCE || isJson();}
 }

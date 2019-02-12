@@ -48,8 +48,10 @@ class BugCounts {
     @OverridingMethodsMustInvokeSuper
     public void addError(BugInstance bug) {
         ensureNonnullBugCounts();
-        ++nBugs[bug.getPriority()];
-        ++nBugs[0];
+        if (bug.getPriority() < nBugs.length) {
+            ++nBugs[bug.getPriority()];
+            ++nBugs[0];
+        }
     }
 
     protected void ensureNonnullBugCounts() {

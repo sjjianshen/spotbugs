@@ -192,6 +192,7 @@ public class FindNullDeref implements Detector, UseAnnotationDatabase, NullDeref
         }
 
         List<Method> methodsInCallOrder = classContext.getMethodsInCallOrder();
+
         for (Method method : methodsInCallOrder) {
             try {
                 if (method.isAbstract() || method.isNative() || method.getCode() == null) {
@@ -479,7 +480,9 @@ public class FindNullDeref implements Detector, UseAnnotationDatabase, NullDeref
 
 
         CreatorDataFrame creatorDataFrame = classContext.getCreatorDataflow(method).getFactAtLocation(location);
-        BitSet jsonArg = creatorDataFrame.getArgumentSet(invokeInstruction, cpg, value -> value == CreatorDataValue.JSON);
+        BitSet jsonArg = creatorDataFrame.getArgumentSet(invokeInstruction, cpg, CreatorDataValue::isJson);
+        BitSet definitelyNotNullArgSet = frame.getArgumentSet(invokeInstruction, cpg, value -> !(value.isDefinitelyNotNull() || value.isDefinitelyNull()));
+        jsonArg.and(definitelyNotNullArgSet);
         if (!jsonArg.isEmpty()) {
             if (inExplictCatchNullBlock(location)) {
                 return;

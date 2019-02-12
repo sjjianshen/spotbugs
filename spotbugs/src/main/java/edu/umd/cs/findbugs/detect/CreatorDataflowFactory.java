@@ -3,6 +3,8 @@ package edu.umd.cs.findbugs.detect;
 import edu.umd.cs.findbugs.ba.CFG;
 import edu.umd.cs.findbugs.ba.DepthFirstSearch;
 import edu.umd.cs.findbugs.ba.MethodUnprofitableException;
+import edu.umd.cs.findbugs.ba.npe.IsNullValueDataflow;
+import edu.umd.cs.findbugs.ba.vna.ValueNumberDataflow;
 import edu.umd.cs.findbugs.classfile.CheckedAnalysisException;
 import edu.umd.cs.findbugs.classfile.IAnalysisCache;
 import edu.umd.cs.findbugs.classfile.MethodDescriptor;
@@ -24,8 +26,10 @@ public class CreatorDataflowFactory extends AnalysisFactory<CreatorDataflow> {
             throw new MethodUnprofitableException(descriptor);
         }
         CFG cfg = getCFG(analysisCache, descriptor);
+        ValueNumberDataflow vnaDataflow = getValueNumberDataflow(analysisCache, descriptor);
+        IsNullValueDataflow invDataflow = getIsNullValueDataflow(analysisCache, descriptor);
         DepthFirstSearch dfs = getDepthFirstSearch(analysisCache, descriptor);
-        CreatorDataAnalysis creatorDataAnalysis = new CreatorDataAnalysis(dfs, methodGen);
+        CreatorDataAnalysis creatorDataAnalysis = new CreatorDataAnalysis(dfs, methodGen, vnaDataflow, invDataflow);
         CreatorDataflow creatorDataflow = new CreatorDataflow(cfg, creatorDataAnalysis);
         creatorDataflow.execute();
         return creatorDataflow;
