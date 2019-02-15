@@ -577,37 +577,38 @@ public class FindInconsistentSync2 implements Detector {
             if (stats.isServletField()) {
                 bugInstance = new BugInstance(this, "MSF_MUTABLE_SERVLET_FIELD", Priorities.NORMAL_PRIORITY).addClass(
                         xfield.getClassName()).addField(xfield);
-            } else {
-                if (guardedByThis) {
-                    return;
-                }
-                bugInstance = new BugInstance(this, "IS2_INCONSISTENT_SYNC",
-                        Priorities.NORMAL_PRIORITY).addClass(xfield.getClassName()).addField(xfield).addInt(printFreq)
-                        .describe(IntAnnotation.INT_SYNC_PERCENT);
-            }
+//            } else {
+//                if (guardedByThis) {
+//                    return;
+//                }
+//                bugInstance = new BugInstance(this, "IS2_INCONSISTENT_SYNC",
+//                        Priorities.NORMAL_PRIORITY).addClass(xfield.getClassName()).addField(xfield).addInt(printFreq)
+//                        .describe(IntAnnotation.INT_SYNC_PERCENT);
+//            }
 
-            propertySet.decorateBugInstance(bugInstance);
-            // Add source lines for unsynchronized accesses
-            for (Iterator<SourceLineAnnotation> j = stats.unsyncAccessIterator(); j.hasNext();) {
-                SourceLineAnnotation accessSourceLine = j.next();
-                bugInstance.addSourceLine(accessSourceLine).describe("SOURCE_LINE_UNSYNC_ACCESS");
-            }
-
-            if (SYNC_ACCESS) {
-                // Add source line for synchronized accesses;
-                // useful for figuring out what the detector is doing
-                for (Iterator<SourceLineAnnotation> j = stats.syncAccessIterator(); j.hasNext();) {
+                propertySet.decorateBugInstance(bugInstance);
+                // Add source lines for unsynchronized accesses
+                for (Iterator<SourceLineAnnotation> j = stats.unsyncAccessIterator(); j.hasNext(); ) {
                     SourceLineAnnotation accessSourceLine = j.next();
-                    bugInstance.addSourceLine(accessSourceLine).describe("SOURCE_LINE_SYNC_ACCESS");
+                    bugInstance.addSourceLine(accessSourceLine).describe("SOURCE_LINE_UNSYNC_ACCESS");
                 }
-            }
 
-            if (EVAL) {
-                bugInstance.addInt(biasedLocked).describe("INT_BIASED_LOCKED");
-                bugInstance.addInt(biasedUnlocked).describe("INT_BIASED_UNLOCKED");
-            }
+                if (SYNC_ACCESS) {
+                    // Add source line for synchronized accesses;
+                    // useful for figuring out what the detector is doing
+                    for (Iterator<SourceLineAnnotation> j = stats.syncAccessIterator(); j.hasNext(); ) {
+                        SourceLineAnnotation accessSourceLine = j.next();
+                        bugInstance.addSourceLine(accessSourceLine).describe("SOURCE_LINE_SYNC_ACCESS");
+                    }
+                }
 
-            bugReporter.reportBug(bugInstance);
+                if (EVAL) {
+                    bugInstance.addInt(biasedLocked).describe("INT_BIASED_LOCKED");
+                    bugInstance.addInt(biasedUnlocked).describe("INT_BIASED_UNLOCKED");
+                }
+
+                bugReporter.reportBug(bugInstance);
+            }
 
         }
     }

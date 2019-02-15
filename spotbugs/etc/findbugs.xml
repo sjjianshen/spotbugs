@@ -419,7 +419,7 @@
                     reports="EC_NULL_ARG"/>
 
           <Detector class="edu.umd.cs.findbugs.detect.FindInconsistentSync2" speed="slow"
-                    reports="IS2_INCONSISTENT_SYNC,MSF_MUTABLE_SERVLET_FIELD"/>
+                    reports="MSF_MUTABLE_SERVLET_FIELD"/>
 
           <Detector class="edu.umd.cs.findbugs.detect.FindLocalSelfAssignment2" speed="fast"
                     reports="SA_LOCAL_SELF_ASSIGNMENT_INSTEAD_OF_FIELD"/>
@@ -616,7 +616,7 @@
                     category="MT_CORRECTNESS"/>
           <!--<BugPattern abbrev="ESync" type="ESync_EMPTY_SYNC" category="MT_CORRECTNESS" cweid="585"/>-->
           <BugPattern abbrev="MSF" type="MSF_MUTABLE_SERVLET_FIELD" category="MT_CORRECTNESS"/>
-          <BugPattern abbrev="IS" type="IS2_INCONSISTENT_SYNC" category="MT_CORRECTNESS"/>
+          <!--<BugPattern abbrev="IS" type="IS2_INCONSISTENT_SYNC" category="MT_CORRECTNESS"/>-->
           <!--<BugPattern abbrev="EI" type="EI_EXPOSE_REP" category="MALICIOUS_CODE" cweid="374"/>-->
           <BugPattern abbrev="SP" type="SP_SPIN_ON_FIELD" category="MT_CORRECTNESS"/>
         <BugPattern abbrev="TLW" type="TLW_TWO_LOCK_WAIT" category="MT_CORRECTNESS"/>

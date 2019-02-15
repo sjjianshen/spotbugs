@@ -54,7 +54,7 @@ public interface NullDerefAndRedundantComparisonCollector {
      *            The ValueNumber Frame at the point where the dereference
      *            occurred
      * @deprecated Use
-     *             {@link #foundNullDeref(Location,ValueNumber,IsNullValue,ValueNumberFrame,boolean)}
+     *             {@link #foundNullDeref(Location,ValueNumber,IsNullValue, CreatorDataValue, ValueNumberFrame,boolean)}
      *             instead
      */
     @Deprecated
