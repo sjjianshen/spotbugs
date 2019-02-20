@@ -43,9 +43,9 @@ public class BuildJsonReturnDatabase implements Detector, NonReportingDetector, 
 
     @Override
     public void visitClassContext(ClassContext classContext) {
-//        if (classContext.getClassDescriptor().getClassName().contains("JsonTestUtils")) {
-//            System.out.println("");
-//        }
+        if (classContext.getClassDescriptor().getClassName().contains("StoneClazzClient")) {
+            System.out.println("");
+        }
         if (AnalysisContext.currentAnalysisContext().isApplicationClass(classContext.getJavaClass())) {
             for (Method m : classContext.getMethodsInCallOrder()) {
                 considerMethod(classContext, m);

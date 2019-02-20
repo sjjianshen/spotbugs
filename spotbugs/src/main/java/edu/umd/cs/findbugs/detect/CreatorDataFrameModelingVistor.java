@@ -29,22 +29,28 @@ public class CreatorDataFrameModelingVistor extends AbstractFrameModelingVisitor
             modelInstruction(obj, getNumWordsConsumed(obj), getNumWordsProduced(obj), CreatorDataValue.JSON_SOURCE);
             return;
         }
-        if (methodName.startsWith("get")) {
+
+        if ("parseObject".equals(methodName) && className.endsWith("JSON")) {
+            modelInstruction(obj, getNumWordsConsumed(obj), getNumWordsProduced(obj), CreatorDataValue.JSON_SOURCE);
+            return;
+        }
+
+        if (!(obj instanceof INVOKESTATIC) && methodName.startsWith("get")) {
             CreatorDataFrame creatorDataFrame = getFrame();
             try {
                 CreatorDataValue creatorDataValue = creatorDataFrame.getTopValue();
                 int consume = obj.consumeStack(cpg);
                 if (creatorDataValue.isJsonSource() && consume == 1) {
-                    XClass xClass = Global.getAnalysisCache().getClassAnalysis(XClass.class,
-                            DescriptorFactory.createClassDescriptor(ClassName.toSlashedClassName(className)));
-                    String trimedName = methodName.substring("get".length());
-                    for (XField xField : xClass.getXFields()) {
-                        if (trimedName.equalsIgnoreCase(xField.getName())) {
-                            int produce = obj.produceStack(cpg);
-                            modelInstruction(obj, consume, produce, CreatorDataValue.JSON);
-                            return;
-                        }
-                    }
+//                    XClass xClass = Global.getAnalysisCache().getClassAnalysis(XClass.class,
+//                            DescriptorFactory.createClassDescriptor(ClassName.toSlashedClassName(className)));
+//                    String trimedName = methodName.substring("get".length());
+//                    for (XField xField : xClass.getXFields()) {
+//                        if (trimedName.equalsIgnoreCase(xField.getName())) {
+                    int produce = obj.produceStack(cpg);
+                    modelInstruction(obj, consume, produce, CreatorDataValue.JSON);
+                    return;
+//                        }
+//                    }
                 }
             } catch (CheckedAnalysisException e) {
                 e.printStackTrace();
@@ -68,7 +74,13 @@ public class CreatorDataFrameModelingVistor extends AbstractFrameModelingVisitor
 
     @Override
     public void visitINVOKESTATIC(INVOKESTATIC obj) {
-        doHandleInvoke(obj);
+        String methodName = obj.getMethodName(cpg);
+        String className = obj.getClassName(cpg);
+        if ("parseObject".equals(methodName) && className.endsWith("JSON")) {
+            modelInstruction(obj, obj.consumeStack(getCPG()), obj.produceStack(getCPG()), CreatorDataValue.JSON_SOURCE);
+        } else {
+            doHandleInvoke(obj);
+        }
     }
 
     @Override
