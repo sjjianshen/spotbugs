@@ -29,23 +29,11 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.WillClose;
 
+import edu.umd.cs.findbugs.ba.*;
 import org.apache.bcel.Const;
-import org.apache.bcel.generic.ConstantPoolGen;
-import org.apache.bcel.generic.InstructionHandle;
-import org.apache.bcel.generic.ObjectType;
-import org.apache.bcel.generic.Type;
+import org.apache.bcel.generic.*;
 
 import edu.umd.cs.findbugs.SystemProperties;
-import edu.umd.cs.findbugs.ba.BasicBlock;
-import edu.umd.cs.findbugs.ba.DataflowAnalysisException;
-import edu.umd.cs.findbugs.ba.DepthFirstSearch;
-import edu.umd.cs.findbugs.ba.Edge;
-import edu.umd.cs.findbugs.ba.EdgeTypes;
-import edu.umd.cs.findbugs.ba.ForwardDataflowAnalysis;
-import edu.umd.cs.findbugs.ba.Location;
-import edu.umd.cs.findbugs.ba.MissingClassException;
-import edu.umd.cs.findbugs.ba.Path;
-import edu.umd.cs.findbugs.ba.XMethod;
 import edu.umd.cs.findbugs.ba.npe.IsNullValueDataflow;
 import edu.umd.cs.findbugs.ba.npe.IsNullValueFrame;
 import edu.umd.cs.findbugs.ba.type.TypeDataflow;
@@ -196,6 +184,10 @@ public class ObligationAnalysis extends ForwardDataflowAnalysis<StateSet> {
                     if (action.getActionType() == ObligationPolicyDatabaseActionType.DEL) {
                         action.apply(fact, edge.getTarget().getLabel());
                     }
+                }
+
+                if (handle.getInstruction() instanceof INVOKESTATIC && edge.getTarget().getLabel() == 1) {
+                    fact.clear();
                 }
             }
         }

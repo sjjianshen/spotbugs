@@ -20,13 +20,7 @@
 package edu.umd.cs.findbugs.ba;
 
 import org.apache.bcel.Const;
-import org.apache.bcel.generic.IFNONNULL;
-import org.apache.bcel.generic.IFNULL;
-import org.apache.bcel.generic.IF_ACMPEQ;
-import org.apache.bcel.generic.IF_ACMPNE;
-import org.apache.bcel.generic.Instruction;
-import org.apache.bcel.generic.InstructionHandle;
-import org.apache.bcel.generic.MethodGen;
+import org.apache.bcel.generic.*;
 
 import edu.umd.cs.findbugs.SystemProperties;
 
@@ -77,6 +71,18 @@ EdgeTypes {
             boolean slotContainsInstance = resourceTracker.isParamInstance(resource, i);
             result.setValue(i, slotContainsInstance ? ResourceValue.instance() : ResourceValue.notInstance());
         }
+    }
+
+    @Override
+    public void edgeTransfer(Edge edge, ResourceValueFrame resourceValueFrame) throws DataflowAnalysisException {
+        if (edge.isExceptionEdge()) {
+            BasicBlock source = edge.getSource();
+            InstructionHandle handle = source.getExceptionThrower();
+            if (handle.getInstruction() instanceof INVOKESTATIC && edge.getTarget().getLabel() == 1) {
+                resourceValueFrame.setStatus(ResourceValueFrame.CLOSED);
+            }
+        }
+        super.edgeTransfer(edge, resourceValueFrame);
     }
 
     @Override

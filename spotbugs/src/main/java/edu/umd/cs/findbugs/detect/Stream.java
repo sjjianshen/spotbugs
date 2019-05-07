@@ -19,22 +19,11 @@
 
 package edu.umd.cs.findbugs.detect;
 
+import edu.umd.cs.findbugs.ba.*;
 import org.apache.bcel.Const;
-import org.apache.bcel.generic.ConstantPoolGen;
-import org.apache.bcel.generic.INVOKEINTERFACE;
-import org.apache.bcel.generic.INVOKESPECIAL;
-import org.apache.bcel.generic.INVOKEVIRTUAL;
-import org.apache.bcel.generic.Instruction;
-import org.apache.bcel.generic.InstructionHandle;
-import org.apache.bcel.generic.InvokeInstruction;
+import org.apache.bcel.generic.*;
 
 import edu.umd.cs.findbugs.ResourceCreationPoint;
-import edu.umd.cs.findbugs.ba.BasicBlock;
-import edu.umd.cs.findbugs.ba.Hierarchy;
-import edu.umd.cs.findbugs.ba.Location;
-import edu.umd.cs.findbugs.ba.RepositoryLookupFailureCallback;
-import edu.umd.cs.findbugs.ba.ResourceValue;
-import edu.umd.cs.findbugs.ba.ResourceValueFrame;
 
 /**
  * <p>A Stream object marks the location in the code where a stream is created. It
@@ -214,6 +203,11 @@ public class Stream extends ResourceCreationPoint implements Comparable<Stream> 
 
         }
 
+        if (ins instanceof INVOKESTATIC) {
+            InvokeInstruction inv = (InvokeInstruction) ins;
+            return inv.getName(cpg).startsWith("close");
+        }
+
         return false;
     }
 
@@ -251,6 +245,14 @@ public class Stream extends ResourceCreationPoint implements Comparable<Stream> 
                 return false;
             } catch (ClassNotFoundException e) {
                 lookupFailureCallback.reportMissingClass(e);
+                return false;
+            }
+        }
+
+        if (ins instanceof INVOKESTATIC) {
+            try {
+                return ins.consumeStack(cpg) == 1 && frame.getTopValue() == ResourceValue.instance();
+            } catch (DataflowAnalysisException e) {
                 return false;
             }
         }

@@ -2711,8 +2711,8 @@ for null.  This may lead to a <code>NullPointerException</code> when the code is
    </Details>
   </BugPattern>
   <BugPattern type="NP_NULL_PARAM_DEREF_ALL_TARGETS_DANGEROUS">
-    <ShortDescription>方法参数中声明为non-null类型的参数, 但是传入的只却为null</ShortDescription>
-    <LongDescription>方法参数中声明为non-null类型的参数, 但是传入的只却为null</LongDescription>
+    <ShortDescription>方法参数声明为non-null类型, 但是传入的值却为null, 请检查</ShortDescription>
+    <LongDescription>方法参数声明为non-null类型, 但是传入的值却为null, 请检查</LongDescription>
     <Details>
       <![CDATA[
       <p>
