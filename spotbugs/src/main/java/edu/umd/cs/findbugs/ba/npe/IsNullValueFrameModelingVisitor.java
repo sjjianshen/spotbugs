@@ -22,6 +22,8 @@ package edu.umd.cs.findbugs.ba.npe;
 import java.util.Map;
 import java.util.Set;
 
+import edu.umd.cs.findbugs.detect.DynamicDataflow;
+import edu.umd.cs.findbugs.detect.DynamicFrame;
 import org.apache.bcel.generic.ACONST_NULL;
 import org.apache.bcel.generic.ANEWARRAY;
 import org.apache.bcel.generic.CHECKCAST;
@@ -77,17 +79,20 @@ public class IsNullValueFrameModelingVisitor extends AbstractFrameModelingVisito
 
     private final TypeDataflow typeDataflow;
 
+    private final DynamicDataflow dynamicDataflow;
+
     private final boolean trackValueNumbers;
 
     private int slotContainingNewNullValue;
 
     public IsNullValueFrameModelingVisitor(ConstantPoolGen cpg, AssertionMethods assertionMethods,
-            ValueNumberDataflow vnaDataflow, TypeDataflow typeDataflow, boolean trackValueNumbers) {
+                                           ValueNumberDataflow vnaDataflow, TypeDataflow typeDataflow, DynamicDataflow dynamicDataflow, boolean trackValueNumbers) {
         super(cpg);
         this.assertionMethods = assertionMethods;
         this.vnaDataflow = vnaDataflow;
         this.trackValueNumbers = trackValueNumbers;
         this.typeDataflow = typeDataflow;
+        this.dynamicDataflow = dynamicDataflow;
     }
 
     /*
@@ -245,6 +250,13 @@ public class IsNullValueFrameModelingVisitor extends AbstractFrameModelingVisito
                             result = IsNullValue.merge(result, pushValue);
                         }
                     }
+                }
+                String methodName = obj.getMethodName(getCPG());
+                DynamicFrame dynamicFrame = dynamicDataflow.getFactAtBlock(getLocation().getBasicBlock());
+                if (dynamicFrame.contains(methodName)) {
+                    result = IsNullValue.checkedNonNullValue();
+//                    System.out.println(methodName);
+//                    System.out.println("shoud be nonnull");
                 }
             } catch (DataflowAnalysisException e) {
                 result = IsNullValue.nonReportingNotNullValue();

@@ -25,15 +25,9 @@ import java.util.Set;
 
 import javax.annotation.CheckForNull;
 
+import edu.umd.cs.findbugs.detect.DynamicDataflow;
 import org.apache.bcel.Const;
-import org.apache.bcel.generic.ATHROW;
-import org.apache.bcel.generic.CodeExceptionGen;
-import org.apache.bcel.generic.IF_ACMPNE;
-import org.apache.bcel.generic.Instruction;
-import org.apache.bcel.generic.InstructionHandle;
-import org.apache.bcel.generic.MethodGen;
-import org.apache.bcel.generic.ObjectType;
-import org.apache.bcel.generic.Type;
+import org.apache.bcel.generic.*;
 
 import edu.umd.cs.findbugs.SystemProperties;
 import edu.umd.cs.findbugs.ba.AnalysisContext;
@@ -69,7 +63,7 @@ import edu.umd.cs.findbugs.classfile.MethodDescriptor;
  * @see IsNullValueFrame
  * @see IsNullValueFrameModelingVisitor
  */
-public class IsNullValueAnalysis extends FrameDataflowAnalysis<IsNullValue, IsNullValueFrame> implements EdgeTypes,
+public class  IsNullValueAnalysis extends FrameDataflowAnalysis<IsNullValue, IsNullValueFrame> implements EdgeTypes,
 IsNullValueAnalysisFeatures {
     static final boolean DEBUG = SystemProperties.getBoolean("inva.debug");
 
@@ -99,6 +93,8 @@ IsNullValueAnalysisFeatures {
 
     private JavaClassAndMethod classAndMethod;
 
+    private DynamicDataflow dynamicDataflow;
+
     private final @CheckForNull
     PointerEqualityCheck pointerEqualityCheck;
 
@@ -110,8 +106,10 @@ IsNullValueAnalysisFeatures {
                 AnalysisFeatures.TRACK_VALUE_NUMBERS_IN_NULL_POINTER_ANALYSIS);
 
         this.methodGen = methodGen;
+        this.dynamicDataflow = new DynamicDataflow(dfs, cfg, methodGen);
+        this.dynamicDataflow.execute();
         this.visitor = new IsNullValueFrameModelingVisitor(methodGen.getConstantPool(), assertionMethods, vnaDataflow,
-                typeDataflow, trackValueNumbers);
+                typeDataflow, dynamicDataflow, trackValueNumbers);
         this.vnaDataflow = vnaDataflow;
         this.cfg = cfg;
         this.locationWhereValueBecomesNullSet = new HashSet<>();
@@ -670,40 +668,55 @@ IsNullValueAnalysisFeatures {
             short secondToLastOpcode = prev.getInstruction().getOpcode();
             // System.out.println("Second last opcode: " +
             // Const.OPCODE_NAMES[secondToLastOpcode]);
-            if (secondToLastOpcode != Const.INSTANCEOF) {
-                return null;
-            }
-            if (instanceOfFrame == null) {
-                return null;
-            }
-            IsNullValue tos = instanceOfFrame.getTopValue();
-            boolean isNotInstanceOf = (lastInSourceOpcode != Const.IFNE);
-            Location atInstanceOf = new Location(prev, basicBlock);
-            ValueNumberFrame instanceOfVnaFrame = vnaDataflow.getFactAtLocation(atInstanceOf);
 
             // Initially, assume neither branch is feasible.
             IsNullValue ifcmpDecision = null;
             IsNullValue fallThroughDecision = null;
 
-            if (tos.isDefinitelyNull()) {
-                // Predetermined comparison - one branch is infeasible
-                if (isNotInstanceOf) {
-                    ifcmpDecision = tos;
+            if (secondToLastOpcode == Const.INSTANCEOF && instanceOfFrame != null) {
+                boolean isNotInstanceOf = (lastInSourceOpcode != Const.IFNE);
+                IsNullValue tos = instanceOfFrame.getTopValue();
+                Location atInstanceOf = new Location(prev, basicBlock);
+                ValueNumberFrame instanceOfVnaFrame = vnaDataflow.getFactAtLocation(atInstanceOf);
+
+                if (tos.isDefinitelyNull()) {
+                    // Predetermined comparison - one branch is infeasible
+                    if (isNotInstanceOf) {
+                        ifcmpDecision = tos;
+                    } else {
+                        // ifnonnull
+                        fallThroughDecision = tos;
+                    }
+                } else if (tos.isDefinitelyNotNull()) {
+                    return null;
                 } else {
-                    // ifnonnull
-                    fallThroughDecision = tos;
+                    // As far as we know, both branches feasible
+                    ifcmpDecision = isNotInstanceOf ? tos : IsNullValue.pathSensitiveNonNullValue();
+                    fallThroughDecision = isNotInstanceOf ? IsNullValue.pathSensitiveNonNullValue() : tos;
                 }
-            } else if (tos.isDefinitelyNotNull()) {
-                return null;
+                if (DEBUG) {
+                    System.out.println("Checking..." + tos + " -> " + ifcmpDecision + " or " + fallThroughDecision);
+                }
+                return new IsNullConditionDecision(instanceOfVnaFrame.getTopValue(), ifcmpDecision, fallThroughDecision);
             } else {
-                // As far as we know, both branches feasible
-                ifcmpDecision = isNotInstanceOf ? tos : IsNullValue.pathSensitiveNonNullValue();
-                fallThroughDecision = isNotInstanceOf ? IsNullValue.pathSensitiveNonNullValue() : tos;
+                InstructionHandle handle = basicBlock.getFirstInstruction();
+                Instruction ins = handle.getInstruction();
+                if (ins instanceof InvokeInstruction) {
+                    InvokeInstruction inv = (InvokeInstruction)ins;
+                    ConstantPoolGen cpg = methodGen.getConstantPool();
+                    if (inv instanceof INVOKESTATIC && inv.consumeStack(cpg) == 1 && inv.getMethodName(cpg).contains("isEmpty")) {
+                        Location location = new Location(handle, basicBlock);
+                        ValueNumberFrame vnf = vnaDataflow.getFactAtLocation(location);
+                        IsNullValueFrame invf = getFactAtLocation(location);
+                        ifcmpDecision = lastInSourceOpcode == Const.IFNE ? invf.getTopValue() : IsNullValue.checkedNonNullValue();
+                        fallThroughDecision = lastInSourceOpcode == Const.IFNE ? IsNullValue.checkedNonNullValue() : invf.getTopValue();
+                        return new IsNullConditionDecision(vnf.getTopValue(), ifcmpDecision, fallThroughDecision);
+                    }
+                }
+
             }
-            if (DEBUG) {
-                System.out.println("Checking..." + tos + " -> " + ifcmpDecision + " or " + fallThroughDecision);
-            }
-            return new IsNullConditionDecision(instanceOfVnaFrame.getTopValue(), ifcmpDecision, fallThroughDecision);
+            return null;
+
         }
 
         if (!nullComparisonInstructionSet.get(lastInSourceOpcode)) {
