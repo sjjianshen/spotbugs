@@ -89,6 +89,7 @@ public class EngineRegistrar implements IAnalysisEngineRegistrar {
         new ReflectionDatabaseFactory<>(TypeQualifierDatabase.class),
         new ReflectionDatabaseFactory<>(MethodInfoDatabase.class),
         new ReflectionDatabaseFactory<>(ReturnValueJsonPropertyDatabase.class),
+        new ReflectionDatabaseFactory<>(ExceptionThrowerPropertyDatabase.class),
     };
 
     /*

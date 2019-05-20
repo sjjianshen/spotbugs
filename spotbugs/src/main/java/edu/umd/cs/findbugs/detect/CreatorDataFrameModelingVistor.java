@@ -53,7 +53,7 @@ public class CreatorDataFrameModelingVistor extends AbstractFrameModelingVisitor
 //                    }
                 }
             } catch (CheckedAnalysisException e) {
-                e.printStackTrace();
+//                e.printStackTrace();
             }
         }
         doHandleInvoke(obj);
@@ -111,7 +111,7 @@ public class CreatorDataFrameModelingVistor extends AbstractFrameModelingVisitor
                 super.visitGETFIELD(obj);
             }
         } catch (DataflowAnalysisException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             super.visitGETFIELD(obj);
         }
     }

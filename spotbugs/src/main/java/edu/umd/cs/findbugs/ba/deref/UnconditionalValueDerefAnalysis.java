@@ -214,7 +214,7 @@ public class UnconditionalValueDerefAnalysis extends BackwardDataflowAnalysis<Un
             throws DataflowAnalysisException {
         if (reportPotentialDereference(location, invDataflow.getFactAtLocation(location))) {
             ValueNumber vn = vnaFrame.getTopValue();
-            fact.addDeref(vn, location);
+//            fact.addDeref(vn, location);
         }
     }
 

@@ -419,6 +419,16 @@ literals.
       ]]>
     </Details>
   </Detector>
+  <Detector class="edu.umd.cs.findbugs.detect.BuildExceptionThrowerDatabase">
+    <Details>
+      <![CDATA[
+      <p>
+      Analyze all methods in the application to determine which
+    methods is exception thrower.
+      </p>
+      ]]>
+    </Details>
+  </Detector>
   <Detector class="edu.umd.cs.findbugs.detect.BooleanReturnNull">
     <Details>
 <![CDATA[

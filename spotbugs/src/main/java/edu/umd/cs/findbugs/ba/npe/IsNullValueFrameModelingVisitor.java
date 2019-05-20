@@ -19,45 +19,20 @@
 
 package edu.umd.cs.findbugs.ba.npe;
 
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
+import edu.umd.cs.findbugs.ba.*;
+import edu.umd.cs.findbugs.classfile.CheckedAnalysisException;
+import edu.umd.cs.findbugs.classfile.Global;
+import edu.umd.cs.findbugs.classfile.MethodDescriptor;
+import edu.umd.cs.findbugs.classfile.engine.bcel.ExceptionThrowerPropertyDatabase;
+import edu.umd.cs.findbugs.classfile.engine.bcel.ExceptionThrowerSet;
 import edu.umd.cs.findbugs.detect.DynamicDataflow;
 import edu.umd.cs.findbugs.detect.DynamicFrame;
-import org.apache.bcel.generic.ACONST_NULL;
-import org.apache.bcel.generic.ANEWARRAY;
-import org.apache.bcel.generic.CHECKCAST;
-import org.apache.bcel.generic.ConstantPoolGen;
-import org.apache.bcel.generic.GETFIELD;
-import org.apache.bcel.generic.GETSTATIC;
-import org.apache.bcel.generic.INVOKEDYNAMIC;
-import org.apache.bcel.generic.INVOKEINTERFACE;
-import org.apache.bcel.generic.INVOKESPECIAL;
-import org.apache.bcel.generic.INVOKESTATIC;
-import org.apache.bcel.generic.INVOKEVIRTUAL;
-import org.apache.bcel.generic.Instruction;
-import org.apache.bcel.generic.InvokeInstruction;
-import org.apache.bcel.generic.LDC;
-import org.apache.bcel.generic.LDC2_W;
-import org.apache.bcel.generic.MULTIANEWARRAY;
-import org.apache.bcel.generic.NEW;
-import org.apache.bcel.generic.NEWARRAY;
-import org.apache.bcel.generic.PUTFIELD;
-import org.apache.bcel.generic.ReferenceType;
-import org.apache.bcel.generic.Type;
+import org.apache.bcel.generic.*;
 
 import edu.umd.cs.findbugs.OpcodeStack.Item;
 import edu.umd.cs.findbugs.SystemProperties;
-import edu.umd.cs.findbugs.ba.AbstractFrameModelingVisitor;
-import edu.umd.cs.findbugs.ba.AnalysisContext;
-import edu.umd.cs.findbugs.ba.AssertionMethods;
-import edu.umd.cs.findbugs.ba.DataflowAnalysisException;
-import edu.umd.cs.findbugs.ba.Hierarchy2;
-import edu.umd.cs.findbugs.ba.Location;
-import edu.umd.cs.findbugs.ba.NullnessAnnotation;
-import edu.umd.cs.findbugs.ba.XFactory;
-import edu.umd.cs.findbugs.ba.XField;
-import edu.umd.cs.findbugs.ba.XMethod;
 import edu.umd.cs.findbugs.ba.deref.UnconditionalValueDerefAnalysis;
 import edu.umd.cs.findbugs.ba.type.TypeDataflow;
 import edu.umd.cs.findbugs.ba.type.TypeFrame;
@@ -66,6 +41,7 @@ import edu.umd.cs.findbugs.ba.vna.ValueNumber;
 import edu.umd.cs.findbugs.ba.vna.ValueNumberAnalysisFeatures;
 import edu.umd.cs.findbugs.ba.vna.ValueNumberDataflow;
 import edu.umd.cs.findbugs.ba.vna.ValueNumberFrame;
+import org.apache.bcel.verifier.structurals.ControlFlowGraph;
 
 public class IsNullValueFrameModelingVisitor extends AbstractFrameModelingVisitor<IsNullValue, IsNullValueFrame> {
 
@@ -227,6 +203,80 @@ public class IsNullValueFrameModelingVisitor extends AbstractFrameModelingVisito
 
         if (!modelCallReturnValue) {
             // Normal case: Assume returned values are non-reporting non-null.
+            if (obj instanceof INVOKESTATIC) {
+                MethodDescriptor methodDescriptor = new MethodDescriptor(obj, cpg);
+                ExceptionThrowerSet exceptionThrowerSet = Global.getAnalysisCache()
+                        .getDatabase(ExceptionThrowerPropertyDatabase.class).getProperty(methodDescriptor);
+                try {
+                    CFG cfg = Global.getAnalysisCache().getMethodAnalysis(CFG.class, methodDescriptor);
+                    if (obj.consumeStack(cpg) == 0 && exceptionThrowerSet == ExceptionThrowerSet.ALWAYS) {
+                        BasicBlock basicBlock = getLocation().getBasicBlock();
+                        Queue<BasicBlock> queue = new ArrayDeque<>();
+                        Set<BasicBlock> visited = new HashSet<>();
+                        queue.add(basicBlock);
+                        while (!queue.isEmpty()) {
+                            basicBlock = queue.remove();
+                            InstructionHandle inh = basicBlock.getLastInstruction();
+                            if (inh != null && (inh.getInstruction() instanceof IFNONNULL)) {
+                                if ((inh = inh.getPrev()) != null && inh.getInstruction() instanceof ALOAD) {
+                                    ALOAD aload = (ALOAD) inh.getInstruction();
+                                    int index = aload.getIndex();
+                                    getFrame().setValue(index, IsNullValue.noKaboomNonNullValue(getLocation()));
+                                    break;
+                                }
+                            }
+                            visited.add(basicBlock);
+                            Iterator<Edge> it = cfg.incomingEdgeIterator(basicBlock);
+                            while(it.hasNext()) {
+                                BasicBlock source = it.next().getSource();
+                                if (!visited.contains(basicBlock)) {
+                                    queue.add(source);
+                                }
+                            }
+                        }
+                    } else if (exceptionThrowerSet != null && exceptionThrowerSet.isConditional()) {
+                        int consume = obj.consumeStack(cpg);
+                        boolean apply = false;
+                        BasicBlock basicBlock = getLocation().getBasicBlock();
+                        Edge edge = cfg.getIncomingEdgeWithType(basicBlock, EdgeTypes.FALL_THROUGH_EDGE);
+                        if (edge != null) {
+                            BasicBlock etBlock = edge.getSource();
+                            edge = cfg.getIncomingEdgeWithType(etBlock, EdgeTypes.FALL_THROUGH_EDGE);
+                            if (edge != null) {
+                                BasicBlock loadBlock = edge.getSource();
+                                InstructionHandle inh = loadBlock.getLastInstruction();
+                                for (int i = 0; i < consume; i++) {
+                                    if (inh != null && inh.getInstruction() instanceof ALOAD) {
+                                        apply = true;
+                                        inh = inh.getPrev();
+                                    } else {
+                                        apply = false;
+                                        break;
+                                    }
+                                }
+
+                                if (apply) {
+                                    inh = loadBlock.getLastInstruction();
+                                    for (int i = 0; i < consume; i++) {
+                                        ALOAD aload = (ALOAD) inh.getInstruction();
+                                        int index = aload.getIndex();
+                                        if (exceptionThrowerSet.isIndexSet(consume - 1 - i)) {
+                                            getFrame().setValue(index, IsNullValue.noKaboomNonNullValue(getLocation()));
+                                        }
+                                        inh = inh.getPrev();
+                                    }
+                                }
+                            }
+                        }
+
+                    }
+                } catch (CheckedAnalysisException e) {
+//                    e.printStackTrace();
+                } catch (Exception e) {
+//                    e.printStackTrace();
+                }
+            }
+
             handleNormalInstruction(obj);
         } else {
             // Special case: some special value is pushed on the stack for the
@@ -255,8 +305,6 @@ public class IsNullValueFrameModelingVisitor extends AbstractFrameModelingVisito
                 DynamicFrame dynamicFrame = dynamicDataflow.getFactAtBlock(getLocation().getBasicBlock());
                 if (dynamicFrame.contains(methodName)) {
                     result = IsNullValue.checkedNonNullValue();
-//                    System.out.println(methodName);
-//                    System.out.println("shoud be nonnull");
                 }
             } catch (DataflowAnalysisException e) {
                 result = IsNullValue.nonReportingNotNullValue();

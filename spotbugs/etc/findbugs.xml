@@ -243,6 +243,10 @@
                         <Later class="edu.umd.cs.findbugs.detect.FindNullDeref"/>
                     </WithinPass>
                     <WithinPass>
+                        <Earlier class="edu.umd.cs.findbugs.detect.BuildExceptionThrowerDatabase"/>
+                        <Later class="edu.umd.cs.findbugs.detect.FindNullDeref"/>
+                    </WithinPass>
+                    <WithinPass>
                               <Earlier class="edu.umd.cs.findbugs.detect.NoteNonnullReturnValues"/>
                               <Later class="edu.umd.cs.findbugs.detect.UnreadFields"/>
                     </WithinPass>
@@ -470,7 +474,9 @@
             <Detector class="edu.umd.cs.findbugs.detect.NoteNonnullReturnValues" speed="slow"
                       reports="" hidden="true" disabled="true"/>
             <Detector class="edu.umd.cs.findbugs.detect.BuildJsonReturnDatabase" speed="slow"
-                      reports="" hidden="true" disabled="true"/>
+                      reports="" hidden="true"/>
+            <Detector class="edu.umd.cs.findbugs.detect.BuildExceptionThrowerDatabase" speed="slow"
+                      reports="" hidden="true"/>
             <!-- Bug Categories -->
            <BugCategory category="NOISE" hidden="true"/>
 
