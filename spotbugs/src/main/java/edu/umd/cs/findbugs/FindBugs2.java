@@ -306,6 +306,75 @@ public class FindBugs2 implements IFindBugsEngine, AutoCloseable {
         }
     }
 
+    public void executeDirectly(ExecutionPlan executionPlan) throws IOException, InterruptedException {
+
+        try {
+            try {
+                // Get the class factory for creating classpath/codebase/etc.
+                classFactory = ClassFactory.instance();
+                // The class path object
+                createClassPath();
+                // The analysis cache object
+                createAnalysisCache();
+                // Create BCEL compatibility layer
+                createAnalysisContext(project, appClassList, analysisOptions.sourceInfoFileName);
+                // Discover all codebases in classpath and
+                // enumerate all classes (application and non-application)
+                buildClassPath();
+                // Build set of classes referenced by application classes
+                buildReferencedClassSet();
+                // Create BCEL compatibility layer
+                setAppClassList(appClassList);
+                // Configure the BugCollection (if we are generating one)
+                FindBugs.configureBugCollection(this);
+                // Enable/disabled relaxed reporting mode
+                FindBugsAnalysisFeatures.setRelaxedMode(analysisOptions.relaxedReportingMode);
+                FindBugsDisplayFeatures.setAbridgedMessages(analysisOptions.abridgedMessages);
+                // Configure training databases
+                FindBugs.configureTrainingDatabases(this);
+                // Configure analysis features
+                configureAnalysisFeatures();
+
+                // Create the execution plan (which passes/detectors to execute)
+                this.executionPlan = executionPlan;
+
+                if (appClassList.size() == 0) {
+                    Map<String, ICodeBaseEntry> codebase = classPath.getApplicationCodebaseEntries();
+                    if (analysisOptions.noClassOk) {
+                        System.err.println("No classfiles specified; output will have no warnings");
+                    } else if  (codebase.isEmpty()) {
+                        throw new IOException("No files to analyze could be opened");
+                    } else {
+                        throw new NoClassesFoundToAnalyzeException(classPath);
+                    }
+                }
+
+                // Analyze the application
+                analyzeApplication();
+            } catch (CheckedAnalysisException e) {
+                IOException ioe = new IOException("IOException while scanning codebases");
+                ioe.initCause(e);
+                throw ioe;
+            } catch (OutOfMemoryError e) {
+                System.err.println("Out of memory");
+                System.err.println("Total memory: " + Runtime.getRuntime().maxMemory() / 1000000 + "M");
+                System.err.println(" free memory: " + Runtime.getRuntime().freeMemory() / 1000000 + "M");
+
+                for (String s : project.getFileList()) {
+                    System.err.println("Analyzed: " + s);
+                }
+                for (String s : project.getAuxClasspathEntryList()) {
+                    System.err.println("     Aux: " + s);
+                }
+                throw e;
+            } finally {
+                clearCaches();
+            }
+        } catch (IOException e) {
+            bugReporter.reportQueuedErrors();
+            throw e;
+        }
+    }
     /**
      * Protected to allow Eclipse plugin remember some cache data for later reuse
      */

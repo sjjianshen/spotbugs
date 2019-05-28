@@ -72,12 +72,12 @@
                               <Later class="edu.umd.cs.findbugs.detect.NoteUnconditionalParamDerefs"
                               />
                     </WithinPass>
-                    <WithinPass>
-                              <Earlier class="edu.umd.cs.findbugs.detect.FieldItemSummary"/>
-                              <Later
-                                        class="edu.umd.cs.findbugs.detect.BuildUnconditionalParamDerefDatabase"
-                              />
-                    </WithinPass>
+                    <!--<WithinPass>-->
+                              <!--<Earlier class="edu.umd.cs.findbugs.detect.FieldItemSummary"/>-->
+                              <!--<Later-->
+                                        <!--class="edu.umd.cs.findbugs.detect.BuildUnconditionalParamDerefDatabase"-->
+                              <!--/>-->
+                    <!--</WithinPass>-->
                     <!--
         NoteSuppressedWarnings should be run in
         an earlier pass than all reporting detectors, including those in
@@ -91,10 +91,10 @@
                               <!--<Earlier class="edu.umd.cs.findbugs.detect.OverridingEqualsNotSymmetrical"/>-->
                               <!--<Later class="edu.umd.cs.findbugs.detect.FindHEmismatch"/>-->
                     <!--</SplitPass>-->
-                    <SplitPass>
-                              <Earlier class="edu.umd.cs.findbugs.detect.FunctionsThatMightBeMistakenForProcedures"/>
-                              <Later class="edu.umd.cs.findbugs.detect.MethodReturnCheck"/>
-                    </SplitPass>
+                    <!--<SplitPass>-->
+                              <!--<Earlier class="edu.umd.cs.findbugs.detect.FunctionsThatMightBeMistakenForProcedures"/>-->
+                              <!--<Later class="edu.umd.cs.findbugs.detect.MethodReturnCheck"/>-->
+                    <!--</SplitPass>-->
                     <!--<WithinPass>-->
                               <!--<Earlier class="edu.umd.cs.findbugs.detect.FindBugsSummaryStats"/>-->
                               <!--<Later-->
@@ -105,12 +105,12 @@
                               <!--<Earlier class="edu.umd.cs.findbugs.detect.FindBugsSummaryStats"/>-->
                               <!--<Later class="edu.umd.cs.findbugs.detect.OverridingEqualsNotSymmetrical" />-->
                     <!--</WithinPass>-->
-                    <WithinPass>
-                              <Earlier class="edu.umd.cs.findbugs.detect.NoteSuppressedWarnings"/>
-                              <Later
-                                        class="edu.umd.cs.findbugs.detect.EqualsOperandShouldHaveClassCompatibleWithThis"
-                              />
-                    </WithinPass>
+                    <!--<WithinPass>-->
+                              <!--<Earlier class="edu.umd.cs.findbugs.detect.NoteSuppressedWarnings"/>-->
+                              <!--<Later-->
+                                        <!--class="edu.umd.cs.findbugs.detect.EqualsOperandShouldHaveClassCompatibleWithThis"-->
+                              <!--/>-->
+                    <!--</WithinPass>-->
                     <!--<WithinPass>-->
                               <!--<Earlier class="edu.umd.cs.findbugs.detect.NoteSuppressedWarnings"/>-->
                               <!--<Later-->
@@ -160,22 +160,22 @@
                               <Earlier class="edu.umd.cs.findbugs.detect.ReflectiveClasses"/>
                               <Later class="edu.umd.cs.findbugs.detect.UnreadFields"/>
                     </SplitPass>
-                    <SplitPass>
-                              <Earlier class="edu.umd.cs.findbugs.detect.ExplicitSerialization"/>
-                              <Later class="edu.umd.cs.findbugs.detect.SerializationIdiom"/>
-                    </SplitPass>
+                    <!--<SplitPass>-->
+                              <!--<Earlier class="edu.umd.cs.findbugs.detect.ExplicitSerialization"/>-->
+                              <!--<Later class="edu.umd.cs.findbugs.detect.SerializationIdiom"/>-->
+                    <!--</SplitPass>-->
                     <!--<SplitPass>-->
                               <!--<Earlier class="edu.umd.cs.findbugs.detect.CalledMethods"/>-->
                               <!--<Later-->
                                         <!--class="edu.umd.cs.findbugs.detect.UncallableMethodOfAnonymousClass"-->
                               <!--/>-->
                     <!--</SplitPass>-->
-                    <SplitPass>
-                              <Earlier class="edu.umd.cs.findbugs.detect.FindNoSideEffectMethods"/>
-                              <Later
-                                        class="edu.umd.cs.findbugs.detect.MethodReturnCheck"
-                              />
-                    </SplitPass>
+                    <!--<SplitPass>-->
+                              <!--<Earlier class="edu.umd.cs.findbugs.detect.FindNoSideEffectMethods"/>-->
+                              <!--<Later-->
+                                        <!--class="edu.umd.cs.findbugs.detect.MethodReturnCheck"-->
+                              <!--/>-->
+                    <!--</SplitPass>-->
                     <!--<SplitPass>-->
                               <!--<Earlier class="edu.umd.cs.findbugs.detect.FindNoSideEffectMethods"/>-->
                               <!--<Later-->
@@ -220,11 +220,11 @@
                                         <!--class="edu.umd.cs.findbugs.detect.ConfusionBetweenInheritedAndOuterMethod"-->
                               <!--/>-->
                     <!--</SplitPass>-->
-                    <SplitPass>
-                              <Earlier
-                                        class="edu.umd.cs.findbugs.detect.NoteCheckReturnValueAnnotations"/>
-                              <Later class="edu.umd.cs.findbugs.detect.MethodReturnCheck"/>
-                    </SplitPass>
+                    <!--<SplitPass>-->
+                              <!--<Earlier-->
+                                        <!--class="edu.umd.cs.findbugs.detect.NoteCheckReturnValueAnnotations"/>-->
+                              <!--<Later class="edu.umd.cs.findbugs.detect.MethodReturnCheck"/>-->
+                    <!--</SplitPass>-->
 
                     <SplitPass>
                               <Earlier class="edu.umd.cs.findbugs.detect.NoteJCIPAnnotation"/>
@@ -299,16 +299,16 @@
           </OrderingConstraints>
           <Detector class="edu.umd.cs.findbugs.detect.BuildObligationPolicyDatabase" speed="fast"
               reports="" hidden="true"/>
-            <Detector class="edu.umd.cs.findbugs.detect.FunctionsThatMightBeMistakenForProcedures" speed="fast"
-                      reports="" hidden="true"/>
+            <!--<Detector class="edu.umd.cs.findbugs.detect.FunctionsThatMightBeMistakenForProcedures" speed="fast"-->
+                      <!--reports="" hidden="true"/>-->
             <Detector class="edu.umd.cs.findbugs.detect.NoteSuppressedWarnings" speed="fast"
                       reports="" hidden="true"/>
             <Detector class="edu.umd.cs.findbugs.detect.NoteAnnotationRetention" speed="fast"
                       reports="" hidden="true"/>
             <Detector class="edu.umd.cs.findbugs.detect.NoteDirectlyRelevantTypeQualifiers"
                       speed="fast" reports="" hidden="true"/>
-            <Detector class="edu.umd.cs.findbugs.detect.BuildInterproceduralCallGraph" speed="fast"
-                      reports="" disabled="true" hidden="true"/>
+            <!--<Detector class="edu.umd.cs.findbugs.detect.BuildInterproceduralCallGraph" speed="fast"-->
+                      <!--reports="" disabled="true" hidden="true"/>-->
             <Detector class="edu.umd.cs.findbugs.detect.NoteJCIPAnnotation" speed="fast" reports=""
                       hidden="true"/>
             <Detector class="edu.umd.cs.findbugs.detect.Methods" speed="fast" reports=""
@@ -321,12 +321,12 @@
                       disabled="false" hidden="true"/>
             <Detector class="edu.umd.cs.findbugs.detect.BuildStringPassthruGraph" speed="fast" reports=""
                       disabled="false" hidden="true"/>
-            <Detector class="edu.umd.cs.findbugs.detect.NoteCheckReturnValueAnnotations" speed="fast"
-                      reports="" requirejre="1.5" hidden="true"/>
+            <!--<Detector class="edu.umd.cs.findbugs.detect.NoteCheckReturnValueAnnotations" speed="fast"-->
+                      <!--reports="" requirejre="1.5" hidden="true"/>-->
             <Detector class="edu.umd.cs.findbugs.detect.FieldItemSummary" speed="fast" reports=""
                       hidden="true"/>
-            <Detector class="edu.umd.cs.findbugs.detect.NoteNonNullAnnotations" speed="fast"
-                      reports="" hidden="true" disabled="true"/>
+            <!--<Detector class="edu.umd.cs.findbugs.detect.NoteNonNullAnnotations" speed="fast"-->
+                      <!--reports="" hidden="true" disabled="true"/>-->
 
     <Detector class="edu.umd.cs.findbugs.detect.SynchronizeAndNullCheckField" speed="moderate"
                     reports="NP_SYNC_AND_NULL_CHECK_FIELD" hidden="false"/>
@@ -357,10 +357,13 @@
                     reports="HSC_HUGE_SHARED_STRING_CONSTANT"/>
           <Detector class="edu.umd.cs.findbugs.detect.InconsistentAnnotations" speed="fast"
                     reports="NP_PARAMETER_MUST_BE_NONNULL_BUT_MARKED_AS_NULLABLE"/>
-          <Detector class="edu.umd.cs.findbugs.detect.FindFloatMath" speed="moderate"
-                    disabled="true" hidden="true" reports="FL_MATH_USING_FLOAT_PRECISION"/>
+          <!--<Detector class="edu.umd.cs.findbugs.detect.FindFloatMath" speed="moderate"-->
+                    <!--disabled="true" hidden="true" reports="FL_MATH_USING_FLOAT_PRECISION"/>-->
           <!--<Detector class="edu.umd.cs.findbugs.detect.LoadOfKnownNullValue" speed="fast"-->
                     <!--disabled="false" reports="NP_LOAD_OF_KNOWN_NULL_VALUE"/>-->
+          <Detector
+            class="edu.umd.cs.findbugs.detect.EqualsOperandShouldHaveClassCompatibleWithThis"
+            speed="fast" reports="EQ_CHECK_FOR_OPERAND_NOT_COMPATIBLE_WITH_THIS"/>
           <Detector class="edu.umd.cs.findbugs.detect.URLProblems" speed="fast"
                     reports="DMI_BLOCKING_METHODS_ON_URL,DMI_COLLECTION_OF_URLS"/>
           <Detector class="edu.umd.cs.findbugs.detect.DumbMethods" speed="fast"
@@ -430,10 +433,11 @@
 
           <Detector class="edu.umd.cs.findbugs.detect.LazyInit" speed="moderate"
                     reports="LI_LAZY_INIT_STATIC,LI_LAZY_INIT_UPDATE_STATIC" disabled="false"/>
+          <!--<Detector class="edu.umd.cs.findbugs.detect.MethodReturnCheck" speed="fast"-->
+              <!--reports="RV_RETURN_VALUE_IGNORED,RV_RETURN_VALUE_IGNORED_BAD_PRACTICE,RV_EXCEPTION_NOT_THROWN,RV_CHECK_COMPARETO_FOR_SPECIFIC_RETURN_VALUE,RV_RETURN_VALUE_IGNORED_INFERRED,RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT,UC_USELESS_VOID_METHOD"/>-->
 
-
-          <Detector class="edu.umd.cs.findbugs.detect.InefficientInitializationInsideLoop" speed="fast" disabled="true"
-                    reports="IIL_PREPARE_STATEMENT_IN_LOOP,IIL_PATTERN_COMPILE_IN_LOOP,IIL_PATTERN_COMPILE_IN_LOOP_INDIRECT,IIL_ELEMENTS_GET_LENGTH_IN_LOOP"/>
+          <!--<Detector class="edu.umd.cs.findbugs.detect.InefficientInitializationInsideLoop" speed="fast" disabled="true"-->
+                    <!--reports="IIL_PREPARE_STATEMENT_IN_LOOP,IIL_PATTERN_COMPILE_IN_LOOP,IIL_PATTERN_COMPILE_IN_LOOP_INDIRECT,IIL_ELEMENTS_GET_LENGTH_IN_LOOP"/>-->
 
 
 
@@ -445,14 +449,14 @@
           <Detector class="edu.umd.cs.findbugs.detect.FindUnsatisfiedObligation" speed="slow"
                     reports="OBL_UNSATISFIED_OBLIGATION,OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE"/>
 
-          <Detector class="edu.umd.cs.findbugs.detect.FindCircularDependencies" speed="moderate"
-                    disabled="true" reports="CD_CIRCULAR_DEPENDENCY"/>
+          <!--<Detector class="edu.umd.cs.findbugs.detect.FindCircularDependencies" speed="moderate"-->
+                    <!--disabled="true" reports="CD_CIRCULAR_DEPENDENCY"/>-->
 
           <Detector class="edu.umd.cs.findbugs.detect.MultithreadedInstanceAccess" speed="fast"
                     reports="MTIA_SUSPECT_SERVLET_INSTANCE_FIELD"/>
 
-          <Detector class="edu.umd.cs.findbugs.detect.PublicSemaphores" speed="fast" disabled="true"
-                    reports="PS_PUBLIC_SEMAPHORES"/>
+          <!--<Detector class="edu.umd.cs.findbugs.detect.PublicSemaphores" speed="fast" disabled="true"-->
+                    <!--reports="PS_PUBLIC_SEMAPHORES"/>-->
 
 
           <Detector class="edu.umd.cs.findbugs.detect.FindPuzzlers" speed="fast"
