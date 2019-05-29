@@ -1665,70 +1665,7 @@ factory pattern to create these objects.</p>
   BugPatterns
   **********************************************************************
    -->
-    <BugPattern type="DMI_BIGDECIMAL_CONSTRUCTED_FROM_DOUBLE">
-        <ShortDescription>
-          通过double构造的Bigdecimal变量会有精度问题, 建议直接使用字符串构造
-        </ShortDescription>
-        <LongDescription>
-          在{1}中, BigDecimal是由{4}类型构造的, 会有精度问题, 建议直接使用字符串构造
-        </LongDescription>
-        <Details>
-      <![CDATA[
-    <p>
-This code creates a BigDecimal from a double value that doesn't translate well to a
-decimal number.
-For example, one might assume that writing new BigDecimal(0.1) in Java creates a BigDecimal which is exactly equal to 0.1 (an unscaled value of 1, with a scale of 1), but it is actually equal to 0.1000000000000000055511151231257827021181583404541015625.
-You probably want to use the BigDecimal.valueOf(double d) method, which uses the String representation
-of the double to create the BigDecimal (e.g., BigDecimal.valueOf(0.1) gives 0.1).
-</p>
 
-]]>
-    </Details>
-    </BugPattern>
-  <BugPattern type="DMI_FUTILE_ATTEMPT_TO_CHANGE_MAXPOOL_SIZE_OF_SCHEDULED_THREAD_POOL_EXECUTOR">
-    <ShortDescription>
-      更改ScheduledThreadPoolExecutor最大线程池的大小不会生效
-    </ShortDescription>
-    <LongDescription>
-      在{1}中, 更改ScheduledThreadPoolExecutor最大线程池的大小不会生效
-    </LongDescription>
-    <Details>
-      <![CDATA[
-    <p>(<a href="http://docs.oracle.com/javase/6/docs/api/java/util/concurrent/ScheduledThreadPoolExecutor.html">Javadoc</a>)
-While ScheduledThreadPoolExecutor inherits from ThreadPoolExecutor, a few of the inherited tuning methods are not useful for it. In particular, because it acts as a fixed-sized pool using corePoolSize threads and an unbounded queue, adjustments to maximumPoolSize have no useful effect.
-    </p>
-
-]]>
-    </Details>
-  </BugPattern>
-  <BugPattern type="IL_INFINITE_LOOP">
-    <ShortDescription>
-      死循环
-    </ShortDescription>
-    <LongDescription>
-      死循环
-    </LongDescription>
-    <Details>
-<![CDATA[
-<p>This loop doesn't seem to have a way to terminate (other than by perhaps
-throwing an exception).</p>
-]]>
-    </Details>
-  </BugPattern>
-  <BugPattern type="IL_INFINITE_RECURSIVE_LOOP">
-    <ShortDescription>
-      无穷的递归调用
-    </ShortDescription>
-    <LongDescription>
-      无穷的递归调用
-    </LongDescription>
-    <Details>
-<![CDATA[
-<p>This method unconditionally invokes itself. This would seem to indicate
-an infinite recursive loop that will result in a stack overflow.</p>
-]]>
-    </Details>
-  </BugPattern>
   <BugPattern type="VO_VOLATILE_REFERENCE_TO_ARRAY">
     <ShortDescription>
       将数组声明为volatile类型, 他的子元素并不是volatile类型的
@@ -1761,27 +1698,13 @@ increments could be lost.
 ]]>
     </Details>
   </BugPattern>
-  <BugPattern type="UI_INHERITANCE_UNSAFE_GETRESOURCE">
-    <ShortDescription>
-      当一个类被子类继承后, 使用this.getClass().getResource(...)来获取资源是不安全的
-    </ShortDescription>
-    <LongDescription>
-      当一个类被子类继承后, 使用{1}来获取资源是不安全的
-    </LongDescription>
-    <Details>
-<![CDATA[
-<p>Calling <code>this.getClass().getResource(...)</code> could give
-results other than expected if this class is extended by a class in
-another package.</p>
-]]>
-    </Details>
-  </BugPattern>
+
   <BugPattern type="NP_BOOLEAN_RETURN_NULL">
     <ShortDescription>
-      不要在返回值为Boolean类型的方法中直接返回null, 这样会导致空指针异常
+      在返回值为Boolean类型的方法中返回null, 可能会导致使用者出现空指针异常
     </ShortDescription>
     <LongDescription>
-      不要在返回值为Boolean类型的{1}中直接返回null, 这样会导致空指针异常
+      在返回值为Boolean类型的{1}方法中返回null, 可能会导致使用者出现空指针异常
     </LongDescription>
     <Details>
        <![CDATA[
@@ -1796,10 +1719,10 @@ another package.</p>
   </BugPattern>
   <BugPattern type="NP_OPTIONAL_RETURN_NULL">
     <ShortDescription>
-      不要在带有Optional返回类型的方法中返回null
+      在返回值为Optional类型的方法中返回null, 可能会导致使用者出现空指针异常
     </ShortDescription>
     <LongDescription>
-      不要在Optional返回类型的方法{1}中返回null
+      在返回值为Optional类型的方法{1}中返回null, 可能会导致使用者出现空指针异常
     </LongDescription>
     <Details>
        <![CDATA[
@@ -1813,10 +1736,10 @@ another package.</p>
   </BugPattern>
   <BugPattern type="NP_SYNC_AND_NULL_CHECK_FIELD">
     <ShortDescription>
-      不要对可能为null的对象进行Synchronize操作
+      在可能为null的对象进行Synchronize操作可能会出现空指针异常
     </ShortDescription>
     <LongDescription>
-      在{1}中不要对可能为null的对象{2.givenClass}进行Synchronize操作
+      在{1}方法中, 对象{2.givenClass}可能为null, 进行Synchronize操作可能会出现空指针异常
     </LongDescription>
     <Details>
 <![CDATA[
@@ -1828,206 +1751,10 @@ another field.</p>
 ]]>
      </Details>
   </BugPattern>
-  <BugPattern type="FL_MATH_USING_FLOAT_PRECISION">
-    <ShortDescription>
-      不要使用float类型变量进行数学运算, 建议使用double类型
-    </ShortDescription>
-    <LongDescription>
-      不要在{1}中使用float类型变量进行数学运算, 建议使用double类型
-    </LongDescription>
-    <Details>
-<![CDATA[
-<p>
-   The method performs math operations using floating point precision.
-   Floating point precision is very imprecise. For example,
-   16777216.0f + 1.0f = 16777216.0f. Consider using double math instead.</p>
-]]>
-    </Details>
-  </BugPattern>
-  <BugPattern type="NM_FUTURE_KEYWORD_USED_AS_IDENTIFIER">
-    <ShortDescription>
-      不要使用java未来版本预留关键字作为标识符
-    </ShortDescription>
-    <LongDescription>
-      不要使用java未来版本预留关键字{2}作为标识符
-    </LongDescription>
-    <Details>
-<![CDATA[
-<p>The identifier is a word that is reserved as a keyword in later versions of Java, and your code will need to be changed
-in order to compile it in later versions of Java.</p>
 
-]]>
-    </Details>
-  </BugPattern>
-  <BugPattern type="DMI_THREAD_PASSED_WHERE_RUNNABLE_EXPECTED">
-    <ShortDescription>
-      不要把线程对象作为参数传给带Runnable参数方法
-    </ShortDescription>
-    <LongDescription>
-      在{1}中, 不要把线程对象作为参数传给带Runnable参数方法
-    </LongDescription>
-    <Details>
-<![CDATA[
-  <p> A Thread object is passed as a parameter to a method where
-a Runnable is expected. This is rather unusual, and may indicate a logic error
-or cause unexpected behavior.
-   </p>
-]]>
-    </Details>
-  </BugPattern>
-  <BugPattern type="DMI_COLLECTION_OF_URLS">
-    <ShortDescription>
-      不要使用Maps和sets的集合类型的URLs, 这可能会出现性能问题
-    </ShortDescription>
-    <LongDescription>不要使用Maps和sets的集合类型的URLs, 这可能会出现性能问题</LongDescription>
-    <Details>
-<![CDATA[
-  <p> This method or field is or uses a Map or Set of URLs. Since both the equals and hashCode
-method of URL perform domain name resolution, this can result in a big performance hit.
-See <a href="http://michaelscharf.blogspot.com/2006/11/javaneturlequals-and-hashcode-make.html">http://michaelscharf.blogspot.com/2006/11/javaneturlequals-and-hashcode-make.html</a> for more information.
-Consider using <code>java.net.URI</code> instead.
-   </p>
-]]>
-    </Details>
-  </BugPattern>
-  <BugPattern type="DMI_BLOCKING_METHODS_ON_URL">
-    <ShortDescription>
-      不要调用URL的equals或hashcode方法, 会有性能问题, 考虑使用java.net.URI来代替
-    </ShortDescription>
-    <LongDescription>
-      不要调用URL的equals或hashcode方法, 会有性能问题, 考虑使用java.net.URI来代替
-    </LongDescription>
-    <Details>
-<![CDATA[
-  <p> The equals and hashCode
-method of URL perform domain name resolution, this can result in a big performance hit.
-See <a href="http://michaelscharf.blogspot.com/2006/11/javaneturlequals-and-hashcode-make.html">http://michaelscharf.blogspot.com/2006/11/javaneturlequals-and-hashcode-make.html</a> for more information.
-Consider using <code>java.net.URI</code> instead.
-   </p>
-]]>
-    </Details>
-  </BugPattern>
-  <BugPattern type="DMI_ANNOTATION_IS_NOT_VISIBLE_TO_REFLECTION">
-    <ShortDescription>
-      想在运行时通过反射获取注解信息, 该注解必须声明为运行时注解
-    </ShortDescription>
-    <LongDescription>
-      想在运行时通过反射获取{3}注解信息, 该注解必须声明为运行时注解
-    </LongDescription>
-    <Details>
-<![CDATA[
-  <p> Unless an annotation has itself been annotated with  @Retention(RetentionPolicy.RUNTIME), the annotation can't be observed using reflection
-(e.g., by using the isAnnotationPresent method).
-   .</p>
-]]>
-    </Details>
-  </BugPattern>
-  <BugPattern type="DM_STRING_CTOR">
-    <ShortDescription>
-      使用new String方式创建字符串是低效的行为
-    </ShortDescription>
-    <LongDescription>使用new String方式创建字符串是低效的行为</LongDescription>
-    <Details>
-<![CDATA[
-  <p> Using the <code>java.lang.String(String)</code> constructor wastes memory
-  because the object so constructed will be functionally indistinguishable
-  from the <code>String</code> passed as a parameter.&nbsp; Just use the
-  argument <code>String</code> directly.</p>
-]]>
-    </Details>
-  </BugPattern>
-  <BugPattern type="DM_NUMBER_CTOR">
-    <ShortDescription>
-      -128到127之间的数字再jvm中存在缓存的对象, 推荐使用valueOf来获取对应引用
-    </ShortDescription>
-    <LongDescription>
-      -128到127之间的数字再jvm中存在缓存的对象, 推荐使用valueOf来获取对应引用
-    </LongDescription>
-    <Details>
-      <![CDATA[
-      <p>
-      Using <code>new Integer(int)</code> is guaranteed to always result in a new object whereas
-      <code>Integer.valueOf(int)</code> allows caching of values to be done by the compiler, class library, or JVM.
-      Using of cached values avoids object allocation and the code will be faster.
-      </p>
-      <p>
-      Values between -128 and 127 are guaranteed to have corresponding cached instances
-      and using <code>valueOf</code> is approximately 3.5 times faster than using constructor.
-      For values outside the constant range the performance of both styles is the same.
-      </p>
-      <p>
-      Unless the class must be compatible with JVMs predating Java 1.5,
-      use either autoboxing or the <code>valueOf()</code> method when creating instances of
-      <code>Long</code>, <code>Integer</code>, <code>Short</code>, <code>Character</code>, and <code>Byte</code>.
-      </p>
-      ]]>
-    </Details>
-  </BugPattern>
-  <BugPattern type="DM_MONITOR_WAIT_ON_CONDITION">
-    <ShortDescription>
-      java.util.concurrent.locks.Condition对象等待时应该掉用await()方法
-    </ShortDescription>
-    <LongDescription>
-      java.util.concurrent.locks.Condition对象等待时应该掉用await()方法
-    </LongDescription>
-    <Details>
-      <![CDATA[
-      <p>
-      This method calls <code>wait()</code> on a
-      <code>java.util.concurrent.locks.Condition</code> object.&nbsp;
-      Waiting for a <code>Condition</code> should be done using one of the <code>await()</code>
-      methods defined by the <code>Condition</code> interface.
-      </p>
-      ]]>
-   </Details>
-  </BugPattern>
-  <BugPattern type="RV_01_TO_INT">
-    <ShortDescription>{1}生成了从0到1的随机值, 但是被强制转化成了整数0</ShortDescription>
-    <LongDescription>
-      {1}生成了从0到1的随机值, 但是被强制转化成了整数0
-    </LongDescription>
-    <Details>
-<![CDATA[
-  <p>A random value from 0 to 1 is being coerced to the integer value 0. You probably
-want to multiply the random value by something else before coercing it to an integer, or use the <code>Random.nextInt(n)</code> method.
-</p>
-]]>
-    </Details>
-  </BugPattern>
-  <BugPattern type="DM_INVALID_MIN_MAX">
-    <ShortDescription>
-      错误的组合了Math.max和Math.min方法
-    </ShortDescription>
-    <LongDescription>错误的组合了Math.max和Math.min方法</LongDescription>
-    <Details>
-<![CDATA[
-  <p>This code tries to limit the value bounds using the construct like Math.min(0, Math.max(100, value)). However the order of
-  the constants is incorrect: it should be Math.min(100, Math.max(0, value)). As the result this code always produces the same result
-  (or NaN if the value is NaN).</p>
-]]>
-    </Details>
-  </BugPattern>
-  <BugPattern type="DM_NEXTINT_VIA_NEXTDOUBLE">
-    <ShortDescription>
-      不要使用nextDouble()方法产生Integer类型变量, 考虑使用nextInt()方法
-    </ShortDescription>
-    <LongDescription>
-      在{1}中, 不要使用nextDouble()方法产生Integer类型变量, 考虑使用nextInt()方法
-    </LongDescription>
-    <Details>
-<![CDATA[
-  <p>If <code>r</code> is a <code>java.util.Random</code>, you can generate a random number from <code>0</code> to <code>n-1</code>
-using <code>r.nextInt(n)</code>, rather than using <code>(int)(r.nextDouble() * n)</code>.
-</p>
-<p>The argument to nextInt must be positive. If, for example, you want to generate a random
-value from -99 to 0, use <code>-r.nextInt(100)</code>.
-</p>
-]]>
-    </Details>
-  </BugPattern>
   <BugPattern type="DC_PARTIALLY_CONSTRUCTED">
     <ShortDescription>可能会产生局部初始化的对象</ShortDescription>
-    <LongDescription>可能会产生局部初始化的对象</LongDescription>
+    <LongDescription>{1}中可能会产生局部初始化的对象</LongDescription>
     <Details>
 <![CDATA[
   <p>Looks like this method uses field initialization with double-checked locking.
@@ -2039,41 +1766,7 @@ value from -99 to 0, use <code>-r.nextInt(100)</code>.
 ]]>
     </Details>
   </BugPattern>
-  <BugPattern type="EQ_GETCLASS_AND_CLASS_CONSTANT">
-    <ShortDescription>
-      直接写死了类名, 会导致派生类无法使用equals方法
-    </ShortDescription>
-    <LongDescription>
-      直接写死了类名, 会导致派生类无法使用equals方法
-    </LongDescription>
-    <Details>
-<![CDATA[
-  <p> This class has an equals method that will be broken if it is inherited by subclasses.
-It compares a class literal with the class of the argument (e.g., in class <code>Foo</code>
-it might check if <code>Foo.class == o.getClass()</code>).
-It is better to check if <code>this.getClass() == o.getClass()</code>.
-</p>
-]]>
-    </Details>
-  </BugPattern>
-  <BugPattern type="HSC_HUGE_SHARED_STRING_CONSTANT">
-    <ShortDescription>
-      不要在多个类中声明巨大的字符串常量
-    </ShortDescription>
-    <LongDescription>不要在多个类中声明巨大的字符串常量</LongDescription>
-    <Details>
-      <![CDATA[
-      <p>
-    A large String constant is duplicated across multiple class files.
-    This is likely because a final field is initialized to a String constant, and the Java language
-    mandates that all references to a final field from other classes be inlined into
-that classfile. See <a href="http://bugs.java.com/bugdatabase/view_bug.do?bug_id=6447475">JDK bug 6447475</a>
-    for a description of an occurrence of this bug in the JDK and how resolving it reduced
-    the size of the JDK by 1 megabyte.
-</p>
-      ]]>
-   </Details>
-  </BugPattern>
+
   <BugPattern type="NP_ARGUMENT_MIGHT_BE_NULL">
     <ShortDescription>
       方法没有检测参数是否为null
@@ -2093,10 +1786,10 @@ that classfile. See <a href="http://bugs.java.com/bugdatabase/view_bug.do?bug_id
   </BugPattern>
   <BugPattern type="NP_EQUALS_SHOULD_HANDLE_NULL_ARGUMENT">
     <ShortDescription>
-      变量调用equals方法时没有进行是否为null的判断
+      覆写的equals方法没有处理参数为空值的情况
     </ShortDescription>
     <LongDescription>
-    {1}调用equals方法时没有进行是否为null的判断
+      覆写的equals方法{1}没有处理参数为空值的情况
     </LongDescription>
     <Details>
       <![CDATA[
@@ -2109,73 +1802,10 @@ that classfile. See <a href="http://bugs.java.com/bugdatabase/view_bug.do?bug_id
       ]]>
    </Details>
   </BugPattern>
-  <BugPattern type="CO_COMPARETO_INCORRECT_FLOATING">
-    <ShortDescription>
-      double或float比较时没有考虑到-0.0 and NaN, 可能会导致错误结果
-    </ShortDescription>
-    <LongDescription>double或float比较时没有考虑到-0.0 and NaN, 可能会导致错误结果</LongDescription>
-    <Details>
-<![CDATA[
-  <p>This method compares double or float values using pattern like this: val1 &gt; val2 ? 1 : val1 &lt; val2 ? -1 : 0.
-This pattern works incorrectly for -0.0 and NaN values which may result in incorrect sorting result or broken collection
-(if compared values are used as keys). Consider using Double.compare or Float.compare static methods which handle all
-the special cases correctly.</p>
-]]>
-    </Details>
-  </BugPattern>
-  <BugPattern type="MSF_MUTABLE_SERVLET_FIELD">
-    <ShortDescription>servlet中的可变字段会导致多线程竞态条件</ShortDescription>
-    <LongDescription>
-      servlet中的可变字段会导致多线程竞态条件
-    </LongDescription>
-    <Details>
-<![CDATA[
-<p>A web server generally only creates one instance of servlet or JSP class (i.e., treats
-the class as a Singleton),
-and will
-have multiple threads invoke methods on that instance to service multiple
-simultaneous requests.
-Thus, having a mutable instance field generally creates race conditions.
-]]>
-    </Details>
-  </BugPattern>
-  <BugPattern type="IS2_INCONSISTENT_SYNC">
-    <ShortDescription>错误的synchronize用法
-    </ShortDescription>
-    <LongDescription>错误的synchronize用法 {1}; locked {2}% of time</LongDescription>
-    <Details>
-<![CDATA[
-  <p> The fields of this class appear to be accessed inconsistently with respect
-  to synchronization.&nbsp; This bug report indicates that the bug pattern detector
-  judged that
-  </p>
-  <ul>
-  <li> The class contains a mix of locked and unlocked accesses,</li>
-  <li> The class is <b>not</b> annotated as javax.annotation.concurrent.NotThreadSafe,</li>
-  <li> At least one locked access was performed by one of the class's own methods, and</li>
-  <li> The number of unsynchronized field accesses (reads and writes) was no more than
-       one third of all accesses, with writes being weighed twice as high as reads</li>
-  </ul>
 
-  <p> A typical bug matching this bug pattern is forgetting to synchronize
-  one of the methods in a class that is intended to be thread-safe.</p>
-
-  <p> You can select the nodes labeled "Unsynchronized access" to show the
-  code locations where the detector believed that a field was accessed
-  without synchronization.</p>
-
-  <p> Note that there are various sources of inaccuracy in this detector;
-  for example, the detector cannot statically detect all situations in which
-  a lock is held.&nbsp; Also, even when the detector is accurate in
-  distinguishing locked vs. unlocked accesses, the code in question may still
-  be correct.</p>
-
-]]>
-    </Details>
-  </BugPattern>
   <BugPattern type="SP_SPIN_ON_FIELD">
-    <ShortDescription>推荐使用synchronize方法来进行线程同步</ShortDescription>
-    <LongDescription>推荐使用synchronize方法来进行线程同步</LongDescription>
+    <ShortDescription>在字段上进行循环可能会因为编译器重排导致死循环</ShortDescription>
+    <LongDescription>在{1}的{2.givenClass}字段上进行循环可能会因为编译器重排导致死循环</LongDescription>
     <Details>
 <![CDATA[
   <p> This method spins in a loop which reads a field.&nbsp; The compiler
@@ -2187,9 +1817,9 @@ Thus, having a mutable instance field generally creates race conditions.
   </BugPattern>
   <BugPattern type="TLW_TWO_LOCK_WAIT">
     <ShortDescription>
-      等待两个持有锁的对象, 这可能会发生死锁
+      在持有两个锁对象的情况下进行等待可能会发生死锁
     </ShortDescription>
-    <LongDescription>等待两个持有锁的对象, 这可能会发生死锁</LongDescription>
+    <LongDescription>{1}中在持有两个锁对象的情况下进行等待可能会发生死锁</LongDescription>
     <Details>
 <![CDATA[
   <p> Waiting on a monitor while two locks are held may cause
@@ -2205,10 +1835,10 @@ This not necessarily a bug, but is worth examining
   </BugPattern>
   <BugPattern type="UR_UNINIT_READ_CALLED_FROM_SUPER_CONSTRUCTOR">
     <ShortDescription>
-      不要在构造函数中调用可能被子类重写的方法, 这些方法还没有初始化
+      在构造函数中调用可能被子类重写的方法时, 这些方法可能还没有初始化
     </ShortDescription>
     <LongDescription>
-      不要在构造函数中调用可能被子类重写的方法, 这些方法还没有初始化
+      在构造函数中调用可能被子类重写的方法{2.name}时, {2.name}可能还没有初始化
     </LongDescription>
     <Details>
 <![CDATA[
@@ -2247,10 +1877,10 @@ an uninitialized value is read for <code>value</code>.
   </BugPattern>
   <BugPattern type="UG_SYNC_SET_UNSYNC_GET">
     <ShortDescription>
-      这个类包含get和set方法, set方法是同步方法而get方法是非同步方法, 这可能会导致在运行时发生异常
+      set与get方法应该同时同步或同时不同步
     </ShortDescription>
-    <LongDescription>{1} is unsynchronized, {2} is synchronized
-      这个类包含get和set方法, set方法是同步方法而get方法是非同步方法, 这可能会导致在运行时发生异常
+    <LongDescription>
+      {1}进行了同步, 而{2}确没有同步, 可能会出现多线程安全问题
     </LongDescription>
     <Details>
 <![CDATA[
@@ -2279,7 +1909,9 @@ an uninitialized value is read for <code>value</code>.
     <ShortDescription>
       内部类在外部类未初始化之前使用外部类对象实例
     </ShortDescription>
-    <LongDescription>内部类在外部类未初始化之前使用外部类对象实例</LongDescription>
+    <LongDescription>
+      {0}的初始化过程中访问了类{2}, 此时{2}可能还未初始化
+    </LongDescription>
     <Details>
 <![CDATA[
   <p> During the initialization of a class, the class makes an active use of a subclass.
@@ -2296,27 +1928,13 @@ For example, in the following code, <code>foo</code> will be null.</p>
 ]]>
     </Details>
   </BugPattern>
-  <BugPattern type="IT_NO_SUCH_ELEMENT">
-    <ShortDescription>
-      next方法没有够抛出NoSuchElementException
-    </ShortDescription>
-    <LongDescription>next方法没有够抛出NoSuchElementException</LongDescription>
-    <Details>
-<![CDATA[
-  <p> This class implements the <code>java.util.Iterator</code> interface.&nbsp;
-  However, its <code>next()</code> method is not capable of throwing
-  <code>java.util.NoSuchElementException</code>.&nbsp; The <code>next()</code>
-  method should be changed so it throws <code>NoSuchElementException</code>
-  if is called when there are no more elements to return.</p>
-]]>
-    </Details>
-  </BugPattern>
+
   <BugPattern type="DL_SYNCHRONIZATION_ON_SHARED_CONSTANT">
     <ShortDescription>
-      不要同步String型变量由于它被JVM中多个其他的对象所共有, 这样在其他代码中会引发死锁
+      由于String变量是多个对象所共有, 同步String型变量可能会引发死锁
     </ShortDescription>
-    <LongDescription>Synchronization on interned String in {1}
-      在{1}中, 不要同步String型变量由于它被JVM中多个其他的对象所共有, 这样在其他代码中会引发死锁
+    <LongDescription>
+      由于String变量是多个对象所共有, 在{1}中同步String型变量可能会引发死锁
     </LongDescription>
     <Details>
 <![CDATA[
@@ -2338,10 +1956,10 @@ blocking and deadlock behavior. See <a href="http://www.javalobby.org/java/forum
   </BugPattern>
   <BugPattern type="DL_SYNCHRONIZATION_ON_BOOLEAN">
     <ShortDescription>
-      不要同步一个原始封装的Boolean型变量, 该变量实例可能会被其他类使用
+      Boolean型变量实例可能会被其他类使用, Boolean型变量上同步可能会导致不必要的竞争甚至死锁
     </ShortDescription>
     <LongDescription>
-      在{1}中, 不要同步一个原始封装的Boolean型变量, 该变量实例可能会被其他类使用
+      Boolean型变量实例可能会被其他类使用, Boolean型变量{1}上同步可能会导致不必要的竞争甚至死锁
     </LongDescription>
     <Details>
       <![CDATA[
@@ -2362,42 +1980,13 @@ and possible deadlock.</p>
 ]]>
     </Details>
   </BugPattern>
-  <BugPattern type="DL_SYNCHRONIZATION_ON_UNSHARED_BOXED_PRIMITIVE">
-    <ShortDescription>
-      不要同步一个封装的基本变量的值, 该变量实例可能会被其他类使用
-    </ShortDescription>
-    <LongDescription>
-      在{1}中, 不要同步一个封装的基本变量的值, 该变量实例可能会被其他类使用
-    </LongDescription>
-    <Details>
-      <![CDATA[
-  <p> The code synchronizes on an apparently unshared boxed primitive,
-such as an Integer.</p>
-<pre><code>private static final Integer fileLock = new Integer(1);
-...
-synchronized(fileLock) {
-    .. do something ..
-}
-...
-</code></pre>
-<p>It would be much better, in this code, to redeclare fileLock as</p>
-<pre><code>private static final Object fileLock = new Object();
-</code></pre>
-<p>
-The existing code might be OK, but it is confusing and a
-future refactoring, such as the "Remove Boxing" refactoring in IntelliJ,
-might replace this with the use of an interned Integer object shared
-throughout the JVM, leading to very confusing behavior and potential deadlock.
-</p>
-]]>
-    </Details>
-  </BugPattern>
+
   <BugPattern type="DL_SYNCHRONIZATION_ON_BOXED_PRIMITIVE">
     <ShortDescription>
-      不要同步一个封装的基本类型变量, 该变量实例可能会被其他类使用
+      封装型变量实例可能会被其他类使用, 封装型变量上同步可能会导致不必要的竞争甚至死锁
     </ShortDescription>
     <LongDescription>
-      在{1}中, 不要同步一个封装的基本类型变量, 该变量实例可能会被其他类使用
+      封装型变量实例可能会被其他类使用, 封装型变量{1}上同步可能会导致不必要的竞争甚至死锁
     </LongDescription>
     <Details>
       <![CDATA[
@@ -2417,8 +2006,8 @@ and possible deadlock.</p>
     </Details>
   </BugPattern>
   <BugPattern type="ML_SYNC_ON_FIELD_TO_GUARD_CHANGING_THAT_FIELD">
-    <ShortDescription>无效的同步操作</ShortDescription>
-    <LongDescription>无效的同步操作</LongDescription>
+    <ShortDescription>对一个可变的对象进行同步操作可能是无效的</ShortDescription>
+    <LongDescription>对一个可变的对象{2.givenClass}进行同步操作可能是无效的</LongDescription>
     <Details>
 <![CDATA[
   <p> This method synchronizes on a field in what appears to be an attempt
@@ -2441,9 +2030,9 @@ private Long getNotificationSequenceNumber() {
     </Details>
   </BugPattern>
   <BugPattern type="ML_SYNC_ON_UPDATED_FIELD">
-    <ShortDescription>不要在经常变化的字段上进行同步, 因为不同线程可能会将锁加在不同对象上</ShortDescription>
+    <ShortDescription>对一个可变的对象进行同步操作可能是无效的</ShortDescription>
     <LongDescription>
-      不要在经常变化的字段上进行同步, 因为不同线程可能会将锁加在不同对象上
+      对一个可变的对象{2.givenClass}进行同步操作可能是无效的
     </LongDescription>
     <Details>
 <![CDATA[
@@ -2454,40 +2043,13 @@ threads may be synchronizing on different objects.</p>
 ]]>
     </Details>
   </BugPattern>
-  <BugPattern type="SC_START_IN_CTOR">
-    <ShortDescription>
-      不要在构造器中创建新的线程
-    </ShortDescription>
-    <LongDescription>{1} invokes {2}
-      不要在构造器中创建新的线程
-    </LongDescription>
-    <Details>
-<![CDATA[
-  <p> The constructor starts a thread. This is likely to be wrong if
-   the class is ever extended/subclassed, since the thread will be started
-   before the subclass constructor is started.</p>
-]]>
-    </Details>
-  </BugPattern>
-  <BugPattern type="NP_LOAD_OF_KNOWN_NULL_VALUE">
-    <ShortDescription>这个变量有可能为null, 请进行空值检查</ShortDescription>
-    <LongDescription>变量有可能为null, 请进行空值检查</LongDescription>
-    <Details>
-      <![CDATA[
-  <p> The variable referenced at this point is known to be null due to an earlier
-   check against null. Although this is valid, it might be a mistake (perhaps you
-intended to refer to a different variable, or perhaps the earlier check to see if the
-variable is null should have been a check to see if it was non-null).
-</p>
-]]>
-    </Details>
-  </BugPattern>
+
   <BugPattern type="NP_DEREFERENCE_OF_READLINE_VALUE">
     <ShortDescription>
-      在调用readline返回值的方法之前, 请先进行空值检查
+      readline方法可能返回空值, 使用之前进行空值检查可以有效避免空指针异常
     </ShortDescription>
     <LongDescription>
-      在调用readline返回值的方法之前, 请先进行空值检查
+      readline方法可能返回空值, 使用之前进行空值检查可以有效避免空指针异常
     </LongDescription>
     <Details>
 <![CDATA[
@@ -2497,21 +2059,7 @@ to read, readLine() will return null and dereferencing that will generate a null
 ]]>
     </Details>
   </BugPattern>
-  <BugPattern type="NP_IMMEDIATE_DEREFERENCE_OF_READLINE">
-    <ShortDescription>
-      在调用readline返回值的方法之前, 请先进行空值检查
-    </ShortDescription>
-    <LongDescription>
-      在调用readline返回值的方法之前, 请先进行空值检查
-    </LongDescription>
-    <Details>
-<![CDATA[
-  <p> The result of invoking readLine() is immediately dereferenced. If there are no more lines of text
-to read, readLine() will return null and dereferencing that will generate a null pointer exception.
-</p>
-]]>
-    </Details>
-  </BugPattern>
+
   <BugPattern type="NP_UNWRITTEN_FIELD">
     <ShortDescription>
       该字段未被初始化过
@@ -2528,42 +2076,12 @@ dereferencing this value will generate a null pointer exception.
 ]]>
     </Details>
   </BugPattern>
-  <BugPattern type="NP_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD">
-    <ShortDescription>
-      不要读取一个没被初始化的public或者protected字段
-    </ShortDescription>
+
+  <BugPattern type="NP_NULL_ON_SOME_PATH">
+    <ShortDescription>对象在此处的值可能为空, 直接引用可能会抛出空指针异常</ShortDescription>
     <LongDescription>
-      不要读取一个没被初始化的public或者protected字段{2.name}
+      对象{2.givenClass}在此处的值可能为空, 直接引用可能会抛出空指针异常
     </LongDescription>
-    <Details>
-<![CDATA[
-  <p> The program is dereferencing a public or protected
-field that does not seem to ever have a non-null value written to it.
-Unless the field is initialized via some mechanism not seen by the analysis,
-dereferencing this value will generate a null pointer exception.
-</p>
-]]>
-    </Details>
-  </BugPattern>
-  <BugPattern type="SIC_THREADLOCAL_DEADLY_EMBRACE">
-    <ShortDescription>由于内部类为非static类, 他持有了外部对象的指针, 在放入threadlocal以后, 可能导致两者都释放不掉</ShortDescription>
-    <LongDescription>由于内部类为非static类, 他持有了外部对象的指针, 在放入threadlocal以后, 可能导致两者都释放不掉</LongDescription>
-    <Details>
-<![CDATA[
-  <p> This class is an inner class, but should probably be a static inner class.
-  As it is, there is a serious danger of a deadly embrace between the inner class
-  and the thread local in the outer class. Because the inner class isn't static,
-  it retains a reference to the outer class.
-  If the thread local contains a reference to an instance of the inner
-  class, the inner and outer instance will both be reachable
-  and not eligible for garbage collection.
-</p>
-]]>
-    </Details>
-  </BugPattern>
-  <BugPattern type="NP_ALWAYS_NULL">
-    <ShortDescription>空指针异常</ShortDescription>
-    <LongDescription>空指针异常</LongDescription>
     <Details>
 <![CDATA[
 <p> A null pointer is dereferenced here.&nbsp; This will lead to a
@@ -2571,27 +2089,13 @@ dereferencing this value will generate a null pointer exception.
 ]]>
     </Details>
   </BugPattern>
-  <BugPattern type="NP_CLOSING_NULL">
-    <ShortDescription>
-      不要在一直为空的对象上调用close方法
-    </ShortDescription>
-    <LongDescription>
-      在{1}中, 不要在一直为空的对象{2.givenClass}上调用close方法
-    </LongDescription>
-    <Details>
-<![CDATA[
-<p> close() is being invoked on a value that is always null. If this statement is executed,
-a null pointer exception will occur. But the big risk here you never close
-something that should be closed.
-]]>
-    </Details>
-  </BugPattern>
+
   <BugPattern type="NP_STORE_INTO_NONNULL_FIELD">
     <ShortDescription>
-      不要为一个带有Notnull注解的变量赋值空值
+      变量带有Notnull注解, 不要用一个可能为空的空值对其进行赋值
     </ShortDescription>
     <LongDescription>
-      不要为一个带有Notnull注解的变量赋值空值
+      变量{2.givenClass}带有Notnull注解, 不要用一个可能为空的空值对其进行赋值
     </LongDescription>
     <Details>
       <![CDATA[
@@ -2599,21 +2103,7 @@ something that should be closed.
 ]]>
     </Details>
   </BugPattern>
-  <BugPattern type="NP_ALWAYS_NULL_EXCEPTION">
-    <ShortDescription>在异常路径上, 该变量是空值</ShortDescription>
-    <LongDescription>在异常路径上, 该变量是空值, 这将发生空指针异常</LongDescription>
-    <Details>
-<![CDATA[
-<p> A pointer which is null on an exception path is dereferenced here.&nbsp;
-This will lead to a <code>NullPointerException</code> when the code is executed.&nbsp;
-Note that because SpotBugs currently does not prune infeasible exception paths,
-this may be a false warning.</p>
 
-<p> Also note that SpotBugs considers the default case of a switch statement to
-be an exception path, since the default case is often infeasible.</p>
-]]>
-    </Details>
-  </BugPattern>
   <BugPattern type="NP_PARAMETER_MUST_BE_NONNULL_BUT_MARKED_AS_NULLABLE">
     <ShortDescription>
       函数参数带有Nullable注解, 但是函数使用中并未进行空值判断
@@ -2630,101 +2120,7 @@ of the parameter or the annotation is wrong.
 ]]>
     </Details>
   </BugPattern>
-  <BugPattern type="NP_NULL_ON_SOME_PATH">
-    <ShortDescription>
-      某些执行分支可能会出现空指针异常
-    </ShortDescription>
-    <LongDescription>
-      某些执行分支可能会出现空指针异常
-    </LongDescription>
-    <Details>
-<![CDATA[
-<p> There is a branch of statement that, <em>if executed,</em>  guarantees that
-a null value will be dereferenced, which
-would generate a <code>NullPointerException</code> when the code is executed.
-Of course, the problem might be that the branch or statement is infeasible and that
-the null pointer exception can't ever be executed; deciding that is beyond the ability of SpotBugs.
-</p>
-]]>
-    </Details>
-  </BugPattern>
-  <BugPattern type="NP_NULL_ON_SOME_PATH_MIGHT_BE_INFEASIBLE">
-    <ShortDescription>某些分支可能会出现空指针异常</ShortDescription>
-    <LongDescription>某些分支可能会出现空指针异常</LongDescription>
-    <Details>
-<![CDATA[
-<p> There is a branch of statement that, <em>if executed,</em>  guarantees that
-a null value will be dereferenced, which
-would generate a <code>NullPointerException</code> when the code is executed.
-Of course, the problem might be that the branch or statement is infeasible and that
-the null pointer exception can't ever be executed; deciding that is beyond the ability of SpotBugs.
-Due to the fact that this value had been previously tested for nullness,
-this is a definite possibility.
-</p>
-]]>
-    </Details>
-  </BugPattern>
-  <BugPattern type="NP_NULL_ON_SOME_PATH_EXCEPTION">
-    <ShortDescription>前面逻辑出现异常时, 这里可能会出现空指针问题</ShortDescription>
-    <LongDescription>前面逻辑出现异常时, 这里可能会出现空指针问题</LongDescription>
-    <Details>
-<![CDATA[
-<p> A reference value which is null on some exception control path is
-dereferenced here.&nbsp; This may lead to a <code>NullPointerException</code>
-when the code is executed.&nbsp;
-Note that because SpotBugs currently does not prune infeasible exception paths,
-this may be a false warning.</p>
 
-<p> Also note that SpotBugs considers the default case of a switch statement to
-be an exception path, since the default case is often infeasible.</p>
-]]>
-    </Details>
-  </BugPattern>
-  <BugPattern type="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE">
-    <ShortDescription>
-      方法的返回值可能为空值, 没有进行非空的检查就进行了使用, 这样可能会出现空指针异常
-    </ShortDescription>
-    <LongDescription>
-      方法的返回值可能为空值, 没有进行非空的检查就进行了使用, 这样可能会出现空指针异常
-    </LongDescription>
-    <Details>
-      <![CDATA[
-<p> The return value from a method is dereferenced without a null check,
-and the return value of that method is one that should generally be checked
-for null.  This may lead to a <code>NullPointerException</code> when the code is executed.
-</p>
-      ]]>
-   </Details>
-  </BugPattern>
-  <BugPattern type="NP_NULL_PARAM_DEREF_NONVIRTUAL">
-    <ShortDescription>可能为空值的参数传递给了带有非空值参数的方法</ShortDescription>
-    <LongDescription>可能为空值的参数传递给了带有非空值参数的方法</LongDescription>
-    <Details>
-      <![CDATA[
-      <p>
-      A possibly-null value is passed to a non-null method parameter.
-    Either the parameter is annotated as a parameter that should
-    always be non-null, or analysis has shown that it will always be
-    dereferenced.
-      </p>
-      ]]>
-   </Details>
-  </BugPattern>
-  <BugPattern type="NP_NULL_PARAM_DEREF_ALL_TARGETS_DANGEROUS">
-    <ShortDescription>方法参数声明为non-null类型, 但是传入的值却为null, 请检查</ShortDescription>
-    <LongDescription>方法参数声明为non-null类型, 但是传入的值却为null, 请检查</LongDescription>
-    <Details>
-      <![CDATA[
-      <p>
-      A possibly-null value is passed at a call site where all known
-      target methods require the parameter to be non-null.
-    Either the parameter is annotated as a parameter that should
-    always be non-null, or analysis has shown that it will always be
-    dereferenced.
-      </p>
-      ]]>
-   </Details>
-  </BugPattern>
   <BugPattern type="NP_NULL_PARAM_DEREF">
     <ShortDescription>可能为空值的参数传递给了带有非空值参数的方法</ShortDescription>
     <LongDescription>可能为空值的参数传递给了带有非空值参数的方法</LongDescription>
@@ -2739,26 +2135,13 @@ for null.  This may lead to a <code>NullPointerException</code> when the code is
       ]]>
    </Details>
   </BugPattern>
-  <BugPattern type="NP_NONNULL_PARAM_VIOLATION">
-    <ShortDescription>可能为空值的参数传递给了带有非空值参数的方法</ShortDescription>
-    <LongDescription>可能为空值的参数传递给了带有非空值参数的方法</LongDescription>
-    <Details>
-      <![CDATA[
-      <p>
-      This method passes a null value as the parameter of a method which
-    must be non-null. Either this parameter has been explicitly marked
-    as @Nonnull, or analysis has determined that this parameter is
-    always dereferenced.
-      </p>
-      ]]>
-   </Details>
-  </BugPattern>
+
   <BugPattern type="NP_CLONE_COULD_RETURN_NULL">
     <ShortDescription>
-      克隆方法的返回值可能为空
+      通常来说克隆方法的返回值不应该为空
     </ShortDescription>
     <LongDescription>
-      {1}方法的返回值可能为空
+      通常来说克隆方法的返回值不应该为空
     </LongDescription>
     <Details>
       <![CDATA[
@@ -2771,8 +2154,8 @@ for null.  This may lead to a <code>NullPointerException</code> when the code is
    </Details>
   </BugPattern>
   <BugPattern type="NP_TOSTRING_COULD_RETURN_NULL">
-    <ShortDescription>toString方法可能返回null</ShortDescription>
-    <LongDescription>toString方法可能返回null</LongDescription>
+    <ShortDescription>通常来说toString方法的返回值不应该为空</ShortDescription>
+    <LongDescription>通常来说toString方法的返回值不应该为空</LongDescription>
     <Details>
       <![CDATA[
       <p>
@@ -2784,8 +2167,8 @@ for null.  This may lead to a <code>NullPointerException</code> when the code is
    </Details>
   </BugPattern>
   <BugPattern type="NP_GUARANTEED_DEREF">
-    <ShortDescription>空指针问题</ShortDescription>
-    <LongDescription>空指针问题</LongDescription>
+    <ShortDescription>此处变量可能为Null, 直接使用会出现空指针异常</ShortDescription>
+    <LongDescription>变量{2.givenClass}可能为Null, 直接使用会出现空指针异常</LongDescription>
     <Details>
           <![CDATA[
               <p>
@@ -2800,21 +2183,7 @@ for null.  This may lead to a <code>NullPointerException</code> when the code is
           ]]>
       </Details>
   </BugPattern>
-  <BugPattern type="NP_GUARANTEED_DEREF_ON_EXCEPTION_PATH">
-    <ShortDescription>前面程序进入异常分支后, 此处会抛出空指针问题</ShortDescription>
-    <LongDescription>前面程序进入异常分支后, 此处会抛出空指针问题</LongDescription>
-    <Details>
-          <![CDATA[
-              <p>
-              There is a statement or branch on an exception path
-                that if executed guarantees that
-              a value is null at this point, and that
-              value that is guaranteed to be dereferenced
-              (except on forward paths involving runtime exceptions).
-              </p>
-          ]]>
-      </Details>
-  </BugPattern>
+
   <BugPattern type="SI_INSTANCE_BEFORE_FINALS_ASSIGNED">
     <ShortDescription>
       不要在所有的static final字段赋值之前, 去使用静态初始化的方法创建一个类的实例
@@ -2829,43 +2198,7 @@ before all of the static final fields are assigned.</p>
 ]]>
     </Details>
   </BugPattern>
-  <BugPattern type="OS_OPEN_STREAM">
-    <ShortDescription>
-      请确保关闭了IO流
-    </ShortDescription>
-    <LongDescription>
-      请确保关闭了IO流
-    </LongDescription>
-    <Details>
-<![CDATA[
-<p> The method creates an IO stream object, does not assign it to any
-fields, pass it to other methods that might close it,
-or return it, and does not appear to close
-the stream on all paths out of the method.&nbsp; This may result in
-a file descriptor leak.&nbsp; It is generally a good
-idea to use a <code>finally</code> block to ensure that streams are
-closed.</p>
-]]>
-    </Details>
-  </BugPattern>
-  <BugPattern type="OS_OPEN_STREAM_EXCEPTION_PATH">
-    <ShortDescription>
-      异常路径上没有关闭IO流
-    </ShortDescription>
-    <LongDescription>
-      异常路径上没有关闭IO流
-    </LongDescription>
-    <Details>
-<![CDATA[
-<p> The method creates an IO stream object, does not assign it to any
-fields, pass it to other methods, or return it, and does not appear to close
-it on all possible exception paths out of the method.&nbsp;
-This may result in a file descriptor leak.&nbsp; It is generally a good
-idea to use a <code>finally</code> block to ensure that streams are
-closed.</p>
-]]>
-    </Details>
-  </BugPattern>
+
   <BugPattern type="UCF_USELESS_CONTROL_FLOW_NEXT_LINE">
     <ShortDescription>控制语句后面跟着空语句, 是设计如此吗</ShortDescription>
     <LongDescription>控制语句后面跟着空语句, 是设计如此吗</LongDescription>
@@ -2883,8 +2216,8 @@ body of an <code>if</code> statement, e.g.:</p>
     </Details>
   </BugPattern>
   <BugPattern type="EC_NULL_ARG">
-    <ShortDescription>equals的参数必定为null, 请检查</ShortDescription>
-    <LongDescription>equals的参数必定为null, 请检查</LongDescription>
+    <ShortDescription>equals的参数必定为null</ShortDescription>
+    <LongDescription>equals的参数必定为null</LongDescription>
     <Details>
 <![CDATA[
 <p> This method calls equals(Object), passing a null value as
@@ -2910,59 +2243,10 @@ assignment appears to have been ; e.g.</p>
 ]]>
     </Details>
   </BugPattern>
-  <BugPattern type="DMI_LONG_BITS_TO_DOUBLE_INVOKED_ON_INT">
-    <ShortDescription>Double.longBitsToDouble方法传递了int类型的参数, 会产生错误结果</ShortDescription>
-    <LongDescription>Double.longBitsToDouble方法传递了int类型的参数, 会产生错误结果</LongDescription>
-    <Details>
-<![CDATA[
-<p> The Double.longBitsToDouble method is invoked, but a 32 bit int value is passed
-    as an argument. This almost certainly is not intended and is unlikely
-    to give the intended result.
-</p>
-]]>
-    </Details>
-  </BugPattern>
-  <BugPattern type="DMI_RANDOM_USED_ONLY_ONCE">
-    <ShortDescription>
-      创建的Random对象只使用过一次. 建议保存此对象以便于下次使用
-    </ShortDescription>
-    <LongDescription>
-      在{1}中, 创建的Random对象只使用过一次, 建议保存此对象以便于下次使用
-    </LongDescription>
-    <Details>
-<![CDATA[
-<p> This code creates a java.util.Random object, uses it to generate one random number, and then discards
-the Random object. This produces mediocre quality random numbers and is inefficient.
-If possible, rewrite the code so that the Random object is created once and saved, and each time a new random number
-is required invoke a method on the existing Random object to obtain it.
-</p>
 
-<p>If it is important that the generated Random numbers not be guessable, you <em>must</em> not create a new Random for each random
-number; the values are too easily guessable. You should strongly consider using a java.security.SecureRandom instead
-(and avoid allocating a new SecureRandom for each random number needed).
-</p>
-]]>
-    </Details>
-  </BugPattern>
-  <BugPattern type="LI_LAZY_INIT_INSTANCE" deprecated="true"> <!-- never generated? -->
-    <ShortDescription>这个延迟加载的字段在多线程情况下回遇到问题</ShortDescription>
-    <LongDescription>这个延迟加载的字段在多线程情况下回遇到问题</LongDescription>
-    <Details>
-<![CDATA[
-<p> This method contains an unsynchronized lazy initialization of a non-volatile field.
-Because the compiler or processor may reorder instructions,
-threads are not guaranteed to see a completely initialized object,
-<em>if the method can be called by multiple threads</em>.
-You can make the field volatile to correct the problem.
-For more information, see the
-<a href="http://www.cs.umd.edu/~pugh/java/memoryModel/">Java Memory Model web site</a>.
-</p>
-]]>
-    </Details>
-  </BugPattern>
   <BugPattern type="LI_LAZY_INIT_STATIC">
-    <ShortDescription>这个延迟加载的字段在多线程情况下回遇到问题</ShortDescription>
-    <LongDescription>这个延迟加载的字段在多线程情况下回遇到问题</LongDescription>
+    <ShortDescription>这个延迟加载的字段在多线程情况下可能会遇到问题</ShortDescription>
+    <LongDescription>这个延迟加载的字段在多线程情况下可能会遇到问题</LongDescription>
     <Details>
 <![CDATA[
 <p> This method contains an unsynchronized lazy initialization of a non-volatile static field.
@@ -2977,8 +2261,8 @@ For more information, see the
     </Details>
   </BugPattern>
   <BugPattern type="LI_LAZY_INIT_UPDATE_STATIC">
-    <ShortDescription>加载或更新这个字段在多线程情况下回遇到问题</ShortDescription>
-    <LongDescription>加载或更新这个字段在多线程情况下回遇到问题</LongDescription>
+    <ShortDescription>这个延迟加载的字段在多线程情况下可能会遇到问题</ShortDescription>
+    <LongDescription>这个延迟加载的字段在多线程情况下可能会遇到问题</LongDescription>
     <Details>
 <![CDATA[
 <p> This method contains an unsynchronized lazy initialization of a static field.
@@ -2994,88 +2278,10 @@ you are setting it to is fully populated/initialized.
 ]]>
     </Details>
   </BugPattern>
-  <BugPattern type="ODR_OPEN_DATABASE_RESOURCE">
-    <ShortDescription>
-      方法中存在关闭数据库资源连接失败的情况
-    </ShortDescription>
-    <LongDescription>
-      方法中存在关闭数据库资源连接失败的情况
-    </LongDescription>
-    <Details>
-<![CDATA[
-<p> The method creates a database resource (such as a database connection
-or row set), does not assign it to any
-fields, pass it to other methods, or return it, and does not appear to close
-the object on all paths out of the method.&nbsp; Failure to
-close database resources on all paths out of a method may
-result in poor performance, and could cause the application to
-have problems communicating with the database.
-</p>
-]]>
-    </Details>
-  </BugPattern>
-  <BugPattern type="ODR_OPEN_DATABASE_RESOURCE_EXCEPTION_PATH">
-    <ShortDescription>在异常情况下没有关闭数据库连接</ShortDescription>
-    <LongDescription>在异常情况下没有关闭数据库连接</LongDescription>
-    <Details>
-<![CDATA[
-<p> The method creates a database resource (such as a database connection
-or row set), does not assign it to any
-fields, pass it to other methods, or return it, and does not appear to close
-the object on all exception paths out of the method.&nbsp; Failure to
-close database resources on all paths out of a method may
-result in poor performance, and could cause the application to
-have problems communicating with the database.</p>
-]]>
-    </Details>
-  </BugPattern>
-  <BugPattern type="IIL_PREPARE_STATEMENT_IN_LOOP">
-    <ShortDescription>不要在循环中调用Connection.prepareStatement</ShortDescription>
-    <LongDescription>不要在循环中调用Connection.prepareStatement</LongDescription>
-    <Details>
-<![CDATA[
-<p> The method calls Connection.prepareStatement inside the loop passing the constant arguments.
-If the PreparedStatement should be executed several times there's no reason to recreate it for each loop iteration.
-Move this call outside of the loop.</p>
-]]>
-    </Details>
-  </BugPattern>
-  <BugPattern type="IIL_ELEMENTS_GET_LENGTH_IN_LOOP">
-    <ShortDescription>不要在循环中调用NodeList.getLength(), 每次这个长度都会被重新计算</ShortDescription>
-    <LongDescription>不要在循环中调用NodeList.getLength(), 每次这个长度都会被重新计算</LongDescription>
-    <Details>
-<![CDATA[
-<p> The method calls NodeList.getLength() inside the loop and NodeList was produced by getElementsByTagName call.
-This NodeList doesn't store its length, but computes it every time in not very optimal way.
-Consider storing the length to the variable before the loop.
-</p>
-]]>
-    </Details>
-  </BugPattern>
-  <BugPattern type="IIL_PATTERN_COMPILE_IN_LOOP">
-    <ShortDescription>不要在循环中compile正则表达式</ShortDescription>
-    <LongDescription>不要在循环中compile正则表达式</LongDescription>
-    <Details>
-<![CDATA[
-<p> The method calls Pattern.compile inside the loop passing the constant arguments.
-If the Pattern should be used several times there's no reason to compile it for each loop iteration.
-Move this call outside of the loop or even into static final field.</p>
-]]>
-    </Details>
-  </BugPattern>
-  <BugPattern type="IIL_PATTERN_COMPILE_IN_LOOP_INDIRECT">
-    <ShortDescription>不要在循环中直接使用正则表达式</ShortDescription>
-    <LongDescription>不要在循环中直接使用正则表达式</LongDescription>
-    <Details>
-<![CDATA[
-<p> The method creates the same regular expression inside the loop, so it will be compiled every iteration.
-It would be more optimal to precompile this regular expression using Pattern.compile outside of the loop.</p>
-]]>
-    </Details>
-  </BugPattern>
+
   <BugPattern type="SQL_BAD_RESULTSET_ACCESS">
-    <ShortDescription>sql返回的result set中获取第0个元素会取得错误结果</ShortDescription>
-    <LongDescription>sql返回的result set中获取第0个元素会取得错误结果</LongDescription>
+    <ShortDescription>sql返回的resultset中获取第0个元素会取得错误结果</ShortDescription>
+    <LongDescription>sql返回的resultset中获取第0个元素会取得错误结果</LongDescription>
     <Details>
 <![CDATA[
 <p> A call to getXXX or updateXXX methods of a result set was made where the
@@ -3084,8 +2290,8 @@ field index is 0. As ResultSet fields start at index 1, this is always a mistake
     </Details>
   </BugPattern>
   <BugPattern type="SQL_BAD_PREPARED_STATEMENT_ACCESS">
-    <ShortDescription>prepared statement 中获取第0个元素会取得错误结果</ShortDescription>
-    <LongDescription>prepared statement 中获取第0个元素会取得错误结果</LongDescription>
+    <ShortDescription>prepared statement中使用第0个元素会取得错误结果</ShortDescription>
+    <LongDescription>prepared statement中使用第0个元素会取得错误结果</LongDescription>
     <Details>
 <![CDATA[
 <p> A call to a setXXX method of a prepared statement was made where the
@@ -3093,48 +2299,7 @@ parameter index is 0. As parameter indexes start at index 1, this is always a mi
 ]]>
     </Details>
   </BugPattern>
-  <BugPattern type="CD_CIRCULAR_DEPENDENCY">
-    <ShortDescription>这个类与其他类之间存在循环引用</ShortDescription>
-    <LongDescription>这个类与其他类之间存在循环引用</LongDescription>
-    <Details>
-   <![CDATA[
-    <p>
-    This class has a circular dependency with other classes. This makes building these classes
-    difficult, as each is dependent on the other to build correctly. Consider using interfaces
-    to break the hard dependency.
-    </p>
-    ]]>
-     </Details>
-  </BugPattern>
-  <BugPattern type="MTIA_SUSPECT_SERVLET_INSTANCE_FIELD">
-    <ShortDescription>从servlet中派生出来的类不能使用实例变量</ShortDescription>
-    <LongDescription>从servlet中派生出来的类不能使用实例变量</LongDescription>
-    <Details>
-   <![CDATA[
-    <p>
-    This class extends from a Servlet class, and uses an instance member variable. Since only
-    one instance of a Servlet class is created by the J2EE framework, and used in a
-    multithreaded way, this paradigm is highly discouraged and most likely problematic. Consider
-    only using method local variables.
-    </p>
-    ]]>
-      </Details>
-  </BugPattern>
-  <BugPattern type="PS_PUBLIC_SEMAPHORES">
-    <ShortDescription>不要反回类中用于同步的对象</ShortDescription>
-    <LongDescription>不要反回类中用于同步的对象</LongDescription>
-    <Details>
-   <![CDATA[
-    <p>
-    This class uses synchronization along with wait(), notify() or notifyAll() on itself (the this
-    reference). Client classes that use this class, may, in addition, use an instance of this class
-    as a synchronizing object. Because two classes are using the same object for synchronization,
-    Multithread correctness is suspect. You should not synchronize nor call semaphore methods on
-    a public reference. Consider using a internal private member variable to control synchronization.
-    </p>
-    ]]>
-      </Details>
-  </BugPattern>
+
   <BugPattern type="IM_BAD_CHECK_FOR_ODD">
     <ShortDescription>
       负数无法通过取余数为1来判断是否为奇数
@@ -3154,10 +2319,10 @@ for oddness, consider using x &amp; 1 == 1, or x % 2 != 0.
   </BugPattern>
   <BugPattern type="SWL_SLEEP_WITH_LOCK_HELD">
     <ShortDescription>
-      不要在持有对象锁时调用Thread.sleep()
+      在持有对象锁时进行睡眠可能会导致死锁情况
     </ShortDescription>
     <LongDescription>
-      不要在持有对象锁时调用Thread.sleep()
+      在持有对象锁时进行睡眠可能会导致死锁情况
     </LongDescription>
     <Details>
       <![CDATA[
@@ -3171,47 +2336,13 @@ for oddness, consider using x &amp; 1 == 1, or x % 2 != 0.
       ]]>
    </Details>
   </BugPattern>
-  <BugPattern type="STCAL_STATIC_CALENDAR_INSTANCE">
-    <ShortDescription>java.util.Calendar类型的静态对象, 在多线程的情况下是不安全的</ShortDescription>
-    <LongDescription>
-      java.util.Calendar类型的静态对象, 在多线程的情况下是不安全的
-    </LongDescription>
-    <Details>
-<![CDATA[
-<p>Even though the JavaDoc does not contain a hint about it, Calendars are inherently unsafe for multithreaded use.
-Sharing a single instance across thread boundaries without proper synchronization will result in erratic behavior of the
-application. Under 1.4 problems seem to surface less often than under Java 5 where you will probably see
-random ArrayIndexOutOfBoundsExceptions or IndexOutOfBoundsExceptions in sun.util.calendar.BaseCalendar.getCalendarDateFromFixedDate().</p>
-<p>You may also experience serialization problems.</p>
-<p>Using an instance field is recommended.</p>
-<p>For more information on this see <a href="http://bugs.java.com/bugdatabase/view_bug.do?bug_id=6231579">JDK Bug #6231579</a>
-and <a href="http://bugs.java.com/bugdatabase/view_bug.do?bug_id=6178997">JDK Bug #6178997</a>.</p>
-]]>
-</Details>
-  </BugPattern>
-  <BugPattern type="STCAL_INVOKE_ON_STATIC_CALENDAR_INSTANCE">
-    <ShortDescription>java.util.Calendar类型的静态对象, 在多线程的情况下是不安全的</ShortDescription>
-    <LongDescription>
-      java.util.Calendar类型的静态对象, 在多线程的情况下是不安全的
-    </LongDescription>
-    <Details>
-<![CDATA[
-<p>Even though the JavaDoc does not contain a hint about it, Calendars are inherently unsafe for multithreaded use.
-The detector has found a call to an instance of Calendar that has been obtained via a static
-field. This looks suspicious.</p>
-<p>For more information on this see <a href="http://bugs.java.com/bugdatabase/view_bug.do?bug_id=6231579">JDK Bug #6231579</a>
-and <a href="http://bugs.java.com/bugdatabase/view_bug.do?bug_id=6178997">JDK Bug #6178997</a>.</p>
-]]>
-</Details>
-  </BugPattern>
+
   <BugPattern type="WL_USING_GETCLASS_RATHER_THAN_CLASS_LITERAL">
     <ShortDescription>
-      实例的方法中同步不要直接使用类名, 如果这个类有子类集合, 那么子类集合中的对象将会在这
-      个类的各个子类上进行同步, 这不是我们想要的效果, 请使用getClass方法
+      实例的方法中同步时直接使用类名同步可能会出现意外情况, 如果这个类有子类, 那么这些子类的实例将会在同一个对象上进行同步, 这不是我们想要的效果, 可以使用getClass方法代替
     </ShortDescription>
     <LongDescription>
-      实例的方法中同步不要直接使用类名, 如果这个类有子类集合, 那么子类集合中的对象将会在这
-      个类的各个子类上进行同步, 这不是我们想要的效果, 请使用getClass方法
+      实例的方法中同步时直接使用类名同步可能会出现意外情况, 如果这个类有子类, 那么这些子类的实例将会在同一个对象上进行同步, 这不是我们想要的效果, 可以使用getClass方法代替
     </LongDescription>
     <Details>
       <![CDATA[
@@ -3245,10 +2376,10 @@ String constructComponentName() {
   </BugPattern>
   <BugPattern type="OBL_UNSATISFIED_OBLIGATION">
     <ShortDescription>
-      释放资源失败
+      该资源使用结束后没有进行释放
     </ShortDescription>
-    <LongDescription>{1} may fail to clean up {2}
-      释放资源失败
+    <LongDescription>
+      资源{2}使用结束后没有进行释放
     </LongDescription>
     <Details>
           <![CDATA[
@@ -3294,8 +2425,8 @@ String constructComponentName() {
       </Details>
   </BugPattern>
   <BugPattern type="OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE">
-    <ShortDescription>异常路径上释放资源失败</ShortDescription>
-    <LongDescription>异常路径上释放资源失败</LongDescription>
+    <ShortDescription>异常路径上, 该资源使用结束后没有进行释放</ShortDescription>
+    <LongDescription>异常路径上, 资源{2}使用结束后没有进行释放</LongDescription>
     <Details>
           <![CDATA[
           <p>

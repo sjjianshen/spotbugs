@@ -1048,8 +1048,7 @@ public class UnreadFields extends OpcodeStackDetector {
                 } else {
                     priority--;
                 }
-                String pattern = (f.isPublic() || f.isProtected()) ? "NP_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD"
-                        : "NP_UNWRITTEN_FIELD";
+                String pattern = "NP_UNWRITTEN_FIELD";
                 for (ProgramPoint p : assumedNonNullAt) {
                     bugAccumulator.accumulateBug(
                             new BugInstance(this, pattern, npPriority).addClassAndMethod(p.method).addField(f),

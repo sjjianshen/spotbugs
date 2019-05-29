@@ -116,7 +116,7 @@ public class FindBugs2 implements IFindBugsEngine, AutoCloseable {
 
     private DetectorFactoryCollection detectorFactoryCollection;
 
-    private ExecutionPlan executionPlan;
+    private static ExecutionPlan executionPlan;
 
     private String currentClassName;
 
@@ -163,6 +163,7 @@ public class FindBugs2 implements IFindBugsEngine, AutoCloseable {
         // bug 2815983: no bugs are reported anymore
         // there is no info which value should be default, so using the any one
         rankThreshold = BugRanker.VISIBLE_RANK_MAX;
+
     }
 
     /**
@@ -306,10 +307,18 @@ public class FindBugs2 implements IFindBugsEngine, AutoCloseable {
         }
     }
 
-    public void executeDirectly(ExecutionPlan executionPlan) throws IOException, InterruptedException {
+    public void executeDirectly(Project project) throws IOException, InterruptedException {
 
         try {
             try {
+                BugReporter bugReporter = new BugCollectionBugReporter(project);
+                bugReporter.setPriorityThreshold(1);
+                bugReporter.setErrorVerbosity(BugReporter.SILENT);
+                ((BugCollectionBugReporter) bugReporter).setUseLongBugCodes(true);
+                setDetectorFactoryCollection(DetectorFactoryCollection.instance());
+                setProject(project);
+                setBugReporter(bugReporter);
+                setUserPreferences(project.getConfiguration());
                 // Get the class factory for creating classpath/codebase/etc.
                 classFactory = ClassFactory.instance();
                 // The class path object
@@ -335,8 +344,9 @@ public class FindBugs2 implements IFindBugsEngine, AutoCloseable {
                 // Configure analysis features
                 configureAnalysisFeatures();
 
-                // Create the execution plan (which passes/detectors to execute)
-                this.executionPlan = executionPlan;
+                if (executionPlan == null) {
+                    createExecutionPlan();
+                }
 
                 if (appClassList.size() == 0) {
                     Map<String, ICodeBaseEntry> codebase = classPath.getApplicationCodebaseEntries();
@@ -355,18 +365,6 @@ public class FindBugs2 implements IFindBugsEngine, AutoCloseable {
                 IOException ioe = new IOException("IOException while scanning codebases");
                 ioe.initCause(e);
                 throw ioe;
-            } catch (OutOfMemoryError e) {
-                System.err.println("Out of memory");
-                System.err.println("Total memory: " + Runtime.getRuntime().maxMemory() / 1000000 + "M");
-                System.err.println(" free memory: " + Runtime.getRuntime().freeMemory() / 1000000 + "M");
-
-                for (String s : project.getFileList()) {
-                    System.err.println("Analyzed: " + s);
-                }
-                for (String s : project.getAuxClasspathEntryList()) {
-                    System.err.println("     Aux: " + s);
-                }
-                throw e;
             } finally {
                 clearCaches();
             }

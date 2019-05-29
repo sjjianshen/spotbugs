@@ -484,12 +484,12 @@ public class DumbMethods extends OpcodeStackDetector {
 
         @Override
         public void sawOpcode(int seen) {
-            if (seen == Const.INVOKEVIRTUAL && "java/util/Random".equals(getClassConstantOperand())
-                    && (freshRandomOnTos || freshRandomOneBelowTos)) {
-                accumulator.accumulateBug(new BugInstance(DumbMethods.this, "DMI_RANDOM_USED_ONLY_ONCE", HIGH_PRIORITY)
-                        .addClassAndMethod(DumbMethods.this).addCalledMethod(DumbMethods.this), DumbMethods.this);
-
-            }
+//            if (seen == Const.INVOKEVIRTUAL && "java/util/Random".equals(getClassConstantOperand())
+//                    && (freshRandomOnTos || freshRandomOneBelowTos)) {
+//                accumulator.accumulateBug(new BugInstance(DumbMethods.this, "DMI_RANDOM_USED_ONLY_ONCE", HIGH_PRIORITY)
+//                        .addClassAndMethod(DumbMethods.this).addCalledMethod(DumbMethods.this), DumbMethods.this);
+//
+//            }
             freshRandomOneBelowTos = freshRandomOnTos && isRegisterLoad();
             freshRandomOnTos = seen == Const.INVOKESPECIAL && "java/util/Random".equals(getClassConstantOperand())
                     && Const.CONSTRUCTOR_NAME.equals(getNameConstantOperand());
@@ -498,8 +498,7 @@ public class DumbMethods extends OpcodeStackDetector {
 
     private final SubDetector[] subDetectors = new SubDetector[] { new VacuousComparisonSubDetector(),
             new RangeCheckSubDetector(), new BadCastInEqualsSubDetector(),
-            new UrlCollectionSubDetector(), new RandomOnceSubDetector(), new NullMethodsSubDetector(),
-            new InvalidMinMaxSubDetector()};
+            new UrlCollectionSubDetector(), new RandomOnceSubDetector(), new NullMethodsSubDetector()};
 
     private static final ObjectType CONDITION_TYPE = ObjectTypeFactory.getInstance("java.util.concurrent.locks.Condition");
 
@@ -820,23 +819,23 @@ public class DumbMethods extends OpcodeStackDetector {
 //                    .addClassAndMethod(this).addCalledMethod(this), this);
 //        }
 
-        if ((seen == Const.INVOKESTATIC || seen == Const.INVOKEVIRTUAL || seen == Const.INVOKESPECIAL || seen == Const.INVOKEINTERFACE)
-                && getSigConstantOperand().indexOf("Ljava/lang/Runnable;") >= 0) {
-            SignatureParser parser = new SignatureParser(getSigConstantOperand());
-            int count = 0;
-            for (Iterator<String> i = parser.parameterSignatureIterator(); i.hasNext(); count++) {
-                String parameter = i.next();
-                if ("Ljava/lang/Runnable;".equals(parameter)) {
-                    OpcodeStack.Item item = stack.getStackItem(parser.getNumParameters() - 1 - count);
-                    if ("Ljava/lang/Thread;".equals(item.getSignature())) {
-                        accumulator.accumulateBug(new BugInstance(this, "DMI_THREAD_PASSED_WHERE_RUNNABLE_EXPECTED",
-                                NORMAL_PRIORITY).addClassAndMethod(this).addCalledMethod(this), this);
-                    }
-
-                }
-            }
-
-        }
+//        if ((seen == Const.INVOKESTATIC || seen == Const.INVOKEVIRTUAL || seen == Const.INVOKESPECIAL || seen == Const.INVOKEINTERFACE)
+//                && getSigConstantOperand().indexOf("Ljava/lang/Runnable;") >= 0) {
+//            SignatureParser parser = new SignatureParser(getSigConstantOperand());
+//            int count = 0;
+//            for (Iterator<String> i = parser.parameterSignatureIterator(); i.hasNext(); count++) {
+//                String parameter = i.next();
+//                if ("Ljava/lang/Runnable;".equals(parameter)) {
+//                    OpcodeStack.Item item = stack.getStackItem(parser.getNumParameters() - 1 - count);
+//                    if ("Ljava/lang/Thread;".equals(item.getSignature())) {
+//                        accumulator.accumulateBug(new BugInstance(this, "DMI_THREAD_PASSED_WHERE_RUNNABLE_EXPECTED",
+//                                NORMAL_PRIORITY).addClassAndMethod(this).addCalledMethod(this), this);
+//                    }
+//
+//                }
+//            }
+//
+//        }
 //
 //        if (prevOpcode == Const.I2L && seen == Const.INVOKESTATIC && "java/lang/Double".equals(getClassConstantOperand())
 //                && "longBitsToDouble".equals(getNameConstantOperand())) {
@@ -1146,7 +1145,7 @@ public class DumbMethods extends OpcodeStackDetector {
                 break;
             case 1:
                 if (seen == Const.D2I) {
-                    accumulator.accumulateBug(new BugInstance(this, "RV_01_TO_INT", HIGH_PRIORITY).addClassAndMethod(this), this);
+//                    accumulator.accumulateBug(new BugInstance(this, "RV_01_TO_INT", HIGH_PRIORITY).addClassAndMethod(this), this);
                     randomNextIntState = 0;
                 } else if (seen == Const.DMUL) {
                     randomNextIntState = 4;
@@ -1361,9 +1360,9 @@ public class DumbMethods extends OpcodeStackDetector {
                 ctorSeen = false;
             }
 
-            if ((seen == Const.INVOKEVIRTUAL) && isMonitorWait(getNameConstantOperand(), getSigConstantOperand())) {
-                checkMonitorWait();
-            }
+//            if ((seen == Const.INVOKEVIRTUAL) && isMonitorWait(getNameConstantOperand(), getSigConstantOperand())) {
+//                checkMonitorWait();
+//            }
 
 //            if ((seen == Const.INVOKESPECIAL) && Const.CONSTRUCTOR_NAME.equals(getNameConstantOperand())
 //                    && "java/lang/Thread".equals(getClassConstantOperand())) {

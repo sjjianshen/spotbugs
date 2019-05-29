@@ -1206,7 +1206,7 @@ public class PluginLoader {
         String country = locale.getCountry();
 
         List<String> potential = new ArrayList<>(3);
-        if (country != null) {
+        if (country != null && !country.isEmpty()) {
             potential.add("messages_" + language + "_" + country + ".xml");
         }
         potential.add("messages_" + language + ".xml");
@@ -1227,6 +1227,7 @@ public class PluginLoader {
                         "Error loading localized message file:" + m, e);
             }
         }
+
         if (messageCollectionList.isEmpty()) {
             if (caught != null) {
                 throw caught;
@@ -1329,9 +1330,14 @@ public class PluginLoader {
     private static Node findMessageNode(List<Document> messageCollectionList, String xpath, String missingMsg)
             throws PluginException {
         for (Document document : messageCollectionList) {
+//            System.out.println("find " + xpath + " in " + document.toString());
+//            System.out.println(document.asXML());
             Node node = document.selectSingleNode(xpath);
             if (node != null) {
+//                System.out.println("found");
                 return node;
+            } else {
+//                System.out.println("not found");
             }
         }
         throw new PluginException(missingMsg);

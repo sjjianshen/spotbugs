@@ -875,10 +875,10 @@ public class FindNullDeref implements Detector, UseAnnotationDatabase, NullDeref
         int priority;
         if (privateCall || invokeInstruction.getOpcode() == Const.INVOKESTATIC
                 || invokeInstruction.getOpcode() == Const.INVOKESPECIAL) {
-            bugType = "NP_NULL_PARAM_DEREF_NONVIRTUAL";
+            bugType = "NP_NULL_PARAM_DEREF";
             priority = HIGH_PRIORITY;
         } else if (safeCallTargetSet.isEmpty()) {
-            bugType = "NP_NULL_PARAM_DEREF_ALL_TARGETS_DANGEROUS";
+            bugType = "NP_NULL_PARAM_DEREF";
             priority = NORMAL_PRIORITY;
         } else {
             return;
@@ -909,26 +909,26 @@ public class FindNullDeref implements Detector, UseAnnotationDatabase, NullDeref
         // Check which params might be null
         addParamAnnotations(location, definitelyNullArgSet, unconditionallyDereferencedNullArgSet, propertySet, warning);
 
-        if ("NP_NULL_PARAM_DEREF_ALL_TARGETS_DANGEROUS".equals(bugType)) {
-            // Add annotations for dangerous method call targets
-            for (JavaClassAndMethod dangerousCallTarget : veryDangerousCallTargetList) {
-                warning.addMethod(dangerousCallTarget).describe(MethodAnnotation.METHOD_DANGEROUS_TARGET_ACTUAL_GUARANTEED_NULL);
-            }
-            dangerousCallTargetList.removeAll(veryDangerousCallTargetList);
-            if (DEBUG_NULLARG) {
-                // Add annotations for dangerous method call targets
-                for (JavaClassAndMethod dangerousCallTarget : dangerousCallTargetList) {
-                    warning.addMethod(dangerousCallTarget).describe(MethodAnnotation.METHOD_DANGEROUS_TARGET);
-                }
-
-                // Add safe method call targets.
-                // This is useful to see which other call targets the analysis
-                // considered.
-                for (JavaClassAndMethod safeMethod : safeCallTargetSet) {
-                    warning.addMethod(safeMethod).describe(MethodAnnotation.METHOD_SAFE_TARGET);
-                }
-            }
-        }
+//        if ("NP_NULL_PARAM_DEREF_ALL_TARGETS_DANGEROUS".equals(bugType)) {
+//            // Add annotations for dangerous method call targets
+//            for (JavaClassAndMethod dangerousCallTarget : veryDangerousCallTargetList) {
+//                warning.addMethod(dangerousCallTarget).describe(MethodAnnotation.METHOD_DANGEROUS_TARGET_ACTUAL_GUARANTEED_NULL);
+//            }
+//            dangerousCallTargetList.removeAll(veryDangerousCallTargetList);
+//            if (DEBUG_NULLARG) {
+//                // Add annotations for dangerous method call targets
+//                for (JavaClassAndMethod dangerousCallTarget : dangerousCallTargetList) {
+//                    warning.addMethod(dangerousCallTarget).describe(MethodAnnotation.METHOD_DANGEROUS_TARGET);
+//                }
+//
+//                // Add safe method call targets.
+//                // This is useful to see which other call targets the analysis
+//                // considered.
+//                for (JavaClassAndMethod safeMethod : safeCallTargetSet) {
+//                    warning.addMethod(safeMethod).describe(MethodAnnotation.METHOD_SAFE_TARGET);
+//                }
+//            }
+//        }
 
         decorateWarning(location, propertySet, warning);
         bugReporter.reportBug(warning);
@@ -1049,7 +1049,7 @@ public class FindNullDeref implements Detector, UseAnnotationDatabase, NullDeref
                 if (duplicated) {
                     return;
                 }
-                BugInstance warning = new BugInstance(this, "NP_NONNULL_PARAM_VIOLATION", priority)
+                BugInstance warning = new BugInstance(this, "NP_NULL_PARAM_DEREF", priority)
                 .addClassAndMethod(classContext.getJavaClass(), method).addMethod(m)
                 .describe(MethodAnnotation.METHOD_CALLED).addParameterAnnotation(i, description)
                 .addOptionalAnnotation(variableAnnotation).addSourceLine(classContext, method, location);
@@ -1116,15 +1116,15 @@ public class FindNullDeref implements Detector, UseAnnotationDatabase, NullDeref
         }
 
         if (refValue.isDefinitelyNull()) {
-            String type = "NP_ALWAYS_NULL";
-            if (propertySet.containsProperty(NullDerefProperty.CLOSING_NULL)
-                    && !propertySet.containsProperty(NullDerefProperty.DEREFS_ARE_CLONED)) {
-                type = "NP_CLOSING_NULL";
-            } else if (onExceptionPath) {
-                type = "NP_ALWAYS_NULL_EXCEPTION";
-            } else if (duplicated) {
-                type = "NP_NULL_ON_SOME_PATH";
-            }
+            String type = "NP_NULL_ON_SOME_PATH";
+//            if (propertySet.containsProperty(NullDerefProperty.CLOSING_NULL)
+//                    && !propertySet.containsProperty(NullDerefProperty.DEREFS_ARE_CLONED)) {
+//                type = "NP_CLOSING_NULL";
+//            } else if (onExceptionPath) {
+//                type = "NP_ALWAYS_NULL_EXCEPTION";
+//            } else if (duplicated) {
+//                type = "NP_NULL_ON_SOME_PATH";
+//            }
             int priority = onExceptionPath ? NORMAL_PRIORITY : HIGH_PRIORITY;
             if (caught) {
                 priority++;
@@ -1575,18 +1575,19 @@ public class FindNullDeref implements Detector, UseAnnotationDatabase, NullDeref
             if (deref.isReadlineValue()) {
                 bugType = "NP_DEREFERENCE_OF_READLINE_VALUE";
             } else {
-                bugType = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE";
+                bugType = "NP_NULL_ON_SOME_PATH";
             }
         } else if (derefLocationSet.size() > 1) {
-            if (!deref.isAlwaysOnExceptionPath()) {
-                bugType = "NP_GUARANTEED_DEREF";
-            } else {
-                bugType = "NP_GUARANTEED_DEREF_ON_EXCEPTION_PATH";
-            }
-        } else if (!deref.isAlwaysOnExceptionPath()) {
-            bugType = "NP_NULL_ON_SOME_PATH";
+//            if (!deref.isAlwaysOnExceptionPath()) {
+//                bugType = "NP_GUARANTEED_DEREF";
+//            } else {
+//                bugType = "NP_GUARANTEED_DEREF_ON_EXCEPTION_PATH";
+//            }
+//        } else if (!deref.isAlwaysOnExceptionPath()) {
+//            bugType = "NP_NULL_ON_SOME_PATH";
+            bugType = "NP_GUARANTEED_DEREF";
         } else {
-            bugType = "NP_NULL_ON_SOME_PATH_EXCEPTION";
+            bugType = "NP_NULL_ON_SOME_PATH";
         }
 
         boolean allCallToAssertionMethod = !doomedLocations.isEmpty();
@@ -1671,7 +1672,7 @@ public class FindNullDeref implements Detector, UseAnnotationDatabase, NullDeref
                 bugType = "NP_DEREFERENCE_OF_READLINE_VALUE";
                 priority = NORMAL_PRIORITY;
             } else if (deref.isMethodReturnValue() && !deref.isReadlineValue()) {
-                bugType = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE";
+                bugType = "NP_NULL_ON_SOME_PATH";
                 priority = NORMAL_PRIORITY;
             } else if (pu.isReturnFromNonNullMethod()) {
                 bugType = "NP_NONNULL_RETURN_VIOLATION";
@@ -1719,7 +1720,7 @@ public class FindNullDeref implements Detector, UseAnnotationDatabase, NullDeref
         }
         if (hasManyNullTests) {
             if ("NP_NULL_ON_SOME_PATH".equals(bugType) || "NP_GUARANTEED_DEREF".equals(bugType)) {
-                bugType = "NP_NULL_ON_SOME_PATH_MIGHT_BE_INFEASIBLE";
+                bugType = "NP_NULL_ON_SOME_PATH";
             } else {
                 priority++;
             }

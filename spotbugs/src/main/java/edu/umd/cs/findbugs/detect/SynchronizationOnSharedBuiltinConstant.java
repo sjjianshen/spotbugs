@@ -111,9 +111,9 @@ public class SynchronizationOnSharedBuiltinConstant extends OpcodeStackDetector 
                     priority--;
                 }
                 if (newlyConstructedObject(summary)) {
-                    pendingBug = new BugInstance(this, "DL_SYNCHRONIZATION_ON_UNSHARED_BOXED_PRIMITIVE", NORMAL_PRIORITY)
-                    .addClassAndMethod(this).addType(syncSignature).addOptionalField(field)
-                    .addOptionalLocalVariable(this, top);
+//                    pendingBug = new BugInstance(this, "DL_SYNCHRONIZATION_ON_UNSHARED_BOXED_PRIMITIVE", NORMAL_PRIORITY)
+//                    .addClassAndMethod(this).addType(syncSignature).addOptionalField(field)
+//                    .addOptionalLocalVariable(this, top);
                 } else if (isSyncOnBoolean) {
                     pendingBug = new BugInstance(this, "DL_SYNCHRONIZATION_ON_BOOLEAN", priority).addClassAndMethod(this)
                             .addOptionalField(field).addOptionalLocalVariable(this, top);
