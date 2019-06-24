@@ -83,10 +83,10 @@
         an earlier pass than all reporting detectors, including those in
         other plugins.
     -->
-                    <SplitPass>
-                              <Earlier class="edu.umd.cs.findbugs.detect.NoteSuppressedWarnings"/>
-                              <LaterCategory name="reporting" spanplugins="true"/>
-                    </SplitPass>
+<!--                    <SplitPass>-->
+<!--                              <Earlier class="edu.umd.cs.findbugs.detect.NoteSuppressedWarnings"/>-->
+<!--                              <LaterCategory name="reporting" spanplugins="true"/>-->
+<!--                    </SplitPass>-->
                     <!--<SplitPass>-->
                               <!--<Earlier class="edu.umd.cs.findbugs.detect.OverridingEqualsNotSymmetrical"/>-->
                               <!--<Later class="edu.umd.cs.findbugs.detect.FindHEmismatch"/>-->
@@ -123,11 +123,11 @@
                                         <!--class="edu.umd.cs.findbugs.detect.FindUnrelatedTypesInGenericContainer"-->
                               <!--/>-->
                     <!--</SplitPass>-->
-                    <SplitPass>
-                              <Earlier
-                                        class="edu.umd.cs.findbugs.detect.EqualsOperandShouldHaveClassCompatibleWithThis"/>
-                              <Later class="edu.umd.cs.findbugs.detect.FindRefComparison"/>
-                    </SplitPass>
+<!--                    <SplitPass>-->
+<!--                              <Earlier-->
+<!--                                        class="edu.umd.cs.findbugs.detect.EqualsOperandShouldHaveClassCompatibleWithThis"/>-->
+<!--                              <Later class="edu.umd.cs.findbugs.detect.FindRefComparison"/>-->
+<!--                    </SplitPass>-->
                     <!--<SplitPass>-->
                               <!--<Earlier-->
                                         <!--class="edu.umd.cs.findbugs.detect.EqualsOperandShouldHaveClassCompatibleWithThis"/>-->
@@ -135,15 +135,15 @@
                                         <!--class="edu.umd.cs.findbugs.detect.FindUnrelatedTypesInGenericContainer"-->
                               <!--/>-->
                     <!--</SplitPass>-->
-                    <SplitPass>
-                              <Earlier class="edu.umd.cs.findbugs.detect.NoteSuppressedWarnings"/>
-                              <Later class="edu.umd.cs.findbugs.detect.FindRefComparison"/>
-                    </SplitPass>
+<!--                    <SplitPass>-->
+<!--                              <Earlier class="edu.umd.cs.findbugs.detect.NoteSuppressedWarnings"/>-->
+<!--                              <Later class="edu.umd.cs.findbugs.detect.FindRefComparison"/>-->
+<!--                    </SplitPass>-->
 
-                    <SplitPass>
-                              <Earlier class="edu.umd.cs.findbugs.detect.NoteAnnotationRetention"/>
-                              <Later class="edu.umd.cs.findbugs.detect.DumbMethods"/>
-                    </SplitPass>
+<!--                    <SplitPass>-->
+<!--                              <Earlier class="edu.umd.cs.findbugs.detect.NoteAnnotationRetention"/>-->
+<!--                              <Later class="edu.umd.cs.findbugs.detect.DumbMethods"/>-->
+<!--                    </SplitPass>-->
                     <!--<SplitPass>-->
                               <!--<Earlier-->
                                         <!--class="edu.umd.cs.findbugs.detect.NoteDirectlyRelevantTypeQualifiers"/>-->
@@ -301,10 +301,10 @@
               reports="" hidden="true"/>
             <!--<Detector class="edu.umd.cs.findbugs.detect.FunctionsThatMightBeMistakenForProcedures" speed="fast"-->
                       <!--reports="" hidden="true"/>-->
-            <Detector class="edu.umd.cs.findbugs.detect.NoteSuppressedWarnings" speed="fast"
-                      reports="" hidden="true"/>
-            <Detector class="edu.umd.cs.findbugs.detect.NoteAnnotationRetention" speed="fast"
-                      reports="" hidden="true"/>
+<!--            <Detector class="edu.umd.cs.findbugs.detect.NoteSuppressedWarnings" speed="fast"-->
+<!--                      reports="" hidden="true"/>-->
+<!--            <Detector class="edu.umd.cs.findbugs.detect.NoteAnnotationRetention" speed="fast"-->
+<!--                      reports="" hidden="true"/>-->
             <Detector class="edu.umd.cs.findbugs.detect.NoteDirectlyRelevantTypeQualifiers"
                       speed="fast" reports="" hidden="true"/>
             <!--<Detector class="edu.umd.cs.findbugs.detect.BuildInterproceduralCallGraph" speed="fast"-->
@@ -361,13 +361,13 @@
                     <!--disabled="true" hidden="true" reports="FL_MATH_USING_FLOAT_PRECISION"/>-->
           <!--<Detector class="edu.umd.cs.findbugs.detect.LoadOfKnownNullValue" speed="fast"-->
                     <!--disabled="false" reports="NP_LOAD_OF_KNOWN_NULL_VALUE"/>-->
-          <Detector
-            class="edu.umd.cs.findbugs.detect.EqualsOperandShouldHaveClassCompatibleWithThis"
-            speed="fast" reports="EQ_CHECK_FOR_OPERAND_NOT_COMPATIBLE_WITH_THIS"/>
+<!--          <Detector-->
+<!--            class="edu.umd.cs.findbugs.detect.EqualsOperandShouldHaveClassCompatibleWithThis"-->
+<!--            speed="fast" reports="EQ_CHECK_FOR_OPERAND_NOT_COMPATIBLE_WITH_THIS"/>-->
           <!--<Detector class="edu.umd.cs.findbugs.detect.URLProblems" speed="fast"-->
                     <!--reports="DMI_BLOCKING_METHODS_ON_URL,DMI_COLLECTION_OF_URLS"/>-->
-          <Detector class="edu.umd.cs.findbugs.detect.DumbMethods" speed="fast"
-                    reports="DMI_BIGDECIMAL_CONSTRUCTED_FROM_DOUBLE,DMI_COLLECTION_OF_URLS"/>
+<!--          <Detector class="edu.umd.cs.findbugs.detect.DumbMethods" speed="fast"-->
+<!--                    reports="DMI_BIGDECIMAL_CONSTRUCTED_FROM_DOUBLE,DMI_COLLECTION_OF_URLS"/>-->
 
           <Detector class="edu.umd.cs.findbugs.detect.FindDoubleCheck" speed="fast"
                     reports="DC_PARTIALLY_CONSTRUCTED"/>
@@ -422,8 +422,8 @@
           <Detector class="edu.umd.cs.findbugs.detect.FindUnreleasedLock" speed="moderate"
                     requirejre="1.5" reports="UL_UNRELEASED_LOCK_EXCEPTION_PATH"/>
 
-          <Detector class="edu.umd.cs.findbugs.detect.FindRefComparison" speed="slow"
-                    reports="EC_NULL_ARG"/>
+<!--          <Detector class="edu.umd.cs.findbugs.detect.FindRefComparison" speed="slow"-->
+<!--                    reports="EC_NULL_ARG"/>-->
 
           <!--<Detector class="edu.umd.cs.findbugs.detect.FindInconsistentSync2" speed="slow"-->
                     <!--reports="MSF_MUTABLE_SERVLET_FIELD"/>-->

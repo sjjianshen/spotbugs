@@ -1,6 +1,12 @@
 package edu.umd.cs.findbugs.detect;
 
 import edu.umd.cs.findbugs.ba.*;
+import edu.umd.cs.findbugs.ba.npe.IsNullValue;
+import edu.umd.cs.findbugs.ba.npe.IsNullValueDataflow;
+import edu.umd.cs.findbugs.ba.npe.IsNullValueFrame;
+import edu.umd.cs.findbugs.classfile.CheckedAnalysisException;
+import edu.umd.cs.findbugs.classfile.Global;
+import edu.umd.cs.findbugs.classfile.MethodDescriptor;
 import org.apache.bcel.generic.*;
 
 import java.util.IdentityHashMap;
@@ -17,6 +23,7 @@ public class DynamicDataflow {
     private DynamicAnalysis dynamicAnalysis;
     private DepthFirstSearch dfs;
     private MethodGen methodGen;
+    private IsNullValueDataflow inv;
     private final IdentityHashMap<BasicBlock, DynamicFrame> frameMap;
 
     public DynamicDataflow(DepthFirstSearch dfs, CFG cfg, MethodGen methodGen) {
@@ -34,9 +41,7 @@ public class DynamicDataflow {
         while (it.hasNext()) {
             basicBlock = it.next();
             DynamicFrame fact = createOrGetFrame(basicBlock);
-            if (basicBlock == cfg.getEntry()) {
-                continue;
-            } else {
+            if (basicBlock != cfg.getEntry()) {
                 edgeIterator = cfg.incomingEdgeIterator(basicBlock);
                 while (edgeIterator.hasNext()) {
                     Edge edge = edgeIterator.next();
@@ -48,18 +53,43 @@ public class DynamicDataflow {
                         Instruction in = inh.getInstruction();
                         if (in instanceof IFNULL || in instanceof IFNONNULL) {
                             caculateDynamicMap(inh, source, edge, fact);
+                        } else if (in instanceof IF_ACMPNE || in instanceof IF_ACMPEQ) {
+                            caculateDynamicMapForAcmp(inh, source, edge, fact);
                         }
                     }
                 }
             }
-//            if (methodGen.getName().equals("cliquePay")) {
-//                System.out.println(basicBlock);
-//                BasicBlock.InstructionIterator aa = basicBlock.instructionIterator();
-//                while (aa.hasNext()) {
-//                    System.out.println(aa.next());
-//                }
-//                System.out.println(fact);
-//            }
+        }
+    }
+
+    private void caculateDynamicMapForAcmp(InstructionHandle inh, BasicBlock source, Edge edge, DynamicFrame fact) {
+        InstructionHandle preh = inh.getPrev();
+        if (preh != null && preh.getInstruction() instanceof InvokeInstruction) {
+            InvokeInstruction inv = (InvokeInstruction) preh.getInstruction();
+
+            InstructionHandle temph = preh;
+            int need = 2;
+            ConstantPoolGen constantPool = methodGen.getConstantPool();
+            do {
+                Instruction temp = temph.getInstruction();
+                need = need + temp.consumeStack(constantPool) - temp.produceStack(constantPool);
+                if (need == 0) {
+                    break;
+                }
+                temph = temph.getPrev();
+            } while (temph != null);
+
+            if (need == 0) {
+                Instruction temp = temph.getInstruction();
+                if (temp instanceof ACONST_NULL) {
+                    String methodName = inv.getMethodName(constantPool);
+                    if (edge.getType() == EdgeTypes.FALL_THROUGH_EDGE && inh.getInstruction() instanceof IF_ACMPEQ) {
+                        fact.putDynamic(methodName);
+                    } else if (edge.getType() == EdgeTypes.IFCMP_EDGE && inh.getInstruction() instanceof IF_ACMPNE) {
+                        fact.putDynamic(methodName);
+                    }
+                }
+            }
         }
     }
 
