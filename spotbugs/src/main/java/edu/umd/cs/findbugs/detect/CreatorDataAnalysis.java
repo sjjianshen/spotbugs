@@ -41,9 +41,24 @@ public class CreatorDataAnalysis extends FrameDataflowAnalysis<CreatorDataValue,
     @Override
     protected void mergeValues(CreatorDataFrame otherFrame, CreatorDataFrame resultFrame, int slot) throws DataflowAnalysisException {
         if (otherFrame.getValue(slot).isJson() || resultFrame.getValue(slot).isJson()) {
-            resultFrame.setValue(slot, CreatorDataValue.JSON);
+            if (otherFrame.getValue(slot).isJsonExp() && resultFrame.getValue(slot).isJsonExp()) {
+                resultFrame.setValue(slot, CreatorDataValue.JSON_EXP);
+            } else {
+                resultFrame.setValue(slot, CreatorDataValue.JSON);
+            }
         } else if (otherFrame.getValue(slot).isJsonSource() || resultFrame.getValue(slot).isJsonSource()) {
-            resultFrame.setValue(slot, CreatorDataValue.JSON_OBJECT);
+            if (otherFrame.getValue(slot) == CreatorDataValue.JSON_OBJECT_RAW ||
+                    resultFrame.getValue(slot) == CreatorDataValue.JSON_OBJECT_RAW) {
+                resultFrame.setValue(slot, CreatorDataValue.JSON_OBJECT_RAW);
+            } else if (otherFrame.getValue(slot) == CreatorDataValue.JSON_OBJECT_ARRAY ||
+                    resultFrame.getValue(slot) == CreatorDataValue.JSON_OBJECT_ARRAY) {
+                resultFrame.setValue(slot, CreatorDataValue.JSON_OBJECT_RAW);
+            } else if (otherFrame.getValue(slot) == CreatorDataValue.JSON_OBJECT_EXP &&
+                    resultFrame.getValue(slot) == CreatorDataValue.JSON_OBJECT_EXP) {
+                resultFrame.setValue(slot, CreatorDataValue.JSON_OBJECT_EXP);
+            } else {
+                resultFrame.setValue(slot, CreatorDataValue.JSON_OBJECT);
+            }
         } else {
             resultFrame.setValue(slot, CreatorDataValue.NOT_JSON);
         }

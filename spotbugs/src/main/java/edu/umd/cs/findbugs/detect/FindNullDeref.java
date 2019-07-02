@@ -477,14 +477,14 @@ public class FindNullDeref implements Detector, UseAnnotationDatabase, NullDeref
                 return;
             }
             if (unconditionalDerefParamDatabase != null) {
-                checkJsonUnconditionallyDereferencedParam(location, cpg, typeDataflow, invokeInstruction, jsonArg);
+                checkJsonUnconditionallyDereferencedParam(location, cpg, typeDataflow, invokeInstruction, jsonArg, creatorDataFrame);
             }
             checkJsonParam(location, cpg, creatorDataFrame, invokeInstruction, jsonArg);
         }
     }
 
     private void checkJsonUnconditionallyDereferencedParam(Location location, ConstantPoolGen cpg,
-               TypeDataflow typeDataflow, InvokeInstruction invokeInstruction, BitSet jsonArg) throws DataflowAnalysisException, ClassNotFoundException {
+                                                           TypeDataflow typeDataflow, InvokeInstruction invokeInstruction, BitSet jsonArg, CreatorDataFrame creatorDataFrame) throws DataflowAnalysisException, ClassNotFoundException {
         XMethod calledMethod = XFactory.createXMethod(invokeInstruction, cpg);
         // If a parameter is already marked as nonnull, don't complain about
         // it here. will be reported following
@@ -555,7 +555,14 @@ public class FindNullDeref implements Detector, UseAnnotationDatabase, NullDeref
         if (!safeCallTargetSet.isEmpty()) {
             return;
         }
-        String bugType = "NP_PASS_JSON_FIELD_TO_NONNULL_PARAM";;
+        String bugType = "NP_PASS_JSON_FIELD_TO_NONNULL_PARAM_EXP";
+        for (int i = unconditionallyDereferencedNullArgSet.nextSetBit(0);i >= 0; i= unconditionallyDereferencedNullArgSet.nextSetBit(i + 1)) {
+            CreatorDataValue cdv = creatorDataFrame.getStackValue(invokeInstruction.getArgumentTypes(cpg).length - i - 1);
+
+            if (!cdv.isJsonExp()) {
+                bugType = "NP_PASS_JSON_FIELD_TO_NONNULL_PARAM";
+            }
+        }
         XMethod calledFrom = XFactory.createXMethod(classContext.getJavaClass(), method);
 
         if (safeCallToPrimateParseMethod(calledMethod, location)) {
@@ -602,7 +609,15 @@ public class FindNullDeref implements Detector, UseAnnotationDatabase, NullDeref
                 }
 
                 String description = "INT_MAYBE_NULL_ARG";
-                BugInstance warning = new BugInstance(this, "NP_PASS_JSON_FIELD_TO_NONNULL_PARAM", 1)
+                String type = "NP_PASS_JSON_FIELD_TO_NONNULL_PARAM";
+                try {
+                    CreatorDataValue cdv = creatorDataFrame.getStackValue(i);
+                    if (cdv.isJsonExp()) {
+                        type = "NP_PASS_JSON_FIELD_TO_NONNULL_PARAM_EXP";
+                    }
+                } catch (DataflowAnalysisException e) {
+                }
+                BugInstance warning = new BugInstance(this, type, 1)
                         .addClassAndMethod(classContext.getJavaClass(), method).addMethod(m)
                         .describe(MethodAnnotation.METHOD_CALLED).addParameterAnnotation(i, description)
                         .addOptionalAnnotation(variableAnnotation).addSourceLine(classContext, method, location);
@@ -977,7 +992,8 @@ public class FindNullDeref implements Detector, UseAnnotationDatabase, NullDeref
         while (pre != null) {
             try {
                 ValueNumberFrame valueNumberFrame = vnaDataflow.getFactAfterLocation(pre);
-                if (valueNumberFrame.getTopValue().equals(valueNumber)) {
+                if ((pre.getHandle().getInstruction() instanceof InvokeInstruction) &&
+                        valueNumberFrame.getTopValue().equals(valueNumber)) {
                     return pre;
                 }
                 pre = cfg.getPreviousLocation(pre);
@@ -1001,7 +1017,7 @@ public class FindNullDeref implements Detector, UseAnnotationDatabase, NullDeref
         String methodName = ink.getMethodName(classContext.getConstantPoolGen());
         String varName = ink.getClassName(classContext.getConstantPoolGen());
 
-        return new LocalVariableAnnotation(varName + "." + methodName, 0, location.getHandle().getPosition(), -1);
+        return new LocalVariableAnnotation(varName + "." + methodName, 1, location.getHandle().getPosition(), -1);
     }
 
     /**
@@ -1180,6 +1196,9 @@ public class FindNullDeref implements Detector, UseAnnotationDatabase, NullDeref
             reportNullDeref(propertySet, location, type, priority, variable);
         } else if (cdvValue.isJson()) {
             String type = "NP_JSON_OBJECT_MIGHT_BE_NULL_BUT_DEREFED";
+            if (cdvValue.isJsonExp()) {
+                type = "NP_JSON_OBJECT_MIGHT_BE_NULL_BUT_DEREFED_EXP";
+            }
             if (variable == null) {
                 Location pre = traceIns(vnaDataflow, location, valueNumber);
                 variable = createUnnamedVariable(vnaFrame, pre, valueNumber);

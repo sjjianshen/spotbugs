@@ -8,6 +8,7 @@ import edu.umd.cs.findbugs.classfile.Global;
 import edu.umd.cs.findbugs.classfile.analysis.ClassInfo;
 import org.apache.bcel.generic.*;
 
+import javax.lang.model.type.PrimitiveType;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,6 +33,7 @@ public class CreatorDataFrameModelingVistor extends AbstractFrameModelingVisitor
     public void handleInvoke(InvokeInstruction obj) {
         String methodName = obj.getMethodName(cpg);
         String className = obj.getClassName(cpg);
+        Type returnType = obj.getReturnType(cpg);
         ClassDescriptor classDesc = DescriptorFactory.instance().getClassDescriptorForDottedClassName(className);
         try {
             ClassInfo xclass = (ClassInfo) Global.getAnalysisCache().getClassAnalysis(XClass.class, classDesc);
@@ -40,7 +42,7 @@ public class CreatorDataFrameModelingVistor extends AbstractFrameModelingVisitor
             desList.addAll(dess);
             for (ClassDescriptor classDescriptor : desList) {
                 if (classDescriptor.getDottedClassName().equals("org.springframework.cloud.openfeign.FeignClient")) {
-                    modelInstruction(obj, obj.consumeStack(getCPG()), obj.produceStack(getCPG()), CreatorDataValue.JSON_OBJECT);
+                    modelInstruction(obj, obj.consumeStack(getCPG()), obj.produceStack(getCPG()), CreatorDataValue.JSON_OBJECT_EXP);
                     return;
                 }
             }
@@ -49,16 +51,16 @@ public class CreatorDataFrameModelingVistor extends AbstractFrameModelingVisitor
         if (obj instanceof INVOKESTATIC) {
             CreatorDataValue creatorDataValue = null;
             try {
-                creatorDataValue = getFrame().getStackValue(1);
+                creatorDataValue = getFrame().getStackValue(obj.consumeStack(getCPG()) - 1);
             } catch (DataflowAnalysisException e) {
             }
             if (creatorDataValue != null && creatorDataValue.isJson()) {
                 if ("parseObject".equals(methodName) && className.endsWith("JSON")) {
                     modelInstruction(obj, obj.consumeStack(getCPG()), obj.produceStack(getCPG()), CreatorDataValue.JSON);
                 } else if (methodName.endsWith("parseObject") && className.endsWith("JSONObject")){
-                    modelInstruction(obj, getNumWordsConsumed(obj), getNumWordsProduced(obj), CreatorDataValue.JSON);
+                    modelInstruction(obj, getNumWordsConsumed(obj), getNumWordsProduced(obj), CreatorDataValue.JSON_EXP);
                 } else if (methodName.endsWith("parseArray") && className.endsWith("JSONObject")){
-                    modelInstruction(obj, getNumWordsConsumed(obj), getNumWordsProduced(obj), CreatorDataValue.JSON);
+                    modelInstruction(obj, getNumWordsConsumed(obj), getNumWordsProduced(obj), CreatorDataValue.JSON_EXP);
                 } else {
                     doHandleInvoke(obj);
                 }
@@ -76,7 +78,7 @@ public class CreatorDataFrameModelingVistor extends AbstractFrameModelingVisitor
         } else if ("fromJson".equals(methodName) && className.endsWith("Gson")) {
             modelInstruction(obj, getNumWordsConsumed(obj), getNumWordsProduced(obj), CreatorDataValue.JSON_OBJECT);
         } else if (methodName.endsWith("ForObject") && className.endsWith("RestTemplate")) {
-            modelInstruction(obj, getNumWordsConsumed(obj), getNumWordsProduced(obj), CreatorDataValue.JSON_OBJECT);
+            modelInstruction(obj, getNumWordsConsumed(obj), getNumWordsProduced(obj), CreatorDataValue.JSON_OBJECT_EXP);
         } else if (methodName.startsWith("get")) {
             CreatorDataFrame creatorDataFrame = getFrame();
             try {
@@ -84,9 +86,9 @@ public class CreatorDataFrameModelingVistor extends AbstractFrameModelingVisitor
                 CreatorDataValue caller = creatorDataFrame.getStackValue(consume - 1);
                 if (caller == CreatorDataValue.JSON_OBJECT_RAW) {
                     if (methodName.equals("getJSONObject")) {
-                        modelInstruction(obj, consume, obj.produceStack(cpg), CreatorDataValue.JSON);
+                        modelInstruction(obj, consume, obj.produceStack(cpg), CreatorDataValue.JSON_EXP);
                     } else if (methodName.equals("getJSONArray")) {
-                        modelInstruction(obj, consume, obj.produceStack(cpg), CreatorDataValue.JSON);
+                        modelInstruction(obj, consume, obj.produceStack(cpg), CreatorDataValue.JSON_EXP);
                     } else {
                         String[] nullableGenratorsArr = new String[] {
                                 "getTimestamp", "getSqlDate", "getDate", "getString", "getBigInteger", "getBigDecimal",
@@ -97,7 +99,7 @@ public class CreatorDataFrameModelingVistor extends AbstractFrameModelingVisitor
                         List<String> nullGeneratorsSet = Arrays.asList(nullableGenratorsArr);
                         Type[] args = obj.getArgumentTypes(cpg);
                         if (nullGeneratorsSet.contains(methodName)) {
-                            modelInstruction(obj, consume, obj.produceStack(cpg), CreatorDataValue.JSON);
+                            modelInstruction(obj, consume, obj.produceStack(cpg), CreatorDataValue.JSON_EXP);
                         } else if (methodName.equals("getObject") && args.length == 2) {
                             if ((args[1] instanceof ParameterizedType)) {
                                 ParameterizedType pt = ((ParameterizedType)args[1]);
@@ -105,17 +107,25 @@ public class CreatorDataFrameModelingVistor extends AbstractFrameModelingVisitor
                                 if (isBoxedPrimativeType(pt.getActualTypeArguments()[0])) {
                                     modelInstruction(obj, consume, obj.produceStack(cpg), CreatorDataValue.NOT_JSON);
                                 } else {
-                                    modelInstruction(obj, consume, obj.produceStack(cpg), CreatorDataValue.JSON);
+                                    modelInstruction(obj, consume, obj.produceStack(cpg), CreatorDataValue.JSON_EXP);
                                 }
                             } else {
-                                modelInstruction(obj, consume, obj.produceStack(cpg), CreatorDataValue.JSON);
+                                modelInstruction(obj, consume, obj.produceStack(cpg), CreatorDataValue.JSON_EXP);
                             }
                         } else {
                             doHandleInvoke(obj);
                         }
                     }
                 } else if (caller.isJsonSource() && consume  <= 2) {
-                    modelInstruction(obj, consume, obj.produceStack(cpg), CreatorDataValue.JSON);
+                    if (returnType instanceof PrimitiveType) {
+                        doHandleInvoke(obj);
+                    } else {
+                        if (caller.isJsonSourceExp()) {
+                            modelInstruction(obj, consume, obj.produceStack(cpg), CreatorDataValue.JSON_EXP);
+                        } else {
+                            modelInstruction(obj, consume, obj.produceStack(cpg), CreatorDataValue.JSON);
+                        }
+                    }
                 } else {
                     doHandleInvoke(obj);
                 }
@@ -137,15 +147,13 @@ public class CreatorDataFrameModelingVistor extends AbstractFrameModelingVisitor
 
     private void doHandleInvoke(InvokeInstruction obj) {
         XMethod calledMethod = XFactory.createXMethod(obj, getCPG());
-        Boolean isJson = AnalysisContext.currentAnalysisContext().getReturnValueJsonPropertyDatabase()
+        CreatorDataValue value = AnalysisContext.currentAnalysisContext().getReturnValueJsonPropertyDatabase()
                 .getProperty(calledMethod.getMethodDescriptor());
-        CreatorDataValue cdv;
-        if (isJson == null || isJson == Boolean.FALSE) {
-            cdv = CreatorDataValue.NOT_JSON;
+        if (value != null) {
+            modelInstruction(obj, obj.consumeStack(getCPG()), obj.produceStack(getCPG()), value);
         } else {
-            cdv = CreatorDataValue.JSON_OBJECT;
+            modelInstruction(obj, obj.consumeStack(getCPG()), obj.produceStack(getCPG()), getDefaultValue());
         }
-        modelInstruction(obj, obj.consumeStack(getCPG()), obj.produceStack(getCPG()), cdv);
     }
 
     @Override
@@ -176,7 +184,11 @@ public class CreatorDataFrameModelingVistor extends AbstractFrameModelingVisitor
             if (creatorDataValue.isJsonSource()) {
                 int consume = obj.consumeStack(cpg);
                 int produce = obj.produceStack(cpg);
-                modelInstruction(obj, consume, produce, CreatorDataValue.JSON);
+                if (creatorDataValue.isJsonSourceExp()) {
+                    modelInstruction(obj, consume, produce, CreatorDataValue.JSON_EXP);
+                } else {
+                    modelInstruction(obj, consume, produce, CreatorDataValue.JSON);
+                }
             } else {
                 super.visitGETFIELD(obj);
             }
@@ -188,6 +200,6 @@ public class CreatorDataFrameModelingVistor extends AbstractFrameModelingVisitor
 
     @Override
     public void visitCHECKCAST(CHECKCAST obj) {
-            //do nothing, for checkcast willnot change the variable creator
+        //do nothing, for checkcast willnot change the variable creator
     }
 }

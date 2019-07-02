@@ -20,6 +20,7 @@
 package edu.umd.cs.findbugs.ba.npe;
 
 import edu.umd.cs.findbugs.ba.interproc.MethodPropertyDatabase;
+import edu.umd.cs.findbugs.detect.CreatorDataValue;
 
 /**
  * Method property database storing which methods return values guaranteed to be
@@ -27,7 +28,7 @@ import edu.umd.cs.findbugs.ba.interproc.MethodPropertyDatabase;
  *
  * @author David Hovemeyer
  */
-public class ReturnValueJsonPropertyDatabase extends MethodPropertyDatabase<Boolean> {
+public class ReturnValueJsonPropertyDatabase extends MethodPropertyDatabase<CreatorDataValue> {
 
     /*
      * (non-Javadoc)
@@ -38,8 +39,8 @@ public class ReturnValueJsonPropertyDatabase extends MethodPropertyDatabase<Bool
      */
 
     @Override
-    protected Boolean decodeProperty(String propStr) {
-        return Boolean.parseBoolean(propStr);
+    protected CreatorDataValue decodeProperty(String propStr) {
+        return CreatorDataValue.valueOf(CreatorDataValue.class, propStr);
 
     }
 
@@ -52,8 +53,8 @@ public class ReturnValueJsonPropertyDatabase extends MethodPropertyDatabase<Bool
      */
 
     @Override
-    protected String encodeProperty(Boolean property) {
-        return property.toString();
+    protected String encodeProperty(CreatorDataValue property) {
+        return property.name();
     }
 
 }

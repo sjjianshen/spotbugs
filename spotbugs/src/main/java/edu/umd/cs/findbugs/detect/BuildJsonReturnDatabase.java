@@ -63,7 +63,7 @@ public class BuildJsonReturnDatabase implements Detector, NonReportingDetector, 
             CFG cfg = classContext.getCFG(method);
 
             CreatorDataflow cdv = classContext.getCreatorDataflow(method);
-            boolean isJson = false;
+            CreatorDataValue value = null;
             for (Iterator<Location> i = cfg.locationIterator(); i.hasNext();) {
                 Location location = i.next();
                 InstructionHandle handle = location.getHandle();
@@ -76,17 +76,17 @@ public class BuildJsonReturnDatabase implements Detector, NonReportingDetector, 
                 if (!frame.isValid()) {
                     continue;
                 }
-                CreatorDataValue value = frame.getTopValue();
-                if (value.isJsonSource()) {
-                    isJson = true;
+                CreatorDataValue topValuevalue = frame.getTopValue();
+                if (topValuevalue.isJsonSource()) {
+                    value = topValuevalue;
                     break;
                 }
             }
 
-            if (isJson) {
+            if (value != null) {
                 XMethod xmethod = XFactory.createXMethod(classContext.getJavaClass(), method);
                 AnalysisContext.currentAnalysisContext().getReturnValueJsonPropertyDatabase()
-                .setProperty(xmethod.getMethodDescriptor(), isJson);
+                .setProperty(xmethod.getMethodDescriptor(), value);
             }
 
         } catch (CFGBuilderException e) {
