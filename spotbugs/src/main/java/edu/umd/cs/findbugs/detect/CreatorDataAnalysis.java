@@ -2,7 +2,6 @@ package edu.umd.cs.findbugs.detect;
 
 import edu.umd.cs.findbugs.ba.*;
 import edu.umd.cs.findbugs.ba.npe.*;
-import edu.umd.cs.findbugs.ba.vna.AvailableLoad;
 import edu.umd.cs.findbugs.ba.vna.ValueNumber;
 import edu.umd.cs.findbugs.ba.vna.ValueNumberDataflow;
 import edu.umd.cs.findbugs.ba.vna.ValueNumberFrame;
@@ -44,7 +43,7 @@ public class CreatorDataAnalysis extends FrameDataflowAnalysis<CreatorDataValue,
         if (otherFrame.getValue(slot).isJson() || resultFrame.getValue(slot).isJson()) {
             resultFrame.setValue(slot, CreatorDataValue.JSON);
         } else if (otherFrame.getValue(slot).isJsonSource() || resultFrame.getValue(slot).isJsonSource()) {
-            resultFrame.setValue(slot, CreatorDataValue.JSON_SOURCE);
+            resultFrame.setValue(slot, CreatorDataValue.JSON_OBJECT);
         } else {
             resultFrame.setValue(slot, CreatorDataValue.NOT_JSON);
         }

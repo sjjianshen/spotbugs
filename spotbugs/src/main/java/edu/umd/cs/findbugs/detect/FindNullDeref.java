@@ -275,13 +275,9 @@ public class FindNullDeref implements Detector, UseAnnotationDatabase, NullDeref
         // comparisons
         // through the NullDerefAndRedundantComparisonCollector interface we
         // implement.
-//        if (method.getName().equals("updateCourseOnlineAuditHistoricalData")) {
-            NullDerefAndRedundantComparisonFinder worker = new NullDerefAndRedundantComparisonFinder(classContext, method, this);
-            worker.execute();
-//        }
-
+        NullDerefAndRedundantComparisonFinder worker = new NullDerefAndRedundantComparisonFinder(classContext, method, this);
+        worker.execute();
         checkCallSitesAndReturnInstructions();
-
     }
 
     /**

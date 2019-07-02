@@ -554,12 +554,9 @@ public class NullDerefAndRedundantComparisonFinder {
             IsNullValue isNullValue = invFrame.getValue(j);
             ValueNumber valueNumber = vnaFrame.getValue(j);
             CreatorDataValue cdv = cdvFrame.getValue(j);
-//            if (cdv.isJson()) {
-//                cdv = cdvFrame.getValue(j);
-//            }
             Instruction instruction = thisLocation.getHandle().getInstruction();
             boolean isInvoke = instruction.getClass().isAssignableFrom(InvokeInstruction.class);
-            if ((isNullValue.isDefinitelyNull() || isNullValue.isNullOnSomePath() && isNullValue.isReturnValue())
+            if ((isNullValue.isDefinitelyNull() || isNullValue.isNullOnSomePath() || cdv.isJson() && isNullValue.isReturnValue())
                     && (derefSet.isUnconditionallyDereferenced(valueNumber))) {
 //            if ((isNullValue.isDefinitelyNull() || isNullValue.isNullOnSomePath() && isNullValue.isReturnValue())
 //                    && (derefSet.isUnconditionallyDereferenced(valueNumber))) {

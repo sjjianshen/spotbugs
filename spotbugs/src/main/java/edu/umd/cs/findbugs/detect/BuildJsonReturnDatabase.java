@@ -21,9 +21,6 @@ package edu.umd.cs.findbugs.detect;
 
 import edu.umd.cs.findbugs.*;
 import edu.umd.cs.findbugs.ba.*;
-import edu.umd.cs.findbugs.ba.npe.IsNullValue;
-import edu.umd.cs.findbugs.ba.npe.IsNullValueDataflow;
-import edu.umd.cs.findbugs.ba.npe.IsNullValueFrame;
 import org.apache.bcel.classfile.Method;
 import org.apache.bcel.generic.ARETURN;
 import org.apache.bcel.generic.Instruction;
