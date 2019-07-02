@@ -2490,6 +2490,40 @@ try {
 ]]>
     </Details>
   </BugPattern>
+  <BugPattern type="NP_JSON_OBJECT_MIGHT_BE_NULL_BUT_DEREFED">
+    <ShortDescription>
+      通过反序列化获得的对象属性有可能为null, 对该对象的调用可能会产生空指针异常, 请进行Null Check
+    </ShortDescription>
+    <LongDescription>
+      通过反序列化获得的对象属性有可能为null, 对该对象的调用可能会产生空指针异常, 请进行Null Check {4}==={5}==={6}
+    </LongDescription>
+    <Details>
+      <![CDATA[
+      <p>
+    A parameter to this method has been identified as a value that should
+    always be checked to see whether or not it is null, but it is being dereferenced
+    without a preceding null check.
+      </p>
+      ]]>
+    </Details>
+  </BugPattern>
+  <BugPattern type="NP_PASS_JSON_FIELD_TO_NONNULL_PARAM">
+    <ShortDescription>
+      通过反序列化获得的对象属性有可能为null, 而目标方法中对该对象没有进行控制检查, 这种情况下有可能出现空指针异常
+    </ShortDescription>
+    <LongDescription>
+      通过反序列化获得的对象属性有可能为null, 而目标方法{2}中对该对象没有进行控制检查, 这种情况下有可能出现空指针异常 {4}==={5}==={6}
+    </LongDescription>
+    <Details>
+      <![CDATA[
+      <p>
+    A parameter to this method has been identified as a value that should
+    always be checked to see whether or not it is null, but it is being dereferenced
+    without a preceding null check.
+      </p>
+      ]]>
+    </Details>
+  </BugPattern>
   <!--
   **********************************************************************
    BugCodes
