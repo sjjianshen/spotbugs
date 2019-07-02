@@ -569,7 +569,7 @@ public class FindNullDeref implements Detector, UseAnnotationDatabase, NullDeref
         if (!safeCallTargetSet.isEmpty()) {
             return;
         }
-        String bugType = "NP_PASS_JSON_FIELD_TO_NONNULL_PARAM_VIOLATION";;
+        String bugType = "NP_PASS_JSON_FIELD_TO_NONNULL_PARAM";;
         XMethod calledFrom = XFactory.createXMethod(classContext.getJavaClass(), method);
 
         if (safeCallToPrimateParseMethod(calledMethod, location)) {
@@ -612,7 +612,7 @@ public class FindNullDeref implements Detector, UseAnnotationDatabase, NullDeref
                 }
 
                 String description = "INT_MAYBE_NULL_ARG";
-                BugInstance warning = new BugInstance(this, "NP_PASS_JSON_FIELD_TO_NONNULL_PARAM_VIOLATION", 1)
+                BugInstance warning = new BugInstance(this, "NP_PASS_JSON_FIELD_TO_NONNULL_PARAM", 1)
                         .addClassAndMethod(classContext.getJavaClass(), method).addMethod(m)
                         .describe(MethodAnnotation.METHOD_CALLED).addParameterAnnotation(i, description)
                         .addOptionalAnnotation(variableAnnotation).addSourceLine(classContext, method, location);
@@ -1150,7 +1150,7 @@ public class FindNullDeref implements Detector, UseAnnotationDatabase, NullDeref
 
             reportNullDeref(propertySet, location, type, priority, variable);
         } else if (cdvValue.isJson()) {
-            String type = "NP_REF_BUILD_FROM_JSON_MIGHT_BE_NULL_BUT_DEREFED_WITHOUT_NULLCHECK";
+            String type = "NP_JSON_OBJECT_MIGHT_BE_NULL_BUT_DEREFED";
             reportNullDeref(propertySet, location, type, 1, variable);
         }
     }

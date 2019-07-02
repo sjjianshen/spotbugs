@@ -8370,7 +8370,7 @@ after the call to initLogging, the logger configuration is lost
         </p>]]>
     </Details>
   </BugPattern>
-  <BugPattern type="NP_REF_BUILD_FROM_JSON_MIGHT_BE_NULL_BUT_DEREFED_WITHOUT_NULLCHECK">
+  <BugPattern type="NP_JSON_OBJECT_MIGHT_BE_NULL_BUT_DEREFED">
     <ShortDescription>
       通过反序列化获得的对象属性有可能为null, 对该对象的调用可能会产生空指针异常, 请进行Null Check
     </ShortDescription>
@@ -8387,7 +8387,7 @@ after the call to initLogging, the logger configuration is lost
       ]]>
     </Details>
   </BugPattern>
-  <BugPattern type="NP_PASS_JSON_FIELD_TO_NONNULL_PARAM_VIOLATION">
+  <BugPattern type="NP_PASS_JSON_FIELD_TO_NONNULL_PARAM">
     <ShortDescription>
       通过反序列化获得的对象属性有可能为null, 而目标方法中对该对象没有进行控制检查, 这种情况下有可能出现空指针异常
     </ShortDescription>
