@@ -2,10 +2,16 @@ package edu.umd.cs.findbugs.detect;
 
 import edu.umd.cs.findbugs.ba.*;
 import edu.umd.cs.findbugs.classfile.CheckedAnalysisException;
+import edu.umd.cs.findbugs.classfile.ClassDescriptor;
+import edu.umd.cs.findbugs.classfile.DescriptorFactory;
+import edu.umd.cs.findbugs.classfile.Global;
+import edu.umd.cs.findbugs.classfile.analysis.ClassInfo;
 import org.apache.bcel.generic.*;
 
 import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 public class CreatorDataFrameModelingVistor extends AbstractFrameModelingVisitor<CreatorDataValue, CreatorDataFrame> {
@@ -26,6 +32,20 @@ public class CreatorDataFrameModelingVistor extends AbstractFrameModelingVisitor
     public void handleInvoke(InvokeInstruction obj) {
         String methodName = obj.getMethodName(cpg);
         String className = obj.getClassName(cpg);
+        ClassDescriptor classDesc = DescriptorFactory.instance().getClassDescriptorForDottedClassName(className);
+        try {
+            ClassInfo xclass = (ClassInfo) Global.getAnalysisCache().getClassAnalysis(XClass.class, classDesc);
+            Collection<ClassDescriptor> dess = xclass.getAnnotationDescriptors();
+            List<ClassDescriptor> desList = new ArrayList<>();
+            desList.addAll(dess);
+            for (ClassDescriptor classDescriptor : desList) {
+                if (classDescriptor.getDottedClassName().equals("org.springframework.cloud.openfeign.FeignClient")) {
+                    modelInstruction(obj, obj.consumeStack(getCPG()), obj.produceStack(getCPG()), CreatorDataValue.JSON_OBJECT);
+                    return;
+                }
+            }
+        } catch (CheckedAnalysisException e) {
+        }
         if (obj instanceof INVOKESTATIC) {
             CreatorDataValue creatorDataValue = null;
             try {

@@ -621,7 +621,7 @@ public class CFG extends AbstractGraph<Edge, BasicBlock> implements Debug {
         InstructionHandle handle = loc.getHandle();
 
         BasicBlock basicBlock = loc.getBasicBlock();
-        if (basicBlock.getFirstInstruction().equals(handle)) {
+        if (basicBlock.isExceptionThrower() || basicBlock.getFirstInstruction().equals(handle)) {
             BasicBlock prevBlock = basicBlock;
 
             while (true) {

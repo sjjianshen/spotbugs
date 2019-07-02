@@ -42,18 +42,7 @@ import org.apache.bcel.classfile.ConstantPool;
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.classfile.LineNumberTable;
 import org.apache.bcel.classfile.Method;
-import org.apache.bcel.generic.ATHROW;
-import org.apache.bcel.generic.ConstantPoolGen;
-import org.apache.bcel.generic.IFNONNULL;
-import org.apache.bcel.generic.IFNULL;
-import org.apache.bcel.generic.INVOKEDYNAMIC;
-import org.apache.bcel.generic.Instruction;
-import org.apache.bcel.generic.InstructionHandle;
-import org.apache.bcel.generic.InstructionTargeter;
-import org.apache.bcel.generic.InvokeInstruction;
-import org.apache.bcel.generic.MethodGen;
-import org.apache.bcel.generic.PUTFIELD;
-import org.apache.bcel.generic.ReturnInstruction;
+import org.apache.bcel.generic.*;
 import org.objectweb.asm.Type;
 
 import edu.umd.cs.findbugs.BugAccumulator;
@@ -65,7 +54,6 @@ import edu.umd.cs.findbugs.FieldAnnotation;
 import edu.umd.cs.findbugs.FindBugsAnalysisFeatures;
 import edu.umd.cs.findbugs.LocalVariableAnnotation;
 import edu.umd.cs.findbugs.MethodAnnotation;
-import edu.umd.cs.findbugs.OpcodeStack;
 import edu.umd.cs.findbugs.SourceLineAnnotation;
 import edu.umd.cs.findbugs.SystemProperties;
 import edu.umd.cs.findbugs.UseAnnotationDatabase;
@@ -75,14 +63,12 @@ import edu.umd.cs.findbugs.ba.CFG;
 import edu.umd.cs.findbugs.ba.CFGBuilderException;
 import edu.umd.cs.findbugs.ba.ClassContext;
 import edu.umd.cs.findbugs.ba.DataflowAnalysisException;
-import edu.umd.cs.findbugs.ba.Edge;
 import edu.umd.cs.findbugs.ba.Hierarchy;
 import edu.umd.cs.findbugs.ba.INullnessAnnotationDatabase;
 import edu.umd.cs.findbugs.ba.JavaClassAndMethod;
 import edu.umd.cs.findbugs.ba.Location;
 import edu.umd.cs.findbugs.ba.MissingClassException;
 import edu.umd.cs.findbugs.ba.NullnessAnnotation;
-import edu.umd.cs.findbugs.ba.OpcodeStackScanner;
 import edu.umd.cs.findbugs.ba.SignatureConverter;
 import edu.umd.cs.findbugs.ba.SignatureParser;
 import edu.umd.cs.findbugs.ba.XFactory;
@@ -605,6 +591,10 @@ public class FindNullDeref implements Detector, UseAnnotationDatabase, NullDeref
                     ValueNumber valueNumber = vnaFrame.getArgument(invokeInstruction, cpg, i, sigParser);
                     variableAnnotation = ValueNumberSourceInfo.findAnnotationFromValueNumber(method, location, valueNumber,
                             vnaFrame, "VALUE_OF");
+                    if (variableAnnotation == null) {
+                        Location pre = traceIns(vnaDataflow, location, valueNumber);
+                        variableAnnotation = createUnnamedVariable(vnaFrame, pre, valueNumber);
+                    }
                 } catch (DataflowAnalysisException e) {
                     AnalysisContext.logError("error", e);
                 } catch (CFGBuilderException e) {
@@ -963,6 +953,11 @@ public class FindNullDeref implements Detector, UseAnnotationDatabase, NullDeref
                     valueNumber = vnaFrame.getArgument(instruction, classContext.getConstantPoolGen(), i, sigParser);
                     BugAnnotation variableAnnotation = ValueNumberSourceInfo.findAnnotationFromValueNumber(method, location,
                             valueNumber, vnaFrame, "VALUE_OF");
+                    if (variableAnnotation == null) {
+                        Location pre = traceIns(vnaDataflow, location, valueNumber);
+                        variableAnnotation = createUnnamedVariable(vnaFrame, pre, valueNumber);
+                    }
+
                     warning.addOptionalAnnotation(variableAnnotation);
                 } catch (DataflowAnalysisException e) {
                     AnalysisContext.logError("error", e);
@@ -974,6 +969,39 @@ public class FindNullDeref implements Detector, UseAnnotationDatabase, NullDeref
             warning.addParameterAnnotation(i, definitelyNull ? "INT_NULL_ARG" : "INT_MAYBE_NULL_ARG");
 
         }
+    }
+
+    private Location traceIns(ValueNumberDataflow vnaDataflow, Location location, ValueNumber valueNumber) {
+        CFG cfg = vnaDataflow.getCFG();
+        Location pre = cfg.getPreviousLocation(location);
+        while (pre != null) {
+            try {
+                ValueNumberFrame valueNumberFrame = vnaDataflow.getFactAfterLocation(pre);
+                if (valueNumberFrame.getTopValue().equals(valueNumber)) {
+                    return pre;
+                }
+                pre = cfg.getPreviousLocation(pre);
+            } catch (DataflowAnalysisException e) {
+                break;
+            }
+        }
+        return null;
+    }
+
+    private BugAnnotation createUnnamedVariable(ValueNumberFrame vnaFrame, Location location, ValueNumber valueNumber) {
+        if (vnaFrame == null || vnaFrame.isBottom() || vnaFrame.isTop()) {
+            return null;
+        }
+        Instruction ins = location.getHandle().getInstruction();
+        if (!(ins instanceof InvokeInstruction)) {
+            return null;
+        }
+
+        InvokeInstruction ink = (InvokeInstruction) location.getHandle().getInstruction();
+        String methodName = ink.getMethodName(classContext.getConstantPoolGen());
+        String varName = ink.getClassName(classContext.getConstantPoolGen());
+
+        return new LocalVariableAnnotation(varName + "." + methodName, 0, location.getHandle().getPosition(), -1);
     }
 
     /**
@@ -1092,6 +1120,7 @@ public class FindNullDeref implements Detector, UseAnnotationDatabase, NullDeref
         int pc = location.getHandle().getPosition();
         BugAnnotation variable = ValueNumberSourceInfo.findAnnotationFromValueNumber(method, location, valueNumber, vnaFrame,
                 "VALUE_OF");
+
         addPropertiesForDereferenceLocations(propertySet, Collections.singleton(location), isConsistent);
         Instruction ins = location.getHandle().getInstruction();
         if (ins instanceof InvokeInstruction && refValue.isDefinitelyNull()) {
@@ -1151,6 +1180,10 @@ public class FindNullDeref implements Detector, UseAnnotationDatabase, NullDeref
             reportNullDeref(propertySet, location, type, priority, variable);
         } else if (cdvValue.isJson()) {
             String type = "NP_JSON_OBJECT_MIGHT_BE_NULL_BUT_DEREFED";
+            if (variable == null) {
+                Location pre = traceIns(vnaDataflow, location, valueNumber);
+                variable = createUnnamedVariable(vnaFrame, pre, valueNumber);
+            }
             reportNullDeref(propertySet, location, type, 1, variable);
         }
     }
