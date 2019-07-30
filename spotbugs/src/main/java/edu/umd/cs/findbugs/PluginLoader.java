@@ -1594,7 +1594,7 @@ public class PluginLoader {
                 throw new IllegalArgumentException(
                         "plugin doesn't contain a findbugs.xml file");
             }
-            ZipEntry messagesXML = zip.getEntry("messages.xml");
+            ZipEntry messagesXML = zip.getEntry("messages_bk.xml");
             if (messagesXML == null) {
                 throw new IllegalArgumentException(
                         "plugin doesn't contain a messages.xml file");

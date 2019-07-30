@@ -514,6 +514,7 @@ public class NullDerefAndRedundantComparisonFinder {
 //                || derefSet.isEmpty()) {
 //            return;
 //        }
+
         int slots;
         if (vnaFrame.getNumSlots() == invFrame.getNumSlots()) {
             slots = vnaFrame.getNumSlots();
@@ -556,7 +557,7 @@ public class NullDerefAndRedundantComparisonFinder {
             CreatorDataValue cdv = cdvFrame.getValue(j);
             Instruction instruction = thisLocation.getHandle().getInstruction();
             boolean isInvoke = instruction.getClass().isAssignableFrom(InvokeInstruction.class);
-            if ((isNullValue.isDefinitelyNull() || isNullValue.isNullOnSomePath() || cdv.isJson() && isNullValue.isReturnValue())
+            if ((isNullValue.isDefinitelyNull() || (isNullValue.isNullOnSomePath() && isNullValue.isReturnValue()) )
                     && (derefSet.isUnconditionallyDereferenced(valueNumber))) {
 //            if ((isNullValue.isDefinitelyNull() || isNullValue.isNullOnSomePath() && isNullValue.isReturnValue())
 //                    && (derefSet.isUnconditionallyDereferenced(valueNumber))) {
